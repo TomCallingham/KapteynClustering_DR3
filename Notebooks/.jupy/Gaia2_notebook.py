@@ -13,9 +13,6 @@
 # ---
 
 # %%
-print("Will gaia2 make this notebook?")
-
-# %%
-print("Gaia2 does!")
+print("A notebook made on gaia2")
 
 # %%

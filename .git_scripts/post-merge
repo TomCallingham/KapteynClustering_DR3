@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "test post merge"
+git_dir=$(git rev-parse --show-toplevel)
+echo "$git_dir"
+bash "$git_dir"/.git_scripts/check_notebooks.sh

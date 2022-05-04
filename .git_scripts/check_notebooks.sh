@@ -1,10 +1,9 @@
 #!/bin/bash
 # Should loop over subdirectories!
 echo "running jupytext notebook check"
-dir=$(pwd)/Notebooks
-echo 	"$dir"
+git_dir=$(git rev-parse --show-toplevel)
+dir=$git_dir/Notebooks
 py_files=$(ls "$dir"/.jupy/*.py)
-# echo "$py_files"
 for py_path in $py_files; do
 				py_file=$(basename -- "$py_path")
 				file_name="${py_file%.*}"
