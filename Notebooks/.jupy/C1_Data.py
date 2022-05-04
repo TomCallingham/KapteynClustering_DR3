@@ -145,7 +145,6 @@ import plotting_utils
 plotting_utils.plot_original_data(df)
 
 # %%
-print("Added in py")
-# %%
-print("Added in py on gaia")
+print("Added on Cosma Test")
+
 # %%
