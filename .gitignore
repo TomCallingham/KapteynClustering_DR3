@@ -1,3 +1,10 @@
+*.ipynb
+Data/
+OLD/
+Development/
+Batch/
+Significance_params
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
