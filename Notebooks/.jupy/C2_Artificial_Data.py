@@ -108,3 +108,6 @@ plotting_utils.plot_original_data(df_artificial)
 # %%
 print("Added in py")
 # %%
+print("Second add on cosma")
+
+# %%
