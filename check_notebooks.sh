@@ -1,5 +1,6 @@
 #!/bin/bash
 # Should loop over subdirectories!
+echo "running jupytext notebook check"
 dir=$(pwd)/Notebooks
 echo 	"$dir"
 py_files=$(ls "$dir"/.jupy/*.py)
