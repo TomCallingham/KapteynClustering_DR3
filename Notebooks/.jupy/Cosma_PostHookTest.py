@@ -14,3 +14,8 @@
 
 # %%
 This Notebook was made on cosma. Testing on gaia posthook
+
+# %%
+print("Now adding to gaia2 With output on gaia2")
+
+# %%
