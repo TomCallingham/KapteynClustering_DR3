@@ -90,3 +90,10 @@ print(np.shape(Z))
 # %%
 print("Added in py")
 # %%
+print("Added in py")
+# %%
+print("New C3, made from check notebook scripts")
+
+# %%
+print("Now added in py")
+# %%
