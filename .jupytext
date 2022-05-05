@@ -1,1 +1,2 @@
 formats = "ipynb,.jupy//py:hydrogen"
+outdated_text_notebook_margin = 5

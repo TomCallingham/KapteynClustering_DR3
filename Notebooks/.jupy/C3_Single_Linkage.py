@@ -36,6 +36,8 @@ import data_funcs as dataf
 import plot_funcs as plotf
 import dynamics_funcs as dynf
 
+import cluster_funcs as clusterf
+
 # %%
 from params import data_params
 
@@ -51,9 +53,6 @@ from params import data_params
 # ### Me
 # Takes 2 mins on 5e5 of Lv4 Au
 # 15s on 5e5 Gaia sample
-
-# %%
-import cluster_funcs as clusterf
 
 # %%
 data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
@@ -84,6 +83,5 @@ print(np.shape(Z))
 
 # %% [markdown]
 # # Plots
-
 # %%
 # Dendagram, Single linkage

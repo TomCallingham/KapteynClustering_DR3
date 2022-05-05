@@ -107,7 +107,6 @@ def filt(dic, filt, copy = True):
             new_dic[p] = dic[p][filt]
         except Exception:
             pass
-    new_dic['N_Part'] = filt.sum()
     return new_dic
 
 

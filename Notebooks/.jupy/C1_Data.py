@@ -19,7 +19,7 @@
 #
 # The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
 
-# %%
+# %% tags=[]
 import numpy as np
 import matplotlib.pyplot as plt
 
