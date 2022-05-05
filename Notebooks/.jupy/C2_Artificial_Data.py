@@ -105,10 +105,3 @@ df_artificial = vaex.from_dict(art_stars)
 
 # %%
 plotting_utils.plot_original_data(df_artificial)
-# %%
-print("Added in py")
-# %%
-print("Second add on cosma")
-
-# %%
-print("Third add on cosma")

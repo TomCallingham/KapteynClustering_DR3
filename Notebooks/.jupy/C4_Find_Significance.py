@@ -35,10 +35,10 @@ import data_funcs as dataf
 import plot_funcs as plotf
 import dynamics_funcs as dynf
 
-from params import data_params, cosma
+from params import data_params, cosma, gaia2
 
 # %% [markdown]
-# # Params
+# # Paramsgaia2
 
 # %%
 from default_params import  cluster_params0
@@ -75,7 +75,7 @@ sig_params["files"] = sig_files
 
 # %%
 # CAREFUL! DO NOT overwrite
-if False:
+if True:
     dicf.pickle_save(sig_params, "Significance_params")
 
 # %% [markdown] tags=[]
@@ -92,11 +92,11 @@ if False:
 # If on cosma, sbatch this!
 
 # %%
-if False:
+if True:
     if cosma:
         !sbatch "Batch/"
     elif gaia2:
-        !python "KapetynClustering/Run_Significance.py"
+        !python "../KapetynClustering/Run_Significance.py"
 
 # %% [markdown]
 # ## ANALYSIS
@@ -118,10 +118,3 @@ plt.hist(region_count, bins="auto",density=True, label="fit", histtype="step")
 plt.hist(art_region_count, bins="auto",density=True, label= "art")
 plt.legend()
 plt.show()
-
-# %%
-# %%
-
-# %%
-print("Added in py")
-# %%

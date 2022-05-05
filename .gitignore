@@ -1,7 +1,5 @@
 *.ipynb
-Data/
-OLD/
-Development/
+Data/**
 Batch/
 Significance_params
 

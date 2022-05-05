@@ -31,13 +31,6 @@ import data_funcs as dataf
 import plot_funcs as plotf
 import dynamics_funcs as dynf
 
-# %%
-from jupytext.config import global_jupytext_configuration_directories
-list(global_jupytext_configuration_directories())
-
-# %%
-print("Recreating Notebooks. Creating blanks, then copying the jupytext files. Run on cosma")
-
 # %% [markdown]
 # ### Paramaters
 # Consistent across Notebooks
@@ -128,9 +121,6 @@ dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 # Plots of initial Sample
 
 # %%
-print(stars.keys())
-
-# %%
 import vaex
 stars = data["stars"]
 del stars["N_Part"]
@@ -143,11 +133,3 @@ df = vaex.from_dict(stars)
 # %%
 import plotting_utils
 plotting_utils.plot_original_data(df)
-
-# %%
-print("Added on Cosma Test")
-
-# %%
-print("Second Cosma Test")
-
-# %%

@@ -2,12 +2,14 @@
 import numpy as np
 import cluster_funcs as clusterf
 import dic_funcs as dicf
-from ..params import gaia2
+import sys
+sys.path.append('../Notebooks/')
+from params import gaia2
 
 if gaia2:
-    Folder = "/data/users/callingham/data/clustering/KapteynClustering/"
+    Folder = "/data/users/callingham/data/clustering/KapteynClustering/Notebooks/"
 else:
-    Folder = "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering/"
+    Folder = "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering/Notebooks/"
 
 sig_params = dicf.pickle_load(Folder + "Significance_params")
 
