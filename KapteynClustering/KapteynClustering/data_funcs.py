@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-import dic_funcs as dicf
+from . import dic_funcs as dicf
 
-from default_params import data_params0, cluster_params0, solar_params0
+from .default_params import data_params0, cluster_params0, solar_params0
 
 
 def read_data(fname="stars", data_params=data_params0,extra=None):

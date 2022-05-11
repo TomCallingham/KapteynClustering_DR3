@@ -25,23 +25,17 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-np.random.seed(0)
+import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.data_funcs as dataf
+import KapteynClustering.plot_funcs as plotf
 
-import sys
-# sys.path.append("/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapetynClustering/")
-sys.path.append('../KapetynClustering/')
-import dic_funcs as dicf
-import data_funcs as dataf
-import plot_funcs as plotf
-import dynamics_funcs as dynf
-
-from params import data_params, cosma, gaia2
+from params import data_params, gaia2, cosma
 
 # %% [markdown]
 # # Paramsgaia2
 
 # %%
-from default_params import  cluster_params0
+from KapteynClustering.default_params import  cluster_params0
 min_members = cluster_params0["min_members"]
 max_members = cluster_params0["max_members"]
 features = cluster_params0["features"]
@@ -109,12 +103,5 @@ sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, ex
 # %%
 
 # %% [markdown]
-# import time
-# from multiprocessing import Pool, RawArray
 
-# %%
-plt.figure()
-plt.hist(region_count, bins="auto",density=True, label="fit", histtype="step")
-plt.hist(art_region_count, bins="auto",density=True, label= "art")
-plt.legend()
-plt.show()
+# plot show average density of art vs true?

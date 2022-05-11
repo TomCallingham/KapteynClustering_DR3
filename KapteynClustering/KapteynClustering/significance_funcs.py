@@ -1,7 +1,5 @@
 import numpy as np
-from mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
-N_art = 10
-min_members=5
+from .mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
 
 def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     '''

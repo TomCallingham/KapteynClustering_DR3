@@ -22,14 +22,10 @@
 # %% tags=[]
 import numpy as np
 import matplotlib.pyplot as plt
-
-import sys
-sys.path.append('../KapetynClustering/')
-import dic_funcs as dicf
-
-import data_funcs as dataf
-import plot_funcs as plotf
-import dynamics_funcs as dynf
+import KapteynClustering.dynamics_funcs as dynf
+import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.data_funcs as dataf
+import KapteynClustering.plot_funcs as plotf
 
 # %% [markdown]
 # ### Paramaters
@@ -59,13 +55,12 @@ data = dataf.read_data(fname=data_params["base_data"], data_params=data_params)
 # %%
 selection = data["selection"]
 stars = data["stars"]
-print(len(stars["x"]))
+Nstar = len(stars["x"])
+print(f"{Nstar} Stars in this dataset")
 
 # %% [markdown]
 # # Create Dynamics
 
-# %%
-print(auriga)
 
 # %%
 if not auriga:

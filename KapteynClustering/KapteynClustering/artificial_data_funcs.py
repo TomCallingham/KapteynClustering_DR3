@@ -1,9 +1,9 @@
 import numpy as np
 import copy
-from default_params import solar_params0
-import data_funcs as dataf
-import dic_funcs as dicf
-import dynamics_funcs as dynf
+from .default_params import solar_params0
+from . import data_funcs as dataf
+from . import dic_funcs as dicf
+from . import dynamics_funcs as dynf
 
 def get_shuffled_artificial_set(N_art, data, a_pot, additional_props=[], v_toomre_cut=180, solar_params=solar_params0):
     '''

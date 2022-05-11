@@ -8,11 +8,7 @@ def clusterData(stars, features, linkage_method="single"):
     print("INCLUDE SCALING HERE!")
 
     T= time.time()
-    nstars = len(stars["x"])
-    nfeatures = len(features)
-    X = np.zeros((nstars, nfeatures))
-    for i, p in enumerate(features):
-        X[:, i] = stars["scaled_" + p]
+    X = find_X(features, stars, scaled =True)
     Z = linkage_vector(X, linkage_method)
     dt = time.time() - T
     print(f"Finished! Time taken: {dt/60} minutes")
@@ -98,12 +94,15 @@ def find_tree(Z, i_max=None, prune=False):
     return tree_dic
 
 
-def find_X(features, stars):
+def find_X(features, stars, scaled=False):
     n_features = len(features)
     N_stars = len(stars["x"])
     X = np.empty((N_stars, n_features))
     for n, p in enumerate(features):
-        X[:, n] = stars[p]
+        if scaled:
+            X[:, n] = stars["scaled_"+p]
+        else:
+            X[:, n] = stars[p]
     return X
 
 
@@ -230,9 +229,10 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
     p_sort = np.argsort(pops)[::-1] # Decreasing order
     Groups, pops = Groups[p_sort], pops[p_sort]
 
-    for i,l in enumerate(Groups):
+    for i,l in enumerate(Groups[Groups!=-1]):
         labels[labels==l] = i
 
     print(f'Number of clusters: {len(Groups)-1}')
 
     return labels, significance_list
+

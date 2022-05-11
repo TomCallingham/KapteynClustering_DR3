@@ -1,6 +1,6 @@
 base= "Lv4Au5"
 AU5_data_params= {
-"result_path" : "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering/Data/",
+"result_path" : "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering_DR3/Data/",
 "data_folder" : "Au5Lv4/",
 "base_data": base+"_Stars",
 "base_dyn": base+"_Dyn", #Dynamics and scaled
@@ -12,7 +12,7 @@ AU5_data_params= {
 
 base= "test_gaia"
 test_gaia_data_params= {
-"result_path" : "/Users/users/callingham/Projects/Clustering/KapteynClustering/Data/",
+"result_path" : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/",
 "data_folder" : "test_gaia/",
 "base_data": base+"_Stars",
 "base_dyn": base+"_Dyn", #Dynamics and scaled

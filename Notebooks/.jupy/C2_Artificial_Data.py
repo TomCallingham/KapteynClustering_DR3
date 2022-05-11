@@ -25,15 +25,10 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+import KapteynClustering.dynamics_funcs as dynf
+import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.data_funcs as dataf
 
-import sys
-sys.path.append('../KapetynClustering/')
-import dic_funcs as dicf
-import data_funcs as dataf
-import plot_funcs as plotf
-import dynamics_funcs as dynf
-
-# %%
 from params import data_params, gaia2, auriga
 
 # %% [markdown]
@@ -49,11 +44,11 @@ scale = data["scale"]
 selection = data["selection"]
 
 # %%
-if gaia2:
-    a_pot = dynf.load_a_potential(data_params["pot_file"])
 if auriga:
     from TomScripts import auriga_AGAMA_pot as aap
     a_pot = aap.Auriga_AGAMA_AxiPot_Load(Halo_n=5, Level=4)
+else:
+    a_pot = dynf.load_a_potential(data_params["pot_file"])
 
 # %% [markdown]
 # # Artificial DataSet
@@ -63,12 +58,12 @@ if auriga:
 # Recalculates dynamics
 
 # %%
-import artificial_data_funcs as adf
+import KapteynClustering.artificial_data_funcs as adf
 
 # %%
 
 # %%
-from default_params import art_params0
+from KapteynClustering.default_params import art_params0
 N_art = art_params0["N_art"]
 N_art =10
 
@@ -76,6 +71,8 @@ N_art =10
 if auriga:
     additional_props = ["R", "group", "Fe_H", "Age"]
 elif gaia2:
+    additional_props = ["R", "group", "Fe_H", "Age"]
+else:
     additional_props = []
 art_data = adf.get_shuffled_artificial_set(N_art, data, a_pot, additional_props)
 
@@ -88,13 +85,11 @@ dicf.h5py_save(fname=folder + fname, dic=art_data, verbose=True, overwrite=True)
 # # Plots comparing Shuffled Smooth dataset
 
 # %%
-import plotting_utils
+from KapteynClustering import plotting_utils
 import vaex
-print(art_data.keys())
 
 # %%
 art_stars = art_data["stars"][0]
-del art_stars["N_Part"]
 
 # %%
 art_stars["Lperp"] = art_stars["Lp"]

@@ -25,20 +25,11 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-np.random.seed(0)
+import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.data_funcs as dataf
+import KapteynClustering.plot_funcs as plotf
+import KapteynClustering.cluster_funcs as clusterf
 
-# %%
-import sys
-# sys.path.append("/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapetynClustering/")
-sys.path.append('../KapetynClustering/')
-import dic_funcs as dicf
-import data_funcs as dataf
-import plot_funcs as plotf
-import dynamics_funcs as dynf
-
-import cluster_funcs as clusterf
-
-# %%
 from params import data_params
 
 # %% [markdown]
@@ -62,7 +53,7 @@ stars = data["stars"]
 print(len(stars["x"]))
 
 # %%
-from default_params import cluster_params0
+from KapteynClustering.default_params import cluster_params0
 features = cluster_params0["features"]
 
 # %%

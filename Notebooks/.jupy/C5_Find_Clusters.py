@@ -25,15 +25,9 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-np.random.seed(0)
-
-import sys
-sys.path.append('../KapetynClustering/')
-import data_funcs as dataf
-import plot_funcs as plotf
-import cluster_funcs as clusterf
-import dic_funcs as dicf
-import dynamics_funcs as dynf
+import KapteynClustering.data_funcs as dataf
+import KapteynClustering.plot_funcs as plotf
+import KapteynClustering.cluster_funcs as clusterf
 
 from params import data_params
 
@@ -46,7 +40,6 @@ N_sigma_significance = 3
 # %%
 data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
 stars = data["stars"]
-del stars["N_Part"]
 
 # %%
 cluster_data = dataf.read_data(fname=data_params["cluster"], data_params=data_params)
@@ -78,68 +71,12 @@ cluster labels, select the cluster which displays the maximum statistical signif
 selected, statistical_significance = clusterf.select_maxsig_clusters_from_tree(
     significance, Z, minimum_significance=N_sigma_significance)
 
-
 # %%
-def get_cluster_labels_with_significance(selected, significance, tree_members, N_clusters):
-    '''
-    Extracts flat cluster labels given a list of statistically significant clusters
-    in the linkage matrix Z, and also returns a list of their correspondning statistical significance.
-
-    Parameters:
-    significant(vaex.DataFrame): Dataframe containing statistics of the significant clusters.
-    Z(np.ndarray): The linkage matrix outputted from single linkage
-
-    Returns:
-    labels(np.array): Array matching the indices of stars in the data set, where label 0 means noise
-                      and other natural numbers encode significant structures.
-    '''
-
-    print("Extracting labels...")
-    print(f"Initialy {len(significance)} clusters")
-    N = len(tree_members.keys())
-    print(N)
-
-    labels = -np.ones((N_clusters+1))
-    significance_list = np.zeros(N_clusters+1)
-    # i_list = np.sort(significant.i.values)
-    # Sort increasing, so last are includedIn the best cluster
-    sig_sort = np.argsort(significance)
-    s_significance = significance[sig_sort]
-    s_index = selected[sig_sort]
-
-    for i_cluster, sig_cluster in zip(s_index, s_significance) :
-        members = tree_members[i_cluster+N_clusters+1]
-        labels[members]=i_cluster
-        significance_list[members] = sig_cluster
-
-    Groups, pops = np.unique(labels, return_counts=True)
-    p_sort = np.argsort(pops)[::-1] # Decreasing order
-    Groups, pops = Groups[p_sort], pops[p_sort]
-
-    for i,l in enumerate(Groups[Groups!=-1]):
-        labels[labels==l] = i
-
-    print(f'Number of clusters: {len(Groups)-1}')
-
-    return labels, significance_list
-
-
-
-# %%
-labels, significance_list = get_cluster_labels_with_significance(selected, statistical_significance, tree_members, N_clusters)
-
-# %%
-# labels, significance_list = clusterf.get_cluster_labels_with_significance(selected, statistical_significance, tree_members,
-labels, significance_list = get_cluster_labels_with_significance(selected, statistical_significance, tree_members,
-                                                                         N_clusters)
+labels, significance_list = clusterf.get_cluster_labels_with_significance(selected, statistical_significance, tree_members, N_clusters)
 
 # %%
 import vaex
-stars["labels"] = stars["group"]
-del stars["N_Part"]
-stars["Lperp"] = stars["Lp"]
-stars["LPerp"] = stars["Lp"]
-stars["Circ"] = stars["circ"]
+
 
 # %%
 stars["Lperp"] = stars["Lp"]
@@ -150,8 +87,7 @@ df['labels'] = labels
 df['maxsig'] = significance_list
 
 # %%
-import plotting_utils as plotting_utils
-from plotting_utils import get_cmap
+from KapteynClustering import plotting_utils
 
 
 # %%
@@ -180,7 +116,7 @@ def plot_IOM_subspaces(df, minsig=3, savepath=None, ):
     df_minsig = df[(df.labels>=0) & (df.maxsig>minsig)]
 
     unique_labels = np.unique(df_minsig.labels.values)
-    cmap, norm = get_cmap(df_minsig)
+    cmap, norm = plotting_utils.get_cmap(df_minsig)
 
     for i in range(6):
         plt.sca(axs[int(i/3), i%3])
@@ -201,43 +137,6 @@ def plot_IOM_subspaces(df, minsig=3, savepath=None, ):
         plt.show()
 from matplotlib import colors
 
-
-# %%
-
-def get_cmap(df_minsig):
-    '''
-    Returns a cmap and a norm which maps the three sigma labels to proper color bins.
-    The last few colors of the colormap are very light, so we replace them for better
-    visible colors.
-
-
-    Parameters:
-    df_minsig(vaex.DataFrame): The slice of the dataframe containing only the relevant clusters.
-
-    Returns:
-    cmap(matplotlib.colors.Colormap): The colormap we use for plotting clusters
-    norm(matplotlib.colors.Normalize): Normalization bins such that unevenly spaced
-                                       label values will get mapped
-                                       to linearly spaced color bins
-    '''
-    unique_labels = np.unique(df_minsig.labels.values)
-    print(unique_labels)
-    cmap1 = plt.get_cmap('gist_ncar', len(unique_labels))
-    cmaplist = [cmap1(i) for i in range(cmap1.N)]
-
-    cmaplist[-1] = 'purple'
-    cmaplist[-2] = 'blue'
-    cmaplist[-3] = 'navy'
-    cmaplist[-4] = 'gold'
-    cmaplist[-5] = 'mediumvioletred'
-    cmaplist[-6] = 'deepskyblue'
-    cmaplist[-7] = 'indigo'
-
-    cmap, norm = colors.from_levels_and_colors(unique_labels, cmaplist, extend='max')
-
-    return cmap, norm
-
-
 # %%
 df['labels'] = labels
 df['maxsig'] = significance_list
@@ -248,9 +147,6 @@ plot_IOM_subspaces(df, minsig=3, savepath=None)
 # %% [markdown]
 # # Fix Plotting
 
-# %%
-plot_IOM_subspaces(df, minsig=3, savepath=None, z_filt=True)
-# plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
 
 # %% [markdown]
 # ## Fix Plotting Funcs

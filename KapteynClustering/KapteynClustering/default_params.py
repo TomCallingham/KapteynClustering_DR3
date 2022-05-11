@@ -4,7 +4,7 @@ data_params0 = {"result_path":"result_path",
 cluster_params0 = {"features": ["En", "Lp", "Lz"],
         "scales": {"En": [-1.7e5,0], "Lp": [0,4300], "Lz": [-4500,4600]},
 "min_members" : 10, "max_members" : 25000,
-"N_sigam_ellipse_axis":2.83,
+"N_sigma_ellipse_axis":2.83,
 "N_art" : 10
         }
 

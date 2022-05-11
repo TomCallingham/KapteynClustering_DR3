@@ -7,13 +7,11 @@ Sofie L
 06/04/2021
 '''
 
-import vaex
 import numpy as np
 from scipy.stats import chi2
 
 import matplotlib
 from matplotlib import colors
-import cmasher as cmr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 # import membership_probability
@@ -171,7 +169,6 @@ def plot_v_subspaces(df, minsig=3, savepath=None):
 
     fig, axs = plt.subplots(1,3, figsize = [14, 4]) #figsize = [20,9]
 
-    unique_labels = np.unique(df.labels.values)
 
     df_minsig = df[(df.labels>0) & (df.maxsig>minsig)]
     cmap, norm = get_cmap(df_minsig)
@@ -335,7 +332,7 @@ def plot_original_data(df, savepath=None):
     x_axis = ['Lz/10e2', 'Lz/10e2', 'circ', 'Lperp/10e2', 'circ', 'circ']
     y_axis = ['En/10e4', 'Lperp/10e2', 'Lz/10e2', 'En/10e4', 'Lperp/10e2', 'En/10e4']
 
-    xlabels = ['$L_z$ [$10^3$ kpc km/s]', '$L_z$ [$10^3$ kpc km/s]', '$\eta$',
+    xlabels = ['$L_z$ [$10^3$ kpc km/s]', '$L_z$ [$10^3$ kpc km/s]', '$deta$',
                '$L_{\perp}$ [$10^3$ kpc km/s]', '$\eta$', '$\eta$']
 
     ylabels = ['$E$ [$10^5$ km$^2$/s$^2$]', '$L_{\perp}$ [$10^3$ kpc km/s]', '$L_z$ [$10^3$ kpc km/s]',
