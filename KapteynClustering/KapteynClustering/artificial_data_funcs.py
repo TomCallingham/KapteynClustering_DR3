@@ -58,7 +58,7 @@ def get_shuffled_artificial_dataset(o_data, a_pot, additional_props=[], v_toomre
     for p in ["vx", "vz"]:  # DON't SHUFFLE VY "vy",
         np.random.shuffle(art_stars[p])
 
-    art_stars["Vel"] = np.stack((art_stars["vx"], art_stars["vy"], art_stars["vz"])).T
+    art_stars = dataf.create_galactic_vel(art_stars, solar_params=solar_params)
     art_stars = dataf.apply_toomre_filt(art_stars, v_toomre_cut=v_toomre_cut,
                                   solar_params = solar_params)
 

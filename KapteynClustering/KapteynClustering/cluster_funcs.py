@@ -212,7 +212,7 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
     N = len(tree_members.keys())
     print(N)
 
-    labels = -np.ones((N_clusters+1))
+    labels = -np.ones((N_clusters+1),dtype=int)
     significance_list = np.zeros(N_clusters+1)
     # i_list = np.sort(significant.i.values)
     # Sort increasing, so last are includedIn the best cluster

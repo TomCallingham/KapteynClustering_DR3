@@ -66,16 +66,21 @@ def apply_scale(data, xkey, scale, plot=False):
 
 ### TOOMRE SELECTION
 
-def create_toomre(stars, solar_params=solar_params0):
-    # Toomre velocity: velocity offset from being a disk orbit
+def create_galactic_vel(stars,solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
             ["vslr", "_U", "_V", "_W"]]
-    _vx = stars["vx"] + _U - (vlsr * np.sin(stars["RPhi"]))
-    _vy = stars["vy"] + _V - (vlsr * np.cos(stars["RPhi"]))
-    _vz = stars["vz"] + _W
+    stars["_vx"] = stars["vx"] + _U - (vlsr * np.sin(stars["RPhi"]))
+    stars["_vy"] = stars["vy"] + _V - (vlsr * np.cos(stars["RPhi"]))
+    stars["_vz"] = stars["vz"] + _W
+    stars["Vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
+
+    return stars
+
+def create_toomre(stars, solar_params=solar_params0):
+    # Toomre velocity: velocity offset from being a disk orbit
+    stars = create_galactic_vel(stars, solar_params=solar_params)
     print("Fixed toomre")
-    v_toomre = np.sqrt((_vx**2) + (((_vy-232)**2) + (_vz**2)))
-    stars["v_toomre"] = v_toomre
+    stars["v_toomre"] = np.sqrt((stars["_vx"]**2) + (((stars["_vy"]-232)**2) + (stars["_vz"]**2)))
     return stars
 
 def apply_toomre_filt(stars,v_toomre_cut=210, solar_params=solar_params0):
@@ -109,15 +114,6 @@ def apply_toomre_filt_dataset(data, v_toomre_cut=210, solar_params=solar_params0
     return data
 
 
-## CUT
-def load_cluster(Halo_n=5, Level=4,  fname="toomre_"):
-    save_name = "clustered_" + fname + f"Lv{Level}Au{Halo_n}Stars"
-    cluster_data = dicf.h5py_load(result_path + save_name)
-    data =  read_auriga_data(fname=fname, Halo_n = Halo_n, Level=Level)
-    data["cluster"] = cluster_data
-    return data
-
-###
 
 
 def load_vaex_to_dic(vaex_fname):
@@ -133,12 +129,6 @@ def save_dic_to_vaex(fname, dic):
     columns = {}
     for p in props:
         columns[p] = {"data":dic[p]}
-
     save_dic = {"table":{"columns":columns}}
-    dicf.h5py_save(fname, dic)
+    dicf.h5py_save(fname, save_dic)
     return
-
-def vaex_to_dic(vaex_df):
-    return dic
-def dic_to_vaex(dic):
-    return vaex_df

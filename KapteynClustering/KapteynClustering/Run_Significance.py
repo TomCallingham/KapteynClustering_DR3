@@ -7,9 +7,9 @@ sys.path.append('../Notebooks/')
 from params import gaia2
 
 if gaia2:
-    Folder = "/data/users/callingham/data/clustering/KapteynClustering/Notebooks/"
+    Folder = "/data/users/callingham/data/clustering/KapteynClustering_DR3/Notebooks/"
 else:
-    Folder = "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering/Notebooks/"
+    Folder = "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering_DR3/Notebooks/"
 
 sig_params = dicf.pickle_load(Folder + "Significance_params")
 

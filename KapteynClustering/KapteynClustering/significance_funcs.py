@@ -1,5 +1,5 @@
 import numpy as np
-from .mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
+from mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
 
 def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     '''
@@ -37,4 +37,3 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     art_region_count_std = np.std(counts_per_halo)
 
     return np.array([region_count, art_region_count, art_region_count_std])
-

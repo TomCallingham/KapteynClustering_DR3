@@ -15,8 +15,6 @@ def find_mahalanobis_N_members(N_std, mean, covar, X):
     N_members = find_mahalanobis_members(N_std, mean, covar, X).sum(axis=-1)
     return N_members
 
-import scipy
-
 
 # https://github.com/scipy/scipy/blob/v1.8.0/scipy/stats/_multivariate.py
 # Use Modified Scipy to find Mahalanobis distance Fast
