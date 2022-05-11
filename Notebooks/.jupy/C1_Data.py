@@ -118,7 +118,6 @@ dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 # %%
 import vaex
 stars = data["stars"]
-del stars["N_Part"]
 stars["Lperp"] = stars["Lp"]
 stars["Circ"] = stars["circ"]
 
@@ -126,5 +125,7 @@ stars["Circ"] = stars["circ"]
 df = vaex.from_dict(stars)
 
 # %%
-import plotting_utils
+from KapteynClustering import plotting_utils
 plotting_utils.plot_original_data(df)
+
+# %%

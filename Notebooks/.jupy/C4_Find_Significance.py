@@ -88,7 +88,8 @@ if True:
 # %%
 if True:
     if cosma:
-        !sbatch "Batch/"
+        # !sbatch "../Batch/PCAFit_Submit.sh"
+        print("Needs to be from command line")
     elif gaia2:
         !python "../KapetynClustering/Run_Significance.py"
 
@@ -103,5 +104,5 @@ sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, ex
 # %%
 
 # %% [markdown]
-
+#
 # plot show average density of art vs true?

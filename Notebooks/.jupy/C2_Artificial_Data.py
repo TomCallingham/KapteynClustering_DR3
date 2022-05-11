@@ -36,7 +36,7 @@ from params import data_params, gaia2, auriga
 # Load data before TOOMRE selection. We apply that after
 
 # %%
-data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params)
+data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params, verbose=True)
 stars = data["stars"]
 
 # %%
@@ -67,11 +67,14 @@ from KapteynClustering.default_params import art_params0
 N_art = art_params0["N_art"]
 N_art =10
 
+# %%
+print(stars.keys())
+
 # %% tags=[]
 if auriga:
     additional_props = ["R", "group", "Fe_H", "Age"]
 elif gaia2:
-    additional_props = ["R", "group", "Fe_H", "Age"]
+    additional_props = []
 else:
     additional_props = []
 art_data = adf.get_shuffled_artificial_set(N_art, data, a_pot, additional_props)
@@ -100,3 +103,23 @@ df_artificial = vaex.from_dict(art_stars)
 
 # %%
 plotting_utils.plot_original_data(df_artificial)
+
+# %% [markdown]
+# # My Plots 
+
+# %%
+
+sample_data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
+sample_stars = sample_data["stars"]
+
+# %%
+for x in ["En", "Lz", "Lp", "circ"]:
+    plt.figure()
+    plt.hist(stars[x], label="Original", bins="auto",histtype="step")
+    plt.hist(sample_stars[x], label="sample", bins="auto",histtype="step")
+    plt.hist(art_stars[x], label="art", bins="auto", histtype="step")
+    plt.legend()
+    plt.xlabel(x)
+    plt.show()
+
+# %%

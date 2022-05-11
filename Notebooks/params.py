@@ -2,7 +2,8 @@ base= "Lv4Au5"
 AU5_data_params= {
 "result_path" : "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering_DR3/Data/",
 "data_folder" : "Au5Lv4/",
-"base_data": base+"_Stars",
+"original_data": base + "_Stars",
+"base_data": base+"_toomre180",
 "base_dyn": base+"_Dyn", #Dynamics and scaled
 "sample": base+"_Sample", #Toomre Selection and others,
 "art": base+"_Art",

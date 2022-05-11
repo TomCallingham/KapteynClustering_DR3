@@ -6,12 +6,12 @@ from . import dic_funcs as dicf
 from .default_params import data_params0, cluster_params0, solar_params0
 
 
-def read_data(fname="stars", data_params=data_params0,extra=None):
+def read_data(fname="stars", data_params=data_params0,extra=None, verbose=True):
     result_path = data_params["result_path"]
     data_folder = data_params["data_folder"]
     if extra is not None:
         fname += extra
-    dic = dicf.h5py_load(result_path  + data_folder + '/' + fname)
+    dic = dicf.h5py_load(result_path  + data_folder + '/' + fname, verbose=verbose)
     return dic
 ###
 
@@ -73,6 +73,16 @@ def create_galactic_vel(stars,solar_params=solar_params0):
     stars["_vy"] = stars["vy"] + _V - (vlsr * np.cos(stars["RPhi"]))
     stars["_vz"] = stars["vz"] + _W
     stars["Vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
+
+    return stars
+
+def create_geo_vel(stars,solar_params=solar_params0):
+    print("Creating geo vel")
+    [vlsr, _U, _V, _W] = [solar_params[p] for p in
+            ["vslr", "_U", "_V", "_W"]]
+    stars["vx"] = stars["_vx"] - (_U - (vlsr * np.sin(stars["RPhi"])))
+    stars["vy"] = stars["_vy"] - (_V - (vlsr * np.cos(stars["RPhi"])))
+    stars["vz"] = stars["_vz"] - _W
 
     return stars
 
