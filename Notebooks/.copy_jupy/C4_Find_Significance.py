@@ -25,12 +25,11 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.plot_funcs as plotf
 
-from params import data_params, gaia2, auriga, cosma
+from params import data_params, gaia2, cosma
 
 # %% [markdown]
 # # Paramsgaia2
@@ -89,9 +88,10 @@ if True:
 # %%
 if True:
     if cosma:
-        !sbatch "Batch/"
+        # !sbatch "../Batch/PCAFit_Submit.sh"
+        print("Needs to be from command line")
     elif gaia2:
-        !python "../KapteynClustering/KapteynClustering/Run_Significance.py"
+        !python "../KapetynClustering/Run_Significance.py"
 
 # %% [markdown]
 # ## ANALYSIS
@@ -104,12 +104,5 @@ sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, ex
 # %%
 
 # %% [markdown]
-# import time
-# from multiprocessing import Pool, RawArray
-
-# %%
-plt.figure()
-plt.hist(region_count, bins="auto",density=True, label="fit", histtype="step")
-plt.hist(art_region_count, bins="auto",density=True, label= "art")
-plt.legend()
-plt.show()
+#
+# plot show average density of art vs true?

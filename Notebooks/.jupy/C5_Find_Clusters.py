@@ -7,9 +7,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:py39]
 #     language: python
-#     name: python3
+#     name: conda-env-py39-py
 # ---
 
 # %% [markdown]
@@ -25,11 +25,13 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+import KapteynClustering.dynamics_funcs as dynf
+import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.plot_funcs as plotf
 import KapteynClustering.cluster_funcs as clusterf
 
-from params import data_params
+from params import data_params, gaia2, auriga
 
 # %%
 N_sigma_significance = 3
@@ -72,26 +74,40 @@ selected, statistical_significance = clusterf.select_maxsig_clusters_from_tree(
     significance, Z, minimum_significance=N_sigma_significance)
 
 # %%
-labels, significance_list = clusterf.get_cluster_labels_with_significance(selected, statistical_significance, tree_members, N_clusters)
+labels, significance_list = clusterf.get_cluster_labels_with_significance(
+    selected, statistical_significance, tree_members, N_clusters)
+
+# %% [markdown]
+# # RESULTS 
 
 # %%
-import vaex
-
+Groups, Pops = np.unique(labels[labels!=-1], return_counts=True)
+G_sig = np.array([significance_list[labels==g][0] for g in Groups])
+print(len(Groups))
 
 # %%
+plt.figure(figsize=(8,8))
+plt.scatter(Pops[G_sig>3], G_sig)
+plt.xscale("log")
+plt.yscale("log")
+plt.xlabel("Population")
+plt.ylabel("Significance")
+for g,p,s in zip(Groups, Pops, G_sig):
+    plt.text(p,s,g, size=15)
+plt.show()
+
+# %% [markdown]
+# ## Plots
+
+# %%
+stars["groups"] = labels
 stars["Lperp"] = stars["Lp"]
-stars["Lz"] = - stars["Lz"]
-stars["circ"] = -stars["Circ"]
-df = vaex.from_dict(stars)
-df['labels'] = labels
-df['maxsig'] = significance_list
+stars["circ"] = stars["Circ"]
+print(stars.keys())
 
 # %%
-from KapteynClustering import plotting_utils
-
-
-# %%
-def plot_IOM_subspaces(df, minsig=3, savepath=None, ):
+from matplotlib import colors
+def plot_IOM_subspaces(stars, minsig=3, savepath=None, ):
     '''
     Plots the clusters for each combination of clustering features
 
@@ -99,96 +115,63 @@ def plot_IOM_subspaces(df, minsig=3, savepath=None, ):
     df(vaex.DataFrame): Data frame containing the labelled sources.
     minsig(float): Minimum statistical significance level we want to consider.
     savepath(str): Path of the figure to be saved, if None the figure is not saved.
+    
     '''
+    xkeys =["Lz", "Lz", "Circ", "Lp", "Circ", "Circ"]
+    ykeys =["En", "Lp", "Lz", "En", "Lp", "En"]
 
-    x_axis = ['Lz/10e2', 'Lz/10e2', 'circ', 'Lperp/10e2', 'circ', 'circ']
-    y_axis = ['En/10e4', 'Lperp/10e2', 'Lz/10e2', 'En/10e4', 'Lperp/10e2', 'En/10e4']
 
-    xlabels = ['$L_z$ [$10^3$ kpc km/s]', '$L_z$ [$10^3$ kpc km/s]', '$\eta$',
-               '$L_{\perp}$ [$10^3$ kpc km/s]', '$\eta$', '$\eta$']
-
-    ylabels = ['$E$ [$10^5$ km$^2$/s$^2$]', '$L_{\perp}$ [$10^3$ kpc km/s]', '$L_z$ [$10^3$ kpc km/s]',
-               '$E$ [$10^5$ km$^2$/s$^2$]', '$L_{\perp}$ [$10^3$ kpc km/s]', '$E$ [$10^5$ km$^2$/s$^2$]']
-
-    fig, axs = plt.subplots(2,3, figsize = [14,8])
+    fig, axs = plt.subplots(2, 3, figsize=[27,15])
     plt.tight_layout()
+    size=10
 
-    df_minsig = df[(df.labels>=0) & (df.maxsig>minsig)]
+    # cmap, norm = plotting_utils.get_cmap(df_minsig)
 
-    unique_labels = np.unique(df_minsig.labels.values)
-    cmap, norm = plotting_utils.get_cmap(df_minsig)
+    for i,(x,y) in enumerate(zip(xkeys, ykeys)):
+        plt.sca(axs[int(i / 3), i % 3])
+        for j,(g,p,s) in enumerate(zip(Groups, Pops, G_sig)):
+            g_filt = (stars["groups"] == g)
+            label  = f"{g}|{s:.1f} : {p}"
+            plt.scatter(stars[x][g_filt], stars[y][g_filt], label=label,
+                       alpha=0.5,s=size, edgecolors="none", zorder=j)
+        
+#         df.scatter(x_axis[i], y_axis[i], s=0.5, c='lightgrey', alpha=0.1,
+#                    length_check=False)  # )#, length_limit=60000)
+#         df_minsig.scatter(x_axis[i], y_axis[i], s=1, c=df_minsig.labels.values,
+#                           cmap=cmap, norm=norm, alpha=0.6, length_check=False)
+        g_filt = (stars["groups"] == -1)
+        p = Pops[Groups==-1]
+    
+        label  = f"{g}|Fluff : {p}"
+        plt.scatter(stars[x][g_filt], stars[y][g_filt], label=label,
+                   alpha=0.5,s=size, edgecolors="none", zorder=-1, c='grey')
 
-    for i in range(6):
-        plt.sca(axs[int(i/3), i%3])
-        df.scatter(x_axis[i], y_axis[i], s=0.5, c='lightgrey', alpha=0.1,
-                  length_check=False)#)#, length_limit=60000)
-        df_minsig.scatter(x_axis[i], y_axis[i], s=1, c=df_minsig.labels.values,
-                                cmap=cmap, norm=norm, alpha=0.6, length_check=False)
+        plt.xlabel(x)
+        plt.ylabel(y)
 
-        plt.xlabel(xlabels[i])
-        plt.ylabel(ylabels[i])
-
-    #fig.subplots_adjust(top=0.95)
+    # fig.subplots_adjust(top=0.95)
     plt.tight_layout(w_pad=1)
+    # plt.legend()
 
     if(savepath is not None):
         plt.savefig(savepath, dpi=300)
     else:
         plt.show()
-from matplotlib import colors
+    return
 
 # %%
-df['labels'] = labels
-df['maxsig'] = significance_list
-
-plot_IOM_subspaces(df, minsig=3, savepath=None)
+plot_IOM_subspaces(stars, minsig=3, savepath=None)
 # plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
 
 # %% [markdown]
-# # Fix Plotting
-
-
-# %% [markdown]
-# ## Fix Plotting Funcs
+# # Original Plotting
 
 # %%
-'''Add labels for subgroup membership in velocity space. Requires having the hdbscan library installed.'''
-
-import velocity_space
-
-if('vR' not in df.get_column_names()):
-    # in case the polar coordinate velocities are missing, re-run it trough the get_gaia function
-    df = importdata.get_GAIA(df)
-
-df = velocity_space.apply_HDBSCAN_vspace(df)
-
-# Plot an example: The subgroups for cluster nr 1
-plotting_utils.plot_subgroup_vspace(df, clusterNr=2, savepath=None)
+import vaex
+df = vaex.from_dict(stars)
+df["labels"] = labels
+df["maxsig"] = significance_list
+from KapteynClustering import plotting_utils
 
 # %%
-'''Compute membership probability for each star belonging to a cluster. Current method does not use XDGMM.'''
-
-import membership_probability
-
-df = cluster_utils.scaleData(df, features_to_be_scaled, minmax_values)
-df = membership_probability.get_membership_indication_PCA(df, features=features)
-
-# Plot example: Cluster nr 1 color coded by membership probability
-plotting_utils.plot_membership_probability(df, clusterNr=2, savepath=None)
-
-# %%
-'''Get a probability matrix of any star belonging to any cluster'''
-
-probability_table = membership_probability.get_probability_table_PCA(df, features=features)
-probability_table['source_id'] = df.source_id.values
-
-# %%
-'''If desired: Export result catalogue and probability table'''
-
-df.export_hdf5(f'{result_path}df_labels.hdf5')
-probability_table.export_hdf5(f'{result_path}probability_table.hdf5')
-
-# %%
-# %%
-print("Added in py")
-# %%
+plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
