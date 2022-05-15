@@ -1,6 +1,7 @@
 import numpy as np
 from mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
 
+
 def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     '''
     Returns:
@@ -29,9 +30,11 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     # Artificial
     counts_per_halo = np.zeros((N_art))
     for n in range(N_art):
-        counts_per_halo[n] = find_mahalanobis_N_members(N_std, mean, covar, art_X[n])
+        counts_per_halo[n] = find_mahalanobis_N_members(
+            N_std, mean, covar, art_X[n])
         # print("SCALING COUNTS")
-        counts_per_halo[n] = counts_per_halo[n]*(len(X[:,0])/len(art_X[n][:,0]))
+        counts_per_halo[n] = counts_per_halo[n] * \
+            (len(X[:, 0])/len(art_X[n][:, 0]))
 
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)

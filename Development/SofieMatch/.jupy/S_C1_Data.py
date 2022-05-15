@@ -137,3 +137,36 @@ print("Add")
 print("Add2")
 
 # %%
+for x in ["En", "Lz", "Lperp", "circ"]:
+    plt.figure()
+    plt.scatter(stars[x], stars["original_" + x])
+    plt.xlabel(x)
+    plt.ylabel("original" + x)
+    plt.show()
+
+    plt.figure()
+    plt.scatter(stars[x], stars["original_" + x]/stars[x])
+    plt.xlabel(x)
+    plt.ylabel("original / me" + x)
+    plt.show()
+
+    plt.figure()
+    plt.scatter(stars[x], stars["original_" +x]-stars[x])
+    plt.xlabel(x)
+    plt.ylabel("original - me" + x)
+    plt.show()
+
+# %%
+plt.figure()
+plt.scatter(stars["En"], stars["original_En"])
+plt.show()
+
+plt.figure()
+plt.scatter(stars["En"], stars["original_En"]/stars["En"])
+plt.show()
+
+plt.figure()
+plt.scatter(stars["En"], stars["original_En"]-stars["En"])
+plt.show()
+
+# %%

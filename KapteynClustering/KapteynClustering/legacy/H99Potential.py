@@ -1,8 +1,11 @@
+from numpy import sqrt, log
 import numpy as np
 
 ################################################################################
-### ORIGINAL FILE BY JOVAN VELJANOSKI
+# ORIGINAL FILE BY JOVAN VELJANOSKI
 ################################################################################
+
+
 def potential_halo(x, y, z,):
     '''
     Calculates the potential contribution coming fromt the halo.
@@ -15,15 +18,16 @@ def potential_halo(x, y, z,):
     Rvir = 258
     c = Rvir/rs
 
-
-    #halculate the halo potential
-    phi_0 = G*M200/Rvir /(np.log(1+c)-c/(1+c))*c
+    # halculate the halo potential
+    phi_0 = G*M200/Rvir / (np.log(1+c)-c/(1+c))*c
     r = np.sqrt(x*x + y*y + z*z)
-    
-    return - phi_0 * rs/r * np.log(1.0 + r/rs) 
+
+    return - phi_0 * rs/r * np.log(1.0 + r/rs)
 
 ################################################################################
-def potential_disk(x,y,z):
+
+
+def potential_disk(x, y, z):
     '''
     Calculates the potential due to the disk
     '''
@@ -34,7 +38,7 @@ def potential_disk(x,y,z):
     Mdisk = 9.3*10**+10
     GMd = G * Mdisk
 
-    sqd = np.sqrt(z**2.0 +b**2.0)
+    sqd = np.sqrt(z**2.0 + b**2.0)
 
     # square root of the density, probably
     sqden1 = np.sqrt(x**2. + y**2.0 + (a+sqd)**2.0)
@@ -45,6 +49,8 @@ def potential_disk(x,y,z):
     return phi_d
 
 ################################################################################
+
+
 def potential_bulge(x, y, z):
     '''
     Calculates the potential contribution due to the bulge
@@ -64,6 +70,8 @@ def potential_bulge(x, y, z):
     return phi_b
 
 ################################################################################
+
+
 def potential_full(x, y, z, verbose=False):
     '''
     Calculates the potential energy of a star given (x,y,z) coordinates,
@@ -73,7 +81,7 @@ def potential_full(x, y, z, verbose=False):
     (x,y,z) are assumed to be in kpc
     '''
 
-    ### Compute the potentials due to the different components
+    # Compute the potentials due to the different components
 
     # The disk contribution
     phi_disk = potential_disk(x=x, y=y, z=z)
@@ -82,28 +90,32 @@ def potential_full(x, y, z, verbose=False):
     # The halo contribution
     phi_halo = potential_halo(x=x, y=y, z=z)
 
-
     # the sum of all these
     phi_total = phi_disk + phi_bulge + phi_halo
 
     if verbose:
-        print(phi_total,phi_disk, phi_bulge, phi_halo)
+        print(phi_total, phi_disk, phi_bulge, phi_halo)
 
     # Finally, return the total potential
     return phi_total
 
 ################################################################################
-def En_L_calc(x,y,z,vx,vy,vz,):
+def En_L_calc(x, y, z, vx, vy, vz):
+    return gal_En_L_calc(x, y, z, vx, vy, vz, gal=False)
+
+def gal_En_L_calc(x, y, z, vx, vy, vz, gal=True):
     '''
     Assumes the coordinates are centred on the Sun.
     Units are in kpc, and km/s.
     '''
 
     # Shift the to Galactic centre, and correct for the LSR
-    x = x -8.2
-    vx = vx + 11.1
-    vy = vy + 232.8 + 12.24
-    vz = vz + 7.25
+    if gal is False:
+        print("Correcting from helio to gal. in En_L_calc. Horrible practice! Don't do this")
+        x = x - 8.2
+        vx = vx + 11.1
+        vy = vy + 232.8 + 12.24
+        vz = vz + 7.25
 
     # The angular momentum components
     Lx = y * vz - z * vy
@@ -117,13 +129,13 @@ def En_L_calc(x,y,z,vx,vy,vz,):
     Lperp = np.sqrt(Ltotal**2. - Lz**2.0)
 
     # The energy
-    En = (vx**2. + vy**2. + vz**2.)/2. + potential_full(x,y,z)
+    En = (vx**2. + vy**2. + vz**2.)/2. + potential_full(x, y, z)
 
     return En, Ltotal, Lz, Lperp
 
 ################################################################################
 
-from numpy import sqrt,log
+
 def vc_halo(x, y, z,):
     '''
     Calculates the potential contribution coming fromt the halo.
@@ -136,15 +148,14 @@ def vc_halo(x, y, z,):
     Rvir = 258
     c = Rvir/rs
 
-
-    #halculate the halo potential
-    phi_0 = G*M200/Rvir /(np.log(1+c)-c/(1+c))*c
+    # halculate the halo potential
+    phi_0 = G*M200/Rvir / (np.log(1+c)-c/(1+c))*c
     r = np.sqrt(x*x + y*y + z*z)
-    
-    return np.sqrt(r*( phi_0 * rs/r * (log(1 + r/rs)/r - 1/(rs+r))  ))
+
+    return np.sqrt(r*(phi_0 * rs/r * (log(1 + r/rs)/r - 1/(rs+r))))
 
 
-def vc_disk(x,y,z):
+def vc_disk(x, y, z):
     '''
     Calculates the potential due to the disk
     '''
@@ -155,7 +166,7 @@ def vc_disk(x,y,z):
     Mdisk = 9.3*10**+10
     GMd = G * Mdisk
 
-    sqd = np.sqrt(z**2.0 +b**2.0)
+    sqd = np.sqrt(z**2.0 + b**2.0)
 
     # square root of the density, probably
     sqden1 = np.sqrt(x**2. + y**2.0 + (a+sqd)**2.0)
@@ -164,6 +175,7 @@ def vc_disk(x,y,z):
     vc_d = (x*x+y*y)*(GMd/sqden1**3)
 
     return sqrt(vc_d)
+
 
 def vc_bulge(x, y, z):
     '''
@@ -183,6 +195,7 @@ def vc_bulge(x, y, z):
 
     return sqrt(vc_b)
 
+
 def vc_full(x, y, z, verbose=False):
     '''
     Calculates the potential energy of a star given (x,y,z) coordinates,
@@ -192,7 +205,7 @@ def vc_full(x, y, z, verbose=False):
     (x,y,z) are assumed to be in kpc
     '''
 
-    ### Compute the potentials due to the different components
+    # Compute the potentials due to the different components
 
     # The disk contribution
     vcf_disk = vc_disk(x=x, y=y, z=z)
@@ -201,12 +214,11 @@ def vc_full(x, y, z, verbose=False):
     # The halo contribution
     vcf_halo = vc_halo(x=x, y=y, z=z)
 
-
     # the sum of all these
     vc_total = np.sqrt(vcf_disk**2 + vcf_bulge**2 + vcf_halo**2)
 
     if verbose:
-        print(vc_total,vcf_disk, vcf_bulge, vcf_halo)
+        print(vc_total, vcf_disk, vcf_bulge, vcf_halo)
 
     # Finally, return the total potential
     return vc_total

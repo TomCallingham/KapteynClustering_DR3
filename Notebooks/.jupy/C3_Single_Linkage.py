@@ -57,7 +57,19 @@ from KapteynClustering.default_params import cluster_params0
 features = cluster_params0["features"]
 
 # %%
-cluster_data = clusterf.clusterData(stars, features=features)
+print(features)
+
+# %% tags=[]
+stars, scale_data = dataf.scale_features(stars)
+
+data["scale"] = scale_data
+data["stars"] = stars
+
+# %%
+# scaled_features = ["scaled_" + f for f in features]
+
+# %%
+cluster_data = clusterf.clusterData(stars, features=features)#scaled_features)
 
 # %%
 cluster_data["selection"] = data["selection"]
@@ -68,11 +80,11 @@ folder = data_params["result_path"] + data_params["data_folder"]
 
 dicf.h5py_save(folder+fname, cluster_data)
 
+# %% [markdown]
+# # Plots
 # %%
 Z = cluster_data["Z"]
 print(np.shape(Z))
 
-# %% [markdown]
-# # Plots
 # %%
 # Dendagram, Single linkage

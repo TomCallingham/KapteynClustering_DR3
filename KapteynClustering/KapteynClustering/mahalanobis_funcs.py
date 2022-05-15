@@ -1,15 +1,21 @@
+from scipy.stats._multivariate import _PSD
 import numpy as np
 # Normal
+
+
 def fit_gaussian(X):
-    mean = np.mean(X,axis=0)
-    covar = np.cov(X,rowvar=0)
+    mean = np.mean(X, axis=0)
+    covar = np.cov(X, rowvar=0)
     return mean, covar
+
 
 def find_mahalanobis(mean, covar, X):
     return np.sqrt(find_maha(X, mean=mean, cov=covar))
 
+
 def find_mahalanobis_members(N_std, mean, covar, X):
     return (find_mahalanobis(mean, covar, X) < N_std)
+
 
 def find_mahalanobis_N_members(N_std, mean, covar, X):
     N_members = find_mahalanobis_members(N_std, mean, covar, X).sum(axis=-1)
@@ -35,8 +41,8 @@ def find_maha(x, mean=None, cov=1, allow_singular=False):
     maha = np.sum(np.square(np.dot(x-mean, psd.U)), axis=-1)
     return maha
 
-### UNCHANGED FROM SCIPY BELOW - import directly?
-from scipy.stats._multivariate import _PSD
+
+# UNCHANGED FROM SCIPY BELOW - import directly?
 
 # class _PSD:
 #     """
@@ -145,5 +151,3 @@ from scipy.stats._multivariate import _PSD
 #         A vector of pseudo-inverted numbers.
 #     """
 #     return np.array([0 if abs(x) <= eps else 1/x for x in v], dtype=float)
-
-

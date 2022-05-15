@@ -1,3 +1,4 @@
+from queue import Queue
 import numpy as np
 from fastcluster import linkage_vector
 import time
@@ -5,19 +6,17 @@ import time
 
 def clusterData(stars, features, linkage_method="single"):
     print("Starting clutering.")
-    print("INCLUDE SCALING HERE!")
-
-    T= time.time()
-    X = find_X(features, stars, scaled =True)
+    print(features)
+    T = time.time()
+    X = find_X(features, stars, scaled=True)
     Z = linkage_vector(X, linkage_method)
     dt = time.time() - T
     print(f"Finished! Time taken: {dt/60} minutes")
-    cluster_data = {"Z":Z, "features": features}
+    cluster_data = {"Z": Z, "features": features}
     return cluster_data
 
 ###
 
-from queue import Queue
 
 def fast_get_members(i, Z):
     '''
@@ -45,7 +44,8 @@ def fast_get_members(i, Z):
         if(Z[index, 0] < N):
             members.append(int(Z[index, 0]))  # append original member
         else:
-            q.put(int(Z[index, 0] - N))  # backtract one step, enqueue this branch
+            # backtract one step, enqueue this branch
+            q.put(int(Z[index, 0] - N))
 
         if(Z[index, 1] < N):
             members.append(int(Z[index, 1]))  # append original member
@@ -96,11 +96,12 @@ def find_tree(Z, i_max=None, prune=False):
 
 def find_X(features, stars, scaled=False):
     n_features = len(features)
-    N_stars = len(stars["x"])
+    N_stars = len(stars["vx"])
     X = np.empty((N_stars, n_features))
     for n, p in enumerate(features):
         if scaled:
             X[:, n] = stars["scaled_"+p]
+            print("using scaled ",p)
         else:
             X[:, n] = stars[p]
     return X
@@ -114,8 +115,6 @@ def art_find_X(features, art_stars):
     return art_X
 
 
-import time
-
 def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
     T = time.time()
     print('Picking out the clusters with maximum significance from the tree...')
@@ -123,7 +122,6 @@ def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
     N = len(significance)
 
     index = np.arange(len(significance))
-
 
     selected_i = 0
 
@@ -138,19 +136,18 @@ def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
     sort_Z_index1 = Z[:, 0][argsort_sig]
     sort_Z_index2 = Z[:, 1][argsort_sig]
     index_dic = {}
-    index_dic = {sort_Z_index1[n]: n for n in range(N)} | {sort_Z_index2[n]: n for n in range(N)}
+    index_dic = {sort_Z_index1[n]: n for n in range(
+        N)} | {sort_Z_index2[n]: n for n in range(N)}
 
+    untraversed_filt = np.ones_like(sort_significance, dtype=bool)
+    sig_untraversed_filt = (sort_significance > minimum_significance)
+    N_sig_untraversed = sig_untraversed_filt.sum() > 0
 
-
-    untraversed_filt = np.ones_like(sort_significance,dtype=bool)
-    sig_untraversed_filt = (sort_significance>minimum_significance)
-    N_sig_untraversed = sig_untraversed_filt.sum()>0
-
-    while N_sig_untraversed>0:
+    while N_sig_untraversed > 0:
         next_index = np.where(sig_untraversed_filt)[0][0]
         i = sort_index[next_index]
         sig = sort_significance[next_index]
-        sig_untraversed_filt[next_index] =False
+        sig_untraversed_filt[next_index] = False
 
         traversed_currentpath = []
         maxval = 0
@@ -183,19 +180,19 @@ def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
             max_sign.append(maxval)
             # faster to just find unique at end?
 
-        if len(traversed_currentpath)>0:
+        if len(traversed_currentpath) > 0:
             untraversed_filt[np.where(untraversed_filt)[0]] = np.isin(
                 sort_index[untraversed_filt], traversed_currentpath, invert=True)
 
             sig_untraversed_filt = untraversed_filt*sig_untraversed_filt
 
-        N_sig_untraversed  = sig_untraversed_filt.sum() #FASTER -= len(traversed_currentpath)  #
+        # FASTER -= len(traversed_currentpath)  #
+        N_sig_untraversed = sig_untraversed_filt.sum()
         # print(f"{N_sig_untraversed} still untraversed")
 
     print("Finished")
     print((time.time()-T)/60)
     return np.array(selected), np.array(max_sign)
-
 
 
 def get_cluster_labels_with_significance(selected, significance, tree_members, N_clusters):
@@ -217,7 +214,7 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
     N = len(tree_members.keys())
     print(N)
 
-    labels = -np.ones((N_clusters+1),dtype=int)
+    labels = -np.ones((N_clusters+1), dtype=int)
     significance_list = np.zeros(N_clusters+1)
     # i_list = np.sort(significant.i.values)
     # Sort increasing, so last are includedIn the best cluster
@@ -225,21 +222,31 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
     s_significance = significance[sig_sort]
     s_index = selected[sig_sort]
 
-    for i_cluster, sig_cluster in zip(s_index, s_significance) :
+    for i_cluster, sig_cluster in zip(s_index, s_significance):
         members = tree_members[i_cluster+N_clusters+1]
-        labels[members]=i_cluster
+        labels[members] = i_cluster
         significance_list[members] = sig_cluster
 
+    NG = len(np.unique(labels))
+    print(f"Number of clusters before {NG}")
+
+    labels = order_labels(labels)
     Groups, pops = np.unique(labels, return_counts=True)
-    p_sort = np.argsort(pops)[::-1] # Decreasing order
+    p_sort = np.argsort(pops)[::-1]  # Decreasing order
     Groups, pops = Groups[p_sort], pops[p_sort]
-
-    for i,l in enumerate(Groups[Groups!=-1]):
-        labels[labels==l] = i
-
     print(f'Number of clusters: {len(Groups)-1}')
 
     return labels, significance_list
+
+def order_labels(old_labels, fluff_label=-1):
+    Groups, pops = np.unique(old_labels, return_counts=True)
+    p_sort = np.argsort(pops)[::-1]  # Decreasing order
+    Groups, pops = Groups[p_sort], pops[p_sort]
+    labels = -np.ones_like(old_labels, dtype=int)
+    for i, l in enumerate(Groups[Groups != fluff_label]):
+        labels[old_labels == l] = i
+    return labels
+
 
 
 def prev_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
@@ -276,7 +283,8 @@ def prev_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=
     sort_Z_index1 = Z[:, 0][argsort_sig]
     sort_Z_index2 = Z[:, 1][argsort_sig]
     index_dic = {}
-    index_dic = {sort_Z_index1[n]: n for n in range(N)} | {sort_Z_index2[n]: n for n in range(N)}
+    index_dic = {sort_Z_index1[n]: n for n in range(
+        N)} | {sort_Z_index2[n]: n for n in range(N)}
 
     traversed = []  # list of indices i that we have already traversed
     selected = []  # list of merges in the tree where the significance is maximized
@@ -289,7 +297,7 @@ def prev_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=
 
         i = sort_index[untraversed_filt][0]
         sig = sort_significance[untraversed_filt][0]
-        
+
         selected.append(i)
         max_sign.append(sig)
 
@@ -313,7 +321,8 @@ def prev_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=
         traversed.extend(traversed_currentpath)
         untraversed_filt[np.where(untraversed_filt)[0]] = np.isin(
             sort_index[untraversed_filt], traversed_currentpath, invert=True)
-        N_untraversed -= len(traversed_currentpath)  # = untraversed_filt.sum() #FASTER
+        # = untraversed_filt.sum() #FASTER
+        N_untraversed -= len(traversed_currentpath)
 
     dt = time.time() - T
     print(f"Finished. Time {dt} s")

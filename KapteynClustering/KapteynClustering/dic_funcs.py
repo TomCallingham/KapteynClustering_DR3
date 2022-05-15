@@ -1,3 +1,5 @@
+import pickle
+from copy import deepcopy
 import os
 import numpy as np
 import h5py
@@ -33,9 +35,13 @@ def h5py_load(fname, verbose=False):
                 print(f'Unidentified structure {key}')
                 # raise SystemError'Attribute errors'
         return Data
+    if ".hdf5" in fname:
+        load_name = fname
+    else:
+        load_name = fname+".hdf5"
     if verbose:
-        print('Loading file: ', fname + '.hdf5')
-    with h5py.File(fname + '.hdf5', 'r') as hf:
+        print('Loading file: ', load_name)
+    with h5py.File(load_name, 'r') as hf:
         Data = load(hf, verbose)
     if verbose:
         print('Loaded')
@@ -77,27 +83,29 @@ def h5py_save(fname, dic, verbose=False, overwrite=False):
                 except Exception as e:
                     print(e)
                     print(f'No {key} saved')
+    if ".hdf5" in fname:
+        save_name = fname
+    else:
+        save_name = fname+".hdf5"
 
     if verbose:
-        print('Saving file: ', fname + '.hdf5')
+        print('Saving file: ',save_name)
     if overwrite:
-        if os.path.exists(fname + '.hdf5'):
+        if os.path.exists(save_name):
             print('File already here, moving old to _OLD')
             if os.path.exists(fname + '_OLD.hdf5'):
                 print('OLD_File already here, deleting')
                 os.remove(fname + '_OLD.hdf5')
             os.rename(fname + '.hdf5', fname + '_OLD.hdf5')
 
-    with h5py.File(fname + '.hdf5', 'w') as hf:
+    with h5py.File(save_name, 'w') as hf:
         writer(hf, dic)
     if verbose:
         print('Saved')
     return
 
 
-
-from copy import deepcopy
-def filt(dic, filt, copy = True):
+def filt(dic, filt, copy=True):
     if copy:
         new_dic = deepcopy(dic)
     else:
@@ -124,13 +132,15 @@ def groups(dic, group='group', verbose=False):
             except Exception:
                 pass
     return gdic
-import pickle
-def pickle_save(a,fname):
+
+
+def pickle_save(a, fname):
     print(f"Pickle saving {fname}")
     with open(fname, 'wb') as handle:
         pickle.dump(a, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print("saved")
     return
+
 
 def pickle_load(fname):
     print(f"Pickle loading {fname}")
@@ -138,4 +148,3 @@ def pickle_load(fname):
         b = pickle.load(handle)
     print("loaded")
     return b
-
