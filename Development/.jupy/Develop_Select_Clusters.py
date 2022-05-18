@@ -366,6 +366,10 @@ print(len(selected))
 print(selected)
 print(max_sign)
 
+# %%
+print((s_selected==selected).sum()/len(selected))
+print((s_max_sign==max_sign).sum()/len(max_sign))
+
 
 # %% [markdown]
 # # PREVIOUS

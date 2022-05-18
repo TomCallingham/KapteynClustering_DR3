@@ -1,0 +1,34 @@
+run:
+  # steps: [sample,artificial,linkage,significance,label]
+  steps: [serial_sig]
+
+data:
+  base_data : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia/test_gaia_Stars"
+  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/second_test_gaia/"
+  base_dyn: "test_gaia_Dyn" #Dynamics and scaled
+  sample: "test_gaia_Sample" #Toomre Selection and others,
+  art: "test_gaia_Art"
+  cluster: "test_gaia_Cluster"
+  sig: "test_gaia_Significance"
+  label: "test_gaia_Labels"
+  pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
+
+art: # Artificial dataset
+  N_art: 100
+
+# Clustering Params
+cluster:
+  features: [En,Lperp,Lz]
+  min_members: 10
+  max_members: 25000
+  N_sigma_ellipse_axis: 2.83
+  N_art: 100
+  N_process: 8
+  scales:
+    En: [-170000, 0]
+    Lperp: [0, 4300]
+    Lz: [-4500, 4600]
+
+label:
+  min_sig: 3
+

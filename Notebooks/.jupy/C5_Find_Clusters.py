@@ -13,138 +13,83 @@
 # ---
 
 # %% [markdown]
-# This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
-# Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
-#
-#
-# The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
-
-# %% [markdown]
 # # Setup
 
-# %%
+# %% tags=[]
 import numpy as np
 import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.plot_funcs as plotf
-import KapteynClustering.cluster_funcs as clusterf
-
-from params import data_params, gaia2, auriga
+import KapteynClustering.label_funcs as labelf
 
 # %% [markdown]
-# # Params
+# ### Paramaters
+# Consistent across Notebooks
 
 # %%
-N_sigma_significance = 3
+params = dataf.read_param_file("gaia_params.yaml")
+data_params = params["data"]
+print(data_params.keys())
+result_folder = data_params["result_folder"]
+min_sig = params["label"]["min_sig"]
 
 # %% [markdown]
 # ## Load
 
 # %%
-data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
+data = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
 stars = data["stars"]
 
 # %%
-cluster_data = dataf.read_data(fname=data_params["cluster"], data_params=data_params)
+cluster_data = dataf.read_data(fname=data_params["result_folder"] + data_params["cluster"])
 Z = cluster_data["Z"]
 
 # %%
-sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params)
-significance = sig_data["significance"]
-
-# %%
-emma_stats = dataf.load_vaex_to_dic("/net/gaia2/data/users/dodd/Clustering_EDR3/cluster_in_3D_test/results/stats")
-
-# %%
-print(emma_stats)
-emma_Z = np.stack((emma_stats["index1"], emma_stats["index2"])).T
-
-# %%
-print(np.shape(Z))
-print(np.shape(emma_Z))
-
-# %%
-print((Z[:,0] == emma_Z[:,0]).sum()/len(Z))
-print((Z[:,1] == emma_Z[:,1]).sum()/len(Z))
-
-# %%
-emma_sig = emma_stats["significance"]
-
-# %%
-plt.figure()
-plt.scatter(significance, emma_sig)
-plt.xlabel("my_sig")
-plt.ylabel("emma sig/ my")
-plt.show()
-
-# %%
-print("Using Emma Sig")
-significance=emma_sig
+sig_data = dataf.read_data(fname=result_folder+ data_params["sig"])#, extra="_SOF_ART_cut")
+sig = sig_data["significance"]
 
 # %% [markdown]
-# ## Find Clusters
+# # Find Clusters
 
 # %%
-tree_members = clusterf.find_tree(Z, prune=True)
-
-# %%
-N_clusters = len(Z[:, 0])
-N_clusters1 = N_clusters + 1
-
-# %%
-'''Select all clusters that satisfy your chosen minimum statistical significance level.
-To distinguish between hierarchically overlapping significant clusters when extracting the final
-cluster labels, select the cluster which displays the maximum statistical significance.'''
-
-
-selected, statistical_significance = clusterf.select_maxsig_clusters_from_tree(
-    significance, Z, minimum_significance=N_sigma_significance)
-
-# %%
-labels, significance_list = clusterf.get_cluster_labels_with_significance(
-    selected, statistical_significance, tree_members, N_clusters)
+label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 
 # %% [markdown]
-# ### LOAD EMMAa
+# ## Save
 
 # %%
-emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-emma_results = dataf.load_vaex_to_dic(f"{emma_result_path}df_labels_3D")
-
-e_labels = emma_results["labels"]
-e_sig_list = emma_results["maxsig"]
-
-# %%
-e_Groups, e_Pops = np.unique(e_labels, return_counts=True)
-e_G_sig = np.array([e_sig_list[e_labels==g][0] for g in e_Groups])
-print(len(e_Groups))
-
-# %%
-oe_labels = clusterf.order_labels(e_labels, fluff_label=0)
-
-# %%
-print((labels==oe_labels).sum()/len(labels))
+dicf.h5py_save(fname=result_folder + data_params["label"], dic=label_data, verbose=True, overwrite=True)
 
 # %% [markdown]
-# # RESULTS 
+# # RESULTS
 
 # %%
- 
-Groups, Pops = np.unique(labels[labels!=-1], return_counts=True)
-G_sig = np.array([significance_list[labels==g][0] for g in Groups])
-print(len(Groups))
-print(len(Groups[G_sig>N_sigma_significance]))
+[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in 
+                                           ["labels","star_sig", "Groups", "Pops", "G_sig"]]
+
+# %%
+print(G_sig[Groups==-1])
 
 # %%
 plt.figure(figsize=(8,8))
-plt.scatter(Pops[G_sig>N_sigma_significance], G_sig[G_sig>N_sigma_significance])
+plt.scatter(Pops[G_sig>min_sig], G_sig[G_sig>min_sig])
 plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("Population")
 plt.ylabel("Significance")
-for g,p,s in zip(Groups[G_sig>N_sigma_significance], Pops[G_sig>N_sigma_significance], G_sig[G_sig>N_sigma_significance]):
+for g,p,s in zip(Groups[G_sig>min_sig], Pops[G_sig>min_sig], G_sig[G_sig>min_sig]):
+    plt.text(p,s,g, size=15)
+plt.show()
+
+# %%
+plt.figure(figsize=(8,8))
+plt.scatter(Pops, G_sig)
+# plt.xscale("log")
+# plt.yscale("log")
+plt.xlabel("Population")
+plt.ylabel("Significance")
+for g,p,s in zip(Groups, Pops, G_sig):
     plt.text(p,s,g, size=15)
 plt.show()
 
@@ -164,10 +109,10 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
     df(vaex.DataFrame): Data frame containing the labelled sources.
     minsig(float): Minimum statistical significance level we want to consider.
     savepath(str): Path of the figure to be saved, if None the figure is not saved.
-    
+
     '''
-    xkeys =["Lz", "Lz", "circ", "Lp", "circ", "circ"]
-    ykeys =["E", "Lp", "Lz", "E", "Lp", "E"]
+    xkeys =["Lz", "Lz", "circ", "Lperp", "circ", "circ"]
+    ykeys =["En", "Lperp", "Lz", "En", "Lperp", "En"]
 
 
     # fig, axs = plt.subplots(2, 3, figsize=(12,6))#[27,15])
@@ -195,13 +140,13 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
             x, y = prop_select(stars,g, xkey, ykey,flip)
             plt.scatter(x, y, label=label,
                        alpha=0.5,s=size, edgecolors="none", zorder=-j)
-        
+
         g=-1
         fluff_pop = (stars["groups"]==g).sum()
         label  = f"fluff|{fluff_pop}"
         x, y= prop_select(stars,g, xkey, ykey,flip)
         plt.scatter(x, y, label=label,
-                   alpha=0.2,s=size, edgecolors="none", zorder=-(j+1), c='grey')
+                   alpha=0.2,s=size, edgecolors="none", zorder=-(j+1), c='lightgrey')
 
         plt.xlabel(xkey)
         plt.ylabel(ykey)
@@ -217,7 +162,7 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
     return
 
 # %%
-plot_IOM_subspaces(stars, minsig=N_sigma_significance, savepath=None, flip=True)
+plot_IOM_subspaces(stars, minsig=min_sig, savepath=None, flip=True)
 # plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
 
 # %% [markdown]
@@ -237,11 +182,11 @@ plt.rc('figure', titlesize=16)  # fontsize of the figure title
 
 from IPython.core.display import display, HTML
 display(HTML("<style>.container { width:80% !important; }</style>"))
-    
+
 
 # %%
 emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-emma_results = dataf.load_vaex_to_dic(f"{emma_result_path}df_labels_3D")
+emma_results = dataf.read_data(f"{emma_result_path}df_labels_3D")
 e_labels = emma_results["labels"]
 e_sig_list = emma_results["maxsig"]
 
@@ -250,10 +195,9 @@ from KapteynClustering.legacy.vaex_funcs import vaex_from_dict
 df = vaex_from_dict(stars)
 df["labels"] = e_labels
 df["maxsig"] = e_sig_list
-# from KapteynClustering.legacy import plotting_utils
-import plotting_utils
+from KapteynClustering.legacy import plotting_utils
 
 # %%
-plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
+plotting_utils.plot_IOM_subspaces(df, minsig=min_sig, savepath=None)
 
 # %%

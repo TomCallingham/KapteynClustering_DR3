@@ -19,7 +19,7 @@
 #
 # The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
 
-# %% [markdown] tags=[]
+# %% [markdown]
 # # Setup
 
 # %%
@@ -28,26 +28,21 @@ import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.artificial_data_funcs as adf
-# import KapteynClustering.plot_funcs as plotf
-# from params import data_params, gaia2, auriga
+import KapteynClustering.plot_funcs as plotf
 
-# %% [markdown]
-# ## Params
-
-# %%
-params = dataf.read_param_file("gaia_params.yaml")
-data_params = params["data"]
-art_params = params["art"]
-N_art = art_params["N_art"]
-pot_name = data_params["pot_name"]
+from params import data_params, gaia2, auriga
 
 # %% [markdown]
 # ## Load Data
 # Load data before TOOMRE selection. We apply that after
 
 # %%
-data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"])
+data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params)
+stars = data["stars"]
+
+# %%
+pot_name = data_params["pot_name"]
+stars = dynf.add_dynamics(stars, pot_name, circ=True)
 
 # %% [markdown]
 # # Artificial DataSet
@@ -56,25 +51,28 @@ data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"
 # Keeps pos + vy
 # Recalculates dynamics
 
-# %% [markdown] tags=[]
-# if auriga:
-#     additional_props = ["R", "group", "Fe_H", "Age"]
-# elif gaia2:
-#     additional_props = []
+# %%
+import KapteynClustering.artificial_data_funcs as adf
 
 # %%
-additional_props = []
 
 # %%
-print("Creating Artificial_data")
-print(f"{N_art} realisations")
+from KapteynClustering.default_params import art_params0
+N_art = art_params0["N_art"]
+N_art =10
 
 # %% tags=[]
+if auriga:
+    additional_props = ["R", "group", "Fe_H", "Age"]
+elif gaia2:
+    additional_props = []
+
+# %%
 art_data = adf.get_shuffled_artificial_set(N_art, data, pot_name, additional_props)
 
 # %%
 fname = data_params["art"]
-folder = data_params["result_folder"]
+folder = data_params["result_path"] + data_params["data_folder"]
 dicf.h5py_save(fname=folder + fname, dic=art_data, verbose=True, overwrite=True)
 
 # %% [markdown]
@@ -88,7 +86,7 @@ df= vaex_funcs.vaex_from_dict(stars)
 # %%
 plotting_utils.plot_original_data(df)
 
-# %% tags=[]
+# %% jupyter={"source_hidden": true} tags=[]
 plotting_utils.plot_original_data(df_artificial)
 
 # %%
@@ -96,7 +94,7 @@ art_stars = art_data["stars"][0]
 sample_data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
 sample_stars = sample_data["stars"]
 
-for x in ["En", "Lz", "Lperp", "circ"]:
+for x in ["E", "Lz", "Lp", "circ"]:
     plt.figure()
     plt.hist(stars[x], label="Original", bins="auto",histtype="step")
     plt.hist(sample_stars[x], label="sample", bins="auto",histtype="step")

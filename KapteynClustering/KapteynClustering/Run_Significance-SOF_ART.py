@@ -1,56 +1,57 @@
 # Setup
+import numpy as np
 from multiprocessing import Pool, RawArray
 import time
 import KapteynClustering.significance_funcs as sigf
-import numpy as np
 import KapteynClustering.cluster_funcs as clusterf
-import dic_funcs as dicf
-import data_funcs as dataf
+import KapteynClustering.dic_funcs as dicf
+# import sys
+# sys.path.append('../../Notebooks/')
+# from params import gaia2
 # if gaia2:
 #     Folder = "/data/users/callingham/data/clustering/KapteynClustering_DR3/Notebooks/"
 # else:
 #     Folder = "/cosma/home/dp004/dc-call1/scripts/Python/AuClustering/KapteynClustering_DR3/Notebooks/"
-import sys
-param_file = sys.argv[1]
+Folder = "/data/users/callingham/data/clustering/KapteynClustering_DR3/Notebooks/"
 
-# LOADING Params
-params = dataf.read_param_file(param_file)
-data_params = params["data"]
-result_folder = data_params["result_folder"]
-cluster_file, sample_file, art_file = data_params["cluster"] ,data_params["sample"] , data_params["art"]
-save_name = data_params["sig"]
+sig_params = dicf.pickle_load(Folder + "Significance_params")
 
-cluster_params = params["cluster"]
-min_members, max_members = cluster_params["min_members"], cluster_params["max_members"]
-features = cluster_params["features"]
-N_art, N_std, N_process = cluster_params["N_art"] ,cluster_params["N_sigma_ellipse_axis"],cluster_params["N_process"]
+sig_files = sig_params["files"]
+min_members = sig_params["min_members"]
+max_members = sig_params["max_members"]
+features = sig_params["features"]
+N_art = sig_params["N_art"]
+N_sigma_ellipse_axis = sig_params["N_sigma_ellipse_axis"]
+N_max = sig_params["N_max"]
+N_process = sig_params["N_process"]
 
 
-# LOADING all necessary Data
-sample_data = dicf.h5py_load(result_folder + sample_file)
-stars = sample_data["stars"]
+sample_file = sig_files["sample_file"]
+art_file = sig_files["art_file"]
+
+print("Using cut. SLOWER")
+save_name = sig_files["save_name"] + "_SOF_ART_cut"
+
+cluser_data = dicf.h5py_load(sig_files["file_base"] + sig_files["cluster_file"])
+Z = cluser_data["Z"]
+N_clusters = len(Z[:, 0])
+
+from KapteynClustering.legacy import load_sofie_data as lsd
+print("USING SOF ART")
+stars = lsd.load_sof_df()
 X = clusterf.find_X(features, stars)
 del stars
+sof_art_stars = lsd.load_sof_art()
+art_X = clusterf.art_find_X(features, sof_art_stars)
+del sof_art_stars
 
-art_data = dicf.h5py_load(result_folder + art_file)
-art_stars = art_data["stars"]
-art_X = clusterf.art_find_X(features, art_stars)
-del art_stars, art_data
-
-cluster_data = dicf.h5py_load(result_folder + cluster_file)
-Z = cluster_data["Z"]
-N_clusters = len(Z[:, 0])
 tree_members = clusterf.find_tree(Z, prune=True)
 list_tree_members = [tree_members[i + N_clusters+1] for i in range(N_clusters)]
+print("LOADED all data")# PCA Fit
 
-print("LOADED all data")
 print("Starting finding significance")
 print(f"N_clusters = {N_clusters}")
 print(f"N_art = {N_art}")
-
-# ALL DATA LOADED
-
-## Initialise MPI
 # A global dictionary storing the variables passed from the initializer.
 var_dict = {}
 def init_worker(share_dic):
@@ -67,7 +68,7 @@ def init_worker(share_dic):
     var_dict["share_art_X"] = share_art_X
 
 def worker_func(members):
-    return sigf.expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
+    return sigf.cut_expected_density_members(members, N_std=N_sigma_ellipse_axis, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
                                          min_members=min_members)
 
 def init_memory(X, art_X):
@@ -96,18 +97,17 @@ def init_memory(X, art_X):
     share_dic["art_dic"] = art_dic
     print("Initialised")
     return share_dic# Start the process pool and do the computation.
+# Here we pass X and X_shape to the initializer of each worker.
+# (Because X_shape is not a shared variable, it will be copied to each child process.)
 share_dic = init_memory(X,art_X)
-
-# Start the process pool and do the computation.
 T = time.time()
+
 with Pool(processes=N_process, initializer=init_worker, initargs=(share_dic,)) as pool:
     result = pool.map(worker_func, list_tree_members)
 print("Finished")
 dt = time.time() - T
 print(f" Time taken: {dt/60} mins")
 
-
-## Save Result
 result = np.array(result)
 region_count = result[:, 0]
 art_region_count = result[:, 1]
@@ -120,4 +120,4 @@ pca_data = {"region_count": region_count,
             "significance": significance}
 
 
-dicf.h5py_save(result_folder + save_name, pca_data, verbose=True, overwrite=True)
+dicf.h5py_save(sig_files["file_base"] + save_name, pca_data, verbose=True, overwrite=True)

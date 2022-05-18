@@ -4,11 +4,13 @@ from fastcluster import linkage_vector
 import time
 
 
-def clusterData(stars, features, linkage_method="single"):
-    print("Starting clutering.")
+def clusterData(stars, features, linkage_method="single", scales={}):
     print(features)
+    scale_features(stars, features=features, scales=scales, plot=False)
+
     T = time.time()
     X = find_X(features, stars, scaled=True)
+    print("Starting clustering.")
     Z = linkage_vector(X, linkage_method)
     dt = time.time() - T
     print(f"Finished! Time taken: {dt/60} minutes")
@@ -54,7 +56,6 @@ def fast_get_members(i, Z):
 
     return np.array(members)
 
-
 def next_members(tree_dic, Z, i, N_cluster):
     tree_dic[i + N_cluster] = tree_dic[Z[i, 0]] + tree_dic[Z[i, 1]]
     return tree_dic
@@ -94,6 +95,7 @@ def find_tree(Z, i_max=None, prune=False):
     return tree_dic
 
 
+
 def find_X(features, stars, scaled=False):
     n_features = len(features)
     N_stars = len(stars["vx"])
@@ -114,217 +116,75 @@ def art_find_X(features, art_stars):
         art_X[a] = find_X(features, art_stars[a])
     return art_X
 
+def find_art_X_array(features, art_stars, scaled=False):
+    n_features = len(features)
+    arts = list(art_stars.keys())
+    N_art = len(arts)
+    N_stars = len(art_stars[0]["vx"])
+    art_X_array = np.empty((N_art,N_stars, n_features))
+    for na,a in enumerate(arts):
+        stars = art_stars[a]
+        for n, p in enumerate(features):
+            if scaled:
+                art_X_array[na,:, n] = stars["scaled_"+p]
+                print("using scaled ",p)
+            else:
+                art_X_array[na,:, n] = stars[p]
+    return art_X_array
 
-def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
-    T = time.time()
-    print('Picking out the clusters with maximum significance from the tree...')
-
-    N = len(significance)
-
-    index = np.arange(len(significance))
-
-    selected_i = 0
-
-    traversed = []  # list of indices i that we have already traversed
-    selected = []  # list of merges in the tree where the significance is maximized
-    max_sign = []  # the significance at the selected step
-
-    argsort_sig = np.argsort(significance)[::-1]
-    sort_significance = significance[argsort_sig]
-    sort_index = index[argsort_sig]
-
-    sort_Z_index1 = Z[:, 0][argsort_sig]
-    sort_Z_index2 = Z[:, 1][argsort_sig]
-    index_dic = {}
-    index_dic = {sort_Z_index1[n]: n for n in range(
-        N)} | {sort_Z_index2[n]: n for n in range(N)}
-
-    untraversed_filt = np.ones_like(sort_significance, dtype=bool)
-    sig_untraversed_filt = (sort_significance > minimum_significance)
-    N_sig_untraversed = sig_untraversed_filt.sum() > 0
-
-    while N_sig_untraversed > 0:
-        next_index = np.where(sig_untraversed_filt)[0][0]
-        i = sort_index[next_index]
-        sig = sort_significance[next_index]
-        sig_untraversed_filt[next_index] = False
-
-        traversed_currentpath = []
-        maxval = 0
-        while True:
-            traversed_currentpath.append(i)
-            if(sig > maxval):
-                traversed_currentpath = []
-                # traversed_currentpath = [i]
-                maxval = sig
-                selected_i = i
-
-            try:
-                next_index = index_dic[i + N+1]
-            except:
-                # print("FOUND TOP")
-                break
-
-            if not untraversed_filt[next_index]:
-                # print("Traversed")
-                break
-
-            i = sort_index[next_index]
-            sig = sort_significance[next_index]
-
-        traversed.extend(traversed_currentpath)
-
-        # Same cluster might have been marked the most significant one for multiple paths.
-        if(selected_i not in selected):
-            selected.append(selected_i)
-            max_sign.append(maxval)
-            # faster to just find unique at end?
-
-        if len(traversed_currentpath) > 0:
-            untraversed_filt[np.where(untraversed_filt)[0]] = np.isin(
-                sort_index[untraversed_filt], traversed_currentpath, invert=True)
-
-            sig_untraversed_filt = untraversed_filt*sig_untraversed_filt
-
-        # FASTER -= len(traversed_currentpath)  #
-        N_sig_untraversed = sig_untraversed_filt.sum()
-        # print(f"{N_sig_untraversed} still untraversed")
-
-    print("Finished")
-    print((time.time()-T)/60)
-    return np.array(selected), np.array(max_sign)
+from .default_params import cluster_params0
+import copy
+###
+def scale_features(stars, features=cluster_params0["features"],
+                   scales=cluster_params0["scales"], plot=True):
+    scale_data = {}
+    percent = 5
+    for p in features:
+        scale = scales.get(p, None)
+        if scale is None:
+            print(f"No scale found for {p}, creating own using {percent} margin")
+            scale = get_scale(x=stars[p])
+        stars["scaled_" +
+              p] = apply_scale(stars, xkey=p, scale=scale, plot=plot)
+        scale_data[p] = scale
+    return stars, scale_data
 
 
-def get_cluster_labels_with_significance(selected, significance, tree_members, N_clusters):
-    '''
-    Extracts flat cluster labels given a list of statistically significant clusters
-    in the linkage matrix Z, and also returns a list of their correspondning statistical significance.
-
-    Parameters:
-    significant(vaex.DataFrame): Dataframe containing statistics of the significant clusters.
-    Z(np.ndarray): The linkage matrix outputted from single linkage
-
-    Returns:
-    labels(np.array): Array matching the indices of stars in the data set, where label 0 means noise
-                      and other natural numbers encode significant structures.
-    '''
-
-    print("Extracting labels...")
-    print(f"Initialy {len(significance)} clusters")
-    N = len(tree_members.keys())
-    print(N)
-
-    labels = -np.ones((N_clusters+1), dtype=int)
-    significance_list = np.zeros(N_clusters+1)
-    # i_list = np.sort(significant.i.values)
-    # Sort increasing, so last are includedIn the best cluster
-    sig_sort = np.argsort(significance)
-    s_significance = significance[sig_sort]
-    s_index = selected[sig_sort]
-
-    for i_cluster, sig_cluster in zip(s_index, s_significance):
-        members = tree_members[i_cluster+N_clusters+1]
-        labels[members] = i_cluster
-        significance_list[members] = sig_cluster
-
-    NG = len(np.unique(labels))
-    print(f"Number of clusters before {NG}")
-
-    labels = order_labels(labels)
-    Groups, pops = np.unique(labels, return_counts=True)
-    p_sort = np.argsort(pops)[::-1]  # Decreasing order
-    Groups, pops = Groups[p_sort], pops[p_sort]
-    print(f'Number of clusters: {len(Groups)-1}')
-
-    return labels, significance_list
-
-def order_labels(old_labels, fluff_label=-1):
-    Groups, pops = np.unique(old_labels, return_counts=True)
-    p_sort = np.argsort(pops)[::-1]  # Decreasing order
-    Groups, pops = Groups[p_sort], pops[p_sort]
-    labels = -np.ones_like(old_labels, dtype=int)
-    for i, l in enumerate(Groups[Groups != fluff_label]):
-        labels[old_labels == l] = i
-    return labels
+def get_scale(x, percent=5):
+    scale = np.array(np.percentile(x, [percent, 100 - percent]))
+    return scale
 
 
+def apply_scale(data, xkey, scale, plot=False):
+    x = data[xkey]
+    scale_range = scale[1] - scale[0]
+    scaled_x = ((x - scale[0]) / (scale_range / 2)) - 1
 
-def prev_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
-    '''
-    Takes all (possibly hierarchically overlapping) significant clusters from the
-    single linkage merging process and determines where each nested structure reaches its
-    maximum statistical significance in the dendrogram (or merging tree). Returns the indices
-    of these maximum significance clusters such that we can extract flat cluster labels
-    for the star catalogue.
+    if plot:
+        import matplotlib.pyplot as plt
+        n_x = len(x)
+        f_below = (x < scale[0]).sum() / n_x
+        f_above = (x > scale[1]).sum() / n_x
+        print(xkey)
+        print(f"Scale: below {f_below}, above{f_above}")
+        x_sort = np.sort(copy.deepcopy(x))
 
-    Parameters:
-    significance
-    Z
-    min_significance that we accept for each cluster
+        plt.figure()
+        plt.plot(x_sort, np.linspace(0, 1, n_x))
+        plt.axvline(scale[0], c='r')
+        plt.axvline(scale[1], c='r')
+        plt.xlabel(xkey)
+        plt.ylabel("cdf")
+        plt.show()
 
-    Returns:
-    selected(np.array): The indices (i in stats) of the clusters that have been selected from the tree
-    max_sign(np.array): The statistical significance of each selected cluster
+        plt.figure()
+        plt.plot(x, scaled_x)
+        plt.axvline(scale[0], c='r')
+        plt.axvline(scale[1], c='r')
+        plt.axhline(-1, c='r')
+        plt.axhline(1, c='r')
+        plt.xlabel(xkey)
+        plt.ylabel("scaled " + xkey)
+        plt.show()
 
-    '''
-    # Pick max sig clusters, go traverse up the tree to tick off.
-    # Go to the next untraversed most significant cluster
-
-    T = time.time()
-
-    print('Picking out the clusters with maximum significance from the tree...')
-    N = len(significance)
-    index = np.arange(N)
-
-    argsort_sig = np.argsort(significance)[::-1]
-    sort_significance = significance[argsort_sig]
-    sort_index = index[argsort_sig]
-
-    sort_Z_index1 = Z[:, 0][argsort_sig]
-    sort_Z_index2 = Z[:, 1][argsort_sig]
-    index_dic = {}
-    index_dic = {sort_Z_index1[n]: n for n in range(
-        N)} | {sort_Z_index2[n]: n for n in range(N)}
-
-    traversed = []  # list of indices i that we have already traversed
-    selected = []  # list of merges in the tree where the significance is maximized
-    max_sign = []  # the significance at the selected step
-
-    untraversed_filt = (sort_significance > minimum_significance)
-    N_untraversed = untraversed_filt.sum()
-
-    while N_untraversed > 0:
-
-        i = sort_index[untraversed_filt][0]
-        sig = sort_significance[untraversed_filt][0]
-
-        selected.append(i)
-        max_sign.append(sig)
-
-        traversed_currentpath = []
-        while True:
-            # Track what we have traversed since the max-significance
-            traversed_currentpath.append(i)
-
-            try:
-                next_index = index_dic[i + N + 1]
-            except:
-                # print("Found Top")
-                break
-            if not untraversed_filt[next_index]:
-                # print("Traversed")
-                break
-
-            i = sort_index[next_index]
-
-        # Add New Path
-        traversed.extend(traversed_currentpath)
-        untraversed_filt[np.where(untraversed_filt)[0]] = np.isin(
-            sort_index[untraversed_filt], traversed_currentpath, invert=True)
-        # = untraversed_filt.sum() #FASTER
-        N_untraversed -= len(traversed_currentpath)
-
-    dt = time.time() - T
-    print(f"Finished. Time {dt} s")
-
-    return np.array(selected), np.array(max_sign)
+    return scaled_x

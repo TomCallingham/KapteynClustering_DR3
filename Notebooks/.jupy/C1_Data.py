@@ -12,13 +12,6 @@
 #     name: conda-env-py39-py
 # ---
 
-# %% [markdown]
-# This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
-# Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
-#
-#
-# The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
-
 # %% tags=[]
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,29 +25,26 @@ import KapteynClustering.plot_funcs as plotf
 # Consistent across Notebooks
 
 # %%
-from params import data_params
+params = dataf.read_param_file("gaia_params.yaml")
+data_params = params["data"]
 
 # %% [markdown] tags=[]
 # # Basic Dataset
-# The following data is needed to start. By default, the data is named  as the  'f"{data}_{data_name}"'
+# The following data is needed to start.
 # - stars.hdf5 : (Pos,Vel) in N x 3 form
 # - selection
-
-# %% [markdown]
-# # Added
-# - Add Dynamics
-# - Make Selection (Toomre)
 
 # %% [markdown] tags=[]
 # # Load basic data
 # Load Gaia, make toomre selection
 
 # %%
-data = dataf.read_data(fname=data_params["base_data"], data_params=data_params)
-
-# %%
+# data = dataf.read_data(fname=data_params["base_data"], data_params=data_params)
+data = dataf.read_data(fname=data_params["base_data"])
 selection = data["selection"]
 stars = data["stars"]
+
+# %%
 print(len(stars["x"]))
 
 # %% [markdown]
@@ -63,21 +53,15 @@ print(len(stars["x"]))
 # %%
 pot_name = data_params["pot_name"]
 stars = dynf.add_dynamics(stars, pot_name, circ=True)
-
-# %%
-data["selection"] = selection 
+stars = dynf.add_cylindrical(stars)
 data["stars"] = stars
 
 # %% [markdown]
-# '''
-# '''
-
-# %% [markdown]
-# # Save Dyn
+# ## Save Dyn
 
 # %%
 fname = data_params["base_dyn"]
-folder = data_params["result_path"] + data_params["data_folder"]
+folder = data_params["result_folder"]
 dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 
 # %% [markdown] tags=[]
@@ -85,18 +69,22 @@ dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 # Apply the vtoomre>210
 
 # %%
-data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params)
+data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"])
 
 # %%
 data = dataf.apply_toomre_filt_dataset(data, v_toomre_cut=210)
 stars = data["stars"]
 print(len(stars["x"]))
 print(stars.keys())
-stars = dicf.filt(stars, stars["E"]<0)
+stars = dicf.filt(stars, stars["En"]<0)
 data["stars"] = stars
 
+# %% [markdown]
+# ## Save Sample
+
+# %%
 fname = data_params["sample"]
-folder = data_params["result_path"] + data_params["data_folder"]
+folder = data_params["result_folder"]
 dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 
 # %% [markdown]
@@ -110,5 +98,7 @@ df = vaex_from_dict(stars)
 # %%
 from KapteynClustering.legacy import plotting_utils
 plotting_utils.plot_original_data(df)
+
+# %%
 
 # %%

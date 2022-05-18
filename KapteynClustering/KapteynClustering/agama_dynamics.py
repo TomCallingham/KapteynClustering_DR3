@@ -15,7 +15,7 @@ def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex
     Lvec = np.cross(pos, vel)
     dyn['L'] = np.linalg.norm(Lvec, axis=1)
     dyn['Lz'] = Lvec[:, 2]
-    dyn['Lp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
+    dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
     dyn['Lvec'] = Lvec
     if pot is not None:
         dyn['U'] = pot.potential(pos)
@@ -78,6 +78,6 @@ def load_agama_potential(pot_fname):
         return a_pot
     else:
         a_pots = [load_agama_potential(p) for p in pot_fname]
-        a_pot = agama.Potetial(a_pots)
+        a_pot = agama.Potential(a_pots)
         return a_pot
 

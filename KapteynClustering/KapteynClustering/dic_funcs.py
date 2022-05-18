@@ -90,7 +90,7 @@ def h5py_save(fname, dic, verbose=False, overwrite=False):
 
     if verbose:
         print('Saving file: ',save_name)
-    if overwrite:
+    if not overwrite:
         if os.path.exists(save_name):
             print('File already here, moving old to _OLD')
             if os.path.exists(fname + '_OLD.hdf5'):

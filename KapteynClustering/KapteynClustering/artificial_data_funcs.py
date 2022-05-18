@@ -63,16 +63,15 @@ def get_shuffled_artificial_dataset(o_data, pot_fname, additional_props=[], v_to
     art_stars = dataf.apply_toomre_filt(art_stars, v_toomre_cut=v_toomre_cut,
                                         solar_params=solar_params)
     art_stars = dynf.add_dynamics(art_stars, pot_fname=pot_fname, circ=True)
-    art_stars = dicf.filt(art_stars, art_stars["E"] < 0, copy=False)
+    art_stars = dicf.filt(art_stars, art_stars["En"] < 0, copy=False)
     # art_stars = dataf.scale_features(
     #     art_stars, scales=o_data["scale"], plot=False)[0]
 
     N_original = len(o_data["stars"]["vx"])
     N_shuffle = len(art_stars["vx"])
-    print(f"{N_original} before shuffle")
-    print(f"{N_shuffle} after shuffle")
 
     return art_stars
+#TODO: check numbers of catalogues
     if N_shuffle > num_stars:
         df_art = df_art.sample(num_stars)
 

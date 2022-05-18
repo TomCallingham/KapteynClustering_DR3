@@ -90,7 +90,7 @@ def plot_IOM_subspaces(df, minsig=3, savepath=None):
    
     for i in range(6):
         plt.sca(axs[int(i/3), i%3])
-        df.scatter(x_axis[i], y_axis[i], s=0.5, c='lightgrey', alpha=0.1, length_limit=600000)
+        df.scatter(x_axis[i], y_axis[i], s=0.5, c='lightgrey', alpha=0.1, length_limit=60000)
         df_minsig.scatter(x_axis[i], y_axis[i], s=1, c=df_minsig.labels.values,
                                 cmap=cmap, norm=norm, alpha=0.6)
         

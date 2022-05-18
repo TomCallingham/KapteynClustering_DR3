@@ -5,7 +5,7 @@ import numpy as np
 
 def fit_gaussian(X):
     mean = np.mean(X, axis=0)
-    covar = np.cov(X, rowvar=0)
+    covar = np.cov(X, rowvar=0, bias=True) # 1/n, not 1/n-1
     return mean, covar
 
 
@@ -14,7 +14,7 @@ def find_mahalanobis(mean, covar, X):
 
 
 def find_mahalanobis_members(N_std, mean, covar, X):
-    return (find_mahalanobis(mean, covar, X) < N_std)
+    return (find_mahalanobis(mean, covar, X) <= N_std)
 
 
 def find_mahalanobis_N_members(N_std, mean, covar, X):
@@ -25,7 +25,7 @@ def find_mahalanobis_N_members(N_std, mean, covar, X):
 # https://github.com/scipy/scipy/blob/v1.8.0/scipy/stats/_multivariate.py
 # Use Modified Scipy to find Mahalanobis distance Fast
 
-def find_maha(x, mean=None, cov=1, allow_singular=False):
+def find_maha(x, mean, cov, psd=None, allow_singular=False):
     """ maha distance
     Parameters
     ----------
@@ -36,7 +36,8 @@ def find_maha(x, mean=None, cov=1, allow_singular=False):
     mahalanobis distance
     -------
     """
-    psd = _PSD(cov, allow_singular=allow_singular)
+    if psd is None:
+        psd = _PSD(cov, allow_singular=allow_singular)
     # dev = x - mean
     maha = np.sum(np.square(np.dot(x-mean, psd.U)), axis=-1)
     return maha
