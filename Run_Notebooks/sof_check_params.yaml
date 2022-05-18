@@ -1,15 +1,15 @@
 run:
-  steps: [sample,artificial,linkage,significance,label]
-  # steps: [serial_sig]
+  # steps: [sample,artificial,linkage,significance,label]
+  steps: [serial_sig]
+  # steps: [significance, serial_sig]
 
 data:
-  base_data : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_data/test_gaia_Stars"
-  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
+  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/second_test_gaia/"
   base_dyn: "test_gaia_Dyn" #Dynamics and scaled
-  sample: "test_gaia_Sample" #Toomre Selection and others,
-  art: "test_gaia_Art"
+  sample: "SOF" #Toomre Selection and others,
+  art: "SOF"
   cluster: "test_gaia_Cluster"
-  sig: "test_gaia_Significance"
+  sig: "test_gaia_Significance_SOF"
   label: "test_gaia_Labels"
   pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
 

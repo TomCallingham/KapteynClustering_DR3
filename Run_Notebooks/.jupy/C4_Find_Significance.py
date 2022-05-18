@@ -48,7 +48,7 @@ data_params = params["data"]
 #         !python "../KapteynClustering/KapteynClustering/Run_Significance.py"
 
 # %% tags=[]
-if True: # Careful, time consuming! Better To Run in cmdline to see output
+if False: # Careful, time consuming! Better To Run in cmdline to see output
     module_folder = os.path.dirname(KC.__file__)
     script_file = module_folder + "/Run_Significance.py"
     run_cmd = f"python {script_file} {param_file}"

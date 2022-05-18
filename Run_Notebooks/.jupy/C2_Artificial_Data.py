@@ -41,13 +41,14 @@ data_params = params["data"]
 art_params = params["art"]
 N_art = art_params["N_art"]
 pot_name = data_params["pot_name"]
+folder = data_params["result_folder"]
 
 # %% [markdown]
 # ## Load Data
 # Load data before TOOMRE selection. We apply that after
 
 # %%
-data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"])
+stars = dataf.read_data(fname=folder+data_params["base_dyn"])
 
 # %% [markdown]
 # # Artificial DataSet
@@ -66,23 +67,22 @@ data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"
 additional_props = []
 
 # %% tags=[]
-art_data = adf.get_shuffled_artificial_set(N_art, data, pot_name, additional_props)
+art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, additional_props)
 
 # %%
 fname = data_params["art"]
-folder = data_params["result_folder"]
-dicf.h5py_save(fname=folder + fname, dic=art_data, verbose=True, overwrite=True)
+dataf.write_data(fname=folder + fname, dic=art_stars, verbose=True, overwrite=True)
 
 # %% [markdown]
 # # Plots comparing Shuffled Smooth dataset
 
 # %%
-print(art_data["stars"].keys())
+print(art_stars.keys())
 
 # %%
 from KapteynClustering.legacy import plotting_utils, vaex_funcs
-df_artificial = vaex_funcs.vaex_from_dict(art_data["stars"][0])
-df= vaex_funcs.vaex_from_dict(data["stars"])
+df_artificial = vaex_funcs.vaex_from_dict(art_stars[0])
+df= vaex_funcs.vaex_from_dict(stars)
 
 # %%
 plotting_utils.plot_original_data(df)
@@ -91,16 +91,14 @@ plotting_utils.plot_original_data(df)
 plotting_utils.plot_original_data(df_artificial)
 
 # %%
-art_stars = art_data["stars"][0]
-sample_data = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
-sample_stars = sample_data["stars"]
-stars = data["stars"]
+art_stars0 = art_stars[0]
+sample_stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
 
 for x in ["En", "Lz", "Lperp", "circ"]:
     plt.figure()
     plt.hist(stars[x], label="Original", bins="auto",histtype="step")
     plt.hist(sample_stars[x], label="sample", bins="auto",histtype="step")
-    plt.hist(art_stars[x], label="art", bins="auto", histtype="step")
+    plt.hist(art_stars0[x], label="art", bins="auto", histtype="step")
     plt.legend()
     plt.xlabel(x)
     plt.show()

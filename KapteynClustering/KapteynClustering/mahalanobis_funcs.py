@@ -5,7 +5,7 @@ import numpy as np
 
 def fit_gaussian(X):
     mean = np.mean(X, axis=0)
-    covar = np.cov(X, rowvar=0, bias=True) # 1/n, not 1/n-1
+    covar = np.cov(X, rowvar=0, bias=True)  # 1/n, not 1/n-1
     return mean, covar
 
 

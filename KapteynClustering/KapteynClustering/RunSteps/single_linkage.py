@@ -10,12 +10,13 @@ def single_linkage(params):
     print("Applying single linkage clustering. Using the following features and scales:")
     print(scales, "\n", features)
 
-    data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
-    stars = data["stars"]
+    folder = data_params["result_folder"]
+    stars = dataf.read_data(fname=folder+data_params["sample"])
+
+    print("Now clustering")
 
     cluster_data = clusterf.clusterData(stars, features=features, scales = scales)
-    cluster_data["selection"] = data["selection"]
 
     dicf.h5py_save(data_params["result_folder"]+data_params["cluster"], cluster_data)
-    print("Finished")
+    print("Finished Linkage \n")
     return

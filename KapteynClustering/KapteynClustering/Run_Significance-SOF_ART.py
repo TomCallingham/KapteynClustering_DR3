@@ -1,4 +1,5 @@
 # Setup
+from KapteynClustering.legacy import load_sofie_data as lsd
 import numpy as np
 from multiprocessing import Pool, RawArray
 import time
@@ -32,11 +33,11 @@ art_file = sig_files["art_file"]
 print("Using cut. SLOWER")
 save_name = sig_files["save_name"] + "_SOF_ART_cut"
 
-cluser_data = dicf.h5py_load(sig_files["file_base"] + sig_files["cluster_file"])
+cluser_data = dicf.h5py_load(
+    sig_files["file_base"] + sig_files["cluster_file"])
 Z = cluser_data["Z"]
 N_clusters = len(Z[:, 0])
 
-from KapteynClustering.legacy import load_sofie_data as lsd
 print("USING SOF ART")
 stars = lsd.load_sof_df()
 X = clusterf.find_X(features, stars)
@@ -47,13 +48,15 @@ del sof_art_stars
 
 tree_members = clusterf.find_tree(Z, prune=True)
 list_tree_members = [tree_members[i + N_clusters+1] for i in range(N_clusters)]
-print("LOADED all data")# PCA Fit
+print("LOADED all data")  # PCA Fit
 
 print("Starting finding significance")
 print(f"N_clusters = {N_clusters}")
 print(f"N_art = {N_art}")
 # A global dictionary storing the variables passed from the initializer.
 var_dict = {}
+
+
 def init_worker(share_dic):
     raw_X = share_dic["raw_X"]
     X_shape = share_dic["X_shape"]
@@ -67,9 +70,11 @@ def init_worker(share_dic):
             art_dic[n]["art_X"]).reshape(art_dic[n]["art_X_shape"])
     var_dict["share_art_X"] = share_art_X
 
+
 def worker_func(members):
     return sigf.cut_expected_density_members(members, N_std=N_sigma_ellipse_axis, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
-                                         min_members=min_members)
+                                             min_members=min_members)
+
 
 def init_memory(X, art_X):
     print("Initialising Memory")
@@ -85,9 +90,11 @@ def init_memory(X, art_X):
     for n in list(art_X.keys()):
         art_dic[n] = {}
         art_dic[n]["art_X_shape"] = np.shape(art_X[n])
-        raw_dic[n] = RawArray('d', art_dic[n]["art_X_shape"][0]*art_dic[n]["art_X_shape"][1])
+        raw_dic[n] = RawArray('d', art_dic[n]["art_X_shape"]
+                              [0]*art_dic[n]["art_X_shape"][1])
         # Wrap art_X_array as an numpy array so we can easily manipulates its data.
-        temp_share = np.frombuffer(raw_dic[n]).reshape(art_dic[n]["art_X_shape"])
+        temp_share = np.frombuffer(raw_dic[n]).reshape(
+            art_dic[n]["art_X_shape"])
         # Copy data to our shared array.
         np.copyto(temp_share, art_X[n])
         art_dic[n]["art_X"] = raw_dic[n]
@@ -96,10 +103,12 @@ def init_memory(X, art_X):
     share_dic["X_shape"] = X_shape
     share_dic["art_dic"] = art_dic
     print("Initialised")
-    return share_dic# Start the process pool and do the computation.
+    return share_dic  # Start the process pool and do the computation.
+
+
 # Here we pass X and X_shape to the initializer of each worker.
 # (Because X_shape is not a shared variable, it will be copied to each child process.)
-share_dic = init_memory(X,art_X)
+share_dic = init_memory(X, art_X)
 T = time.time()
 
 with Pool(processes=N_process, initializer=init_worker, initargs=(share_dic,)) as pool:
@@ -120,4 +129,5 @@ pca_data = {"region_count": region_count,
             "significance": significance}
 
 
-dicf.h5py_save(sig_files["file_base"] + save_name, pca_data, verbose=True, overwrite=True)
+dicf.h5py_save(sig_files["file_base"] + save_name,
+               pca_data, verbose=True, overwrite=True)

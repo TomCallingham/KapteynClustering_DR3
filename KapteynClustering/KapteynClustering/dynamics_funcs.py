@@ -12,7 +12,7 @@ def add_dynamics(stars, pot_fname=None, J_finder=None, angles=True, circ=True, e
 
     if pot_fname == "H99":
         from .H99_DynamicsCalc import H99_dyn_calc
-        dyn = H99_dyn_calc(pos,vel)
+        dyn = H99_dyn_calc(pos, vel)
     else:
         from agama_dynamics import load_agama_potential, agama_dyn_calc
         a_pot = load_agama_potential(pot_fname)
@@ -29,6 +29,7 @@ def add_cylindrical(stars):
     stars['R'], stars['phi'], temp_z, stars['vR'], stars['vT'], temp_vz = cart_to_cylinder(
         pos, vel)
     return stars
+
 
 def cart_to_cylinder(pos, vel):
     ''' x = R sin(phi)'''

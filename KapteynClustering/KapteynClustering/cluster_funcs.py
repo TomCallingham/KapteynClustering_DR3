@@ -1,3 +1,5 @@
+from .default_params import cluster_params0
+import copy
 from queue import Queue
 import numpy as np
 from fastcluster import linkage_vector
@@ -56,6 +58,7 @@ def fast_get_members(i, Z):
 
     return np.array(members)
 
+
 def next_members(tree_dic, Z, i, N_cluster):
     tree_dic[i + N_cluster] = tree_dic[Z[i, 0]] + tree_dic[Z[i, 1]]
     return tree_dic
@@ -95,7 +98,6 @@ def find_tree(Z, i_max=None, prune=False):
     return tree_dic
 
 
-
 def find_X(features, stars, scaled=False):
     n_features = len(features)
     N_stars = len(stars["vx"])
@@ -103,7 +105,7 @@ def find_X(features, stars, scaled=False):
     for n, p in enumerate(features):
         if scaled:
             X[:, n] = stars["scaled_"+p]
-            print("using scaled ",p)
+            print("using scaled ", p)
         else:
             X[:, n] = stars[p]
     return X
@@ -116,25 +118,27 @@ def art_find_X(features, art_stars):
         art_X[a] = find_X(features, art_stars[a])
     return art_X
 
+
 def find_art_X_array(features, art_stars, scaled=False):
     n_features = len(features)
     arts = list(art_stars.keys())
     N_art = len(arts)
     N_stars = len(art_stars[0]["vx"])
-    art_X_array = np.empty((N_art,N_stars, n_features))
-    for na,a in enumerate(arts):
+    art_X_array = np.empty((N_art, N_stars, n_features))
+    for na, a in enumerate(arts):
         stars = art_stars[a]
         for n, p in enumerate(features):
             if scaled:
-                art_X_array[na,:, n] = stars["scaled_"+p]
-                print("using scaled ",p)
+                art_X_array[na, :, n] = stars["scaled_"+p]
+                print("using scaled ", p)
             else:
-                art_X_array[na,:, n] = stars[p]
+                art_X_array[na, :, n] = stars[p]
     return art_X_array
 
-from .default_params import cluster_params0
-import copy
+
 ###
+
+
 def scale_features(stars, features=cluster_params0["features"],
                    scales=cluster_params0["scales"], plot=True):
     scale_data = {}
@@ -142,7 +146,8 @@ def scale_features(stars, features=cluster_params0["features"],
     for p in features:
         scale = scales.get(p, None)
         if scale is None:
-            print(f"No scale found for {p}, creating own using {percent} margin")
+            print(
+                f"No scale found for {p}, creating own using {percent} margin")
             scale = get_scale(x=stars[p])
         stars["scaled_" +
               p] = apply_scale(stars, xkey=p, scale=scale, plot=plot)

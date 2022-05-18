@@ -41,8 +41,7 @@ print(data_params)
 # # Load
 
 # %%
-data = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
-stars = data["stars"]
+stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
 
 # %%
 print(len(stars["x"]))
@@ -59,12 +58,13 @@ print(scales, "\n", features)
 # %%
 cluster_data = clusterf.clusterData(stars, features=features, scales = scales)
 
+# %%
+print(cluster_data.keys())
+
 # %% [markdown]
 # # Save
 
 # %%
-cluster_data["selection"] = data["selection"]
-
 dicf.h5py_save(data_params["result_folder"]+data_params["cluster"], cluster_data)
 
 # %% [markdown]

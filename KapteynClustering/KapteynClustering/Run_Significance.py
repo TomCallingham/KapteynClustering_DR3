@@ -7,7 +7,8 @@ import sys
 
 # LOADING Params
 param_file = sys.argv[1]
-save_name, result_folder, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(param_file)
+save_name, result_folder, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
+    param_file)
 
 print("LOADED all data")
 print("Starting finding significance")
@@ -16,9 +17,11 @@ print(f"N_clusters = {N_clusters}")
 print(f"N_art = {N_art}")
 
 
-## Initialise MPI
+# Initialise MPI
 # A global dictionary storing the variables passed from the initializer.
 var_dict = {}
+
+
 def init_worker(share_dic):
     raw_X = share_dic["raw_X"]
     X_shape = share_dic["X_shape"]
@@ -32,9 +35,15 @@ def init_worker(share_dic):
             art_dic[n]["art_X"]).reshape(art_dic[n]["art_X_shape"])
     var_dict["share_art_X"] = share_art_X
 
+
+print("Using cut function")
+save_name += "_cut"
+
+
 def worker_func(members):
-    return sigf.expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
-                                         min_members=min_members)
+    return sigf.cut_expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
+                                             min_members=min_members)
+
 
 def init_memory(X, art_X):
     print("Initialising Memory")
@@ -50,9 +59,11 @@ def init_memory(X, art_X):
     for n in list(art_X.keys()):
         art_dic[n] = {}
         art_dic[n]["art_X_shape"] = np.shape(art_X[n])
-        raw_dic[n] = RawArray('d', art_dic[n]["art_X_shape"][0]*art_dic[n]["art_X_shape"][1])
+        raw_dic[n] = RawArray('d', art_dic[n]["art_X_shape"]
+                              [0]*art_dic[n]["art_X_shape"][1])
         # Wrap art_X_array as an numpy array so we can easily manipulates its data.
-        temp_share = np.frombuffer(raw_dic[n]).reshape(art_dic[n]["art_X_shape"])
+        temp_share = np.frombuffer(raw_dic[n]).reshape(
+            art_dic[n]["art_X_shape"])
         # Copy data to our shared array.
         np.copyto(temp_share, art_X[n])
         art_dic[n]["art_X"] = raw_dic[n]
@@ -62,7 +73,9 @@ def init_memory(X, art_X):
     share_dic["art_dic"] = art_dic
     print("Initialised")
     return share_dic
-share_dic = init_memory(X,art_X)
+
+
+share_dic = init_memory(X, art_X)
 
 # Start the process pool and do the computation.
 T = time.time()
@@ -73,7 +86,7 @@ dt = time.time() - T
 print(f" Time taken: {dt/60} mins")
 
 
-## Save Result
+# Save Result
 result = np.array(result)
 region_count = result[:, 0]
 art_region_count = result[:, 1]
@@ -86,4 +99,5 @@ pca_data = {"region_count": region_count,
             "significance": significance}
 
 
-dicf.h5py_save(result_folder + save_name, pca_data, verbose=True, overwrite=True)
+dicf.h5py_save(result_folder + save_name, pca_data,
+               verbose=True, overwrite=True)

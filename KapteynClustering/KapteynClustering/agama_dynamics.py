@@ -1,14 +1,14 @@
+import numpy as np
 import agama
 # units: kpc, km/s, Msun; time unit ~ 1 Gyr
 agama.setUnits(length=1, velocity=1, mass=1)
-import numpy as np
+
 
 def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex=False):
     dyn = {}
     dyn['pos'] = pos
     dyn['vel'] = vel
     xyz = np.column_stack((pos, vel))
-
 
     dyn['K'] = 0.5 * np.sum(vel**2, axis=1)
 
@@ -60,24 +60,25 @@ def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex
 
     return dyn
 
+
 def vcirc(Rspace, pot):
     cart_space = np.column_stack((Rspace, 0 * Rspace, 0 * Rspace))
     force = pot.force(cart_space)
     vcirc = np.sqrt(-cart_space[:, 0] * force[:, 0])
     return vcirc
 
+
 def load_agama_potential(pot_fname):
     ''' Loads an agama potetial localy, or from the installed data folder'''
-    if type(pot_fname)== str:
+    if type(pot_fname) == str:
         try:
-            a_pot =  agama.Potential(pot_fname)
+            a_pot = agama.Potential(pot_fname)
         except Exception:
             import os.path
             AGAMA_folder = os.path.dirname(agama.__file__) + "/data/"
-            a_pot =  agama.Potential(AGAMA_folder + pot_fname)
+            a_pot = agama.Potential(AGAMA_folder + pot_fname)
         return a_pot
     else:
         a_pots = [load_agama_potential(p) for p in pot_fname]
         a_pot = agama.Potential(a_pots)
         return a_pot
-

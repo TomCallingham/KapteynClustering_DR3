@@ -6,6 +6,7 @@ except Exception:
     from KapteynClustering.RunSteps import sample_prepare, art_data, single_linkage, significance_find, find_labels
     import KapteynClustering.data_funcs as dataf
 
+
 def main(param_file):
     print("Running KC script, using params found:")
     print(param_file, "\n")
@@ -28,6 +29,7 @@ def main(param_file):
     if "label" in steps:
         find_labels.find_labels(params)
     return
+
 
 if __name__ == "__main__":
     param_file = sys.argv[1]

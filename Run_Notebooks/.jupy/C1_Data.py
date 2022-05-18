@@ -27,6 +27,7 @@ import KapteynClustering.plot_funcs as plotf
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
 data_params = params["data"]
+folder = data_params["result_folder"]
 
 # %% [markdown] tags=[]
 # # Basic Dataset
@@ -40,9 +41,7 @@ data_params = params["data"]
 
 # %%
 # data = dataf.read_data(fname=data_params["base_data"], data_params=data_params)
-data = dataf.read_data(fname=data_params["base_data"])
-selection = data["selection"]
-stars = data["stars"]
+stars = dataf.read_data(fname=data_params["base_data"])
 
 # %%
 print(len(stars["x"]))
@@ -54,38 +53,27 @@ print(len(stars["x"]))
 pot_name = data_params["pot_name"]
 stars = dynf.add_dynamics(stars, pot_name, circ=True)
 stars = dynf.add_cylindrical(stars)
-data["stars"] = stars
 
 # %% [markdown]
 # ## Save Dyn
 
 # %%
-fname = data_params["base_dyn"]
-folder = data_params["result_folder"]
-dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
+dataf.write_data(fname=folder + data_params["base_dyn"], dic=stars, verbose=True, overwrite=True)
 
 # %% [markdown] tags=[]
 # # Toomre Sample
 # Apply the vtoomre>210
 
 # %%
-data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"])
-
-# %%
-data = dataf.apply_toomre_filt_dataset(data, v_toomre_cut=210)
-stars = data["stars"]
-print(len(stars["x"]))
-print(stars.keys())
-stars = dicf.filt(stars, stars["En"]<0)
-data["stars"] = stars
+toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210)
+toomre_stars = dicf.filt(toomre_stars, stars["En"]<0)
 
 # %% [markdown]
 # ## Save Sample
 
 # %%
 fname = data_params["sample"]
-folder = data_params["result_folder"]
-dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
+dataf.write_data(fname=folder + fname, dic=toomre_stars, verbose=True, overwrite=True)
 
 # %% [markdown]
 # # Plots
@@ -93,6 +81,7 @@ dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
 
 # %%
 from KapteynClustering.legacy.vaex_funcs import vaex_from_dict
+
 df = vaex_from_dict(stars)
 
 # %%

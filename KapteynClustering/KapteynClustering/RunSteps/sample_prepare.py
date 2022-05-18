@@ -1,40 +1,34 @@
 import KapteynClustering.dynamics_funcs as dynf
-import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.dic_funcs as dicf
 
 # from params import data_params
 def sample_prepare(params):
     data_params = params["data"]
+    print("Finding Dynamics")
     save_dynamics(data_params)
+    print("Finding Toomre Sample")
     create_toomre_example(data_params)
-    print("Finished")
+    print("Samples Created \n")
     return
 
 
 def save_dynamics(data_params):
-    data = dicf.h5py_load(fname=data_params["base_data"], verbose=True)
-    selection = data["selection"]
-    stars = data["stars"]
-    # Create Dynamics
+    stars = dataf.read_data(fname=data_params["base_data"], verbose=True)
+    # Create dynamics
     pot_name = data_params["pot_name"]
     stars = dynf.add_dynamics(stars, pot_name, circ=True)
     stars = dynf.add_cylindrical(stars)
-    # stars,scales = dataf.scale_features(stars)
-    # data["scale"] = scales
-    data["selection"] = selection
-    data["stars"] = stars
-    fname = data_params["base_dyn"]
+    #save dynamics
     folder = data_params["result_folder"]
-    dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
+    dataf.write_data(fname=folder + data_params["base_dyn"], dic=stars, verbose=True, overwrite=True)
     return
 
 def create_toomre_example(data_params):
-    data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params)
-    data = dataf.apply_toomre_filt_dataset(data, v_toomre_cut=210)
-    stars = data["stars"]
-    stars = dicf.filt(stars, stars["En"]<0)
-    data["stars"] = stars
-    fname = data_params["sample"]
     folder = data_params["result_folder"]
-    dicf.h5py_save(fname=folder + fname, dic=data, verbose=True, overwrite=True)
+    stars = dataf.read_data(fname=folder+data_params["base_dyn"])
+    toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210)
+    del stars
+    toomre_stars = dicf.filt(toomre_stars, toomre_stars["En"]<0)
+    dataf.write_data(fname=folder + data_params["sample"], dic=toomre_stars, verbose=True, overwrite=True)
     return

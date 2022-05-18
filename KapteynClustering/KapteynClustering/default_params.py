@@ -1,4 +1,4 @@
-data_params0 = {"result_folder": "result_folder" }
+data_params0 = {"result_folder": "result_folder"}
 
 cluster_params0 = {"features": ["En", "Lperp", "Lz"],
                    "scales": {"En": [-1.7e5, 0], "Lperp": [0, 4300], "Lz": [-4500, 4600]},

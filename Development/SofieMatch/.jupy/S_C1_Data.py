@@ -25,32 +25,24 @@ import KapteynClustering.plot_funcs as plotf
 # Consistent across Notebooks
 
 # %%
-from params import data_params
-
-# %% [markdown] tags=[]
-# # Basic Dataset
-# The following data is needed to start. By default, the data is named  as the  'f"{data}_{data_name}"'
-# - stars.hdf5 : (Pos,Vel) in N x 3 form
-# - selection
+params = dataf.read_param_file("../../Run_Notebooks/gaia_params.yaml")
+data_params = params["data"]
+result_folder = data_params["result_folder"]
 
 # %% [markdown]
-# # Added
-# - Add Dynamics
-# - Make Selection (Toomre)
-
-# %% [markdown]
-# # Load Dyn
+# # Load Me
+# Dyn and Toomre
 
 # %%
-dyn_data = dataf.read_data(fname=data_params["base_dyn"], data_params=data_params)
+dyn_data = dataf.read_data(fname=result_folder + data_params["base_dyn"])
+dyn_stars = dyn_data["stars"]
 
-# %% [markdown] tags=[]
-# # Toomre Sample
-# Apply the vtoomre>210
-
-# %%
-sample_data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
+sample_data = dataf.read_data(fname=result_folder+data_params["sample"])
 stars = sample_data["stars"]
+
+# %%
+import KapteynClustering.legacy.load_sofie_data as lsd
+sof_stars = lsd.load_sof_df()
 
 # %% [markdown]
 # # Plots
@@ -58,14 +50,11 @@ stars = sample_data["stars"]
 
 # %%
 from KapteynClustering.legacy.vaex_funcs import vaex_from_dict
+from KapteynClustering.legacy import plotting_utils
 df = vaex_from_dict(stars)
 
 # %%
-from KapteynClustering.legacy import plotting_utils
 plotting_utils.plot_original_data(df)
-
-# %% [markdown]
-# #  COMPARE
 
 # %%
 import vaex
@@ -75,40 +64,19 @@ sof_df = vaex.open(f'{result_path}df.hdf5')
 # %%
 plotting_utils.plot_original_data(sof_df)
 
-# %%
-translate = {"E":"En"}
-for x in ["E", "Lz", "Lp", "circ"]:
-    my_x = stars[x]
-    original_x = stars["original_" + translate.get(x,x)]
-    plt.figure()
-    plt.scatter(my_x, original_x)
-    plt.xlabel(x)
-    plt.ylabel("original" + x)
-    plt.show()
-
-    plt.figure()
-    plt.scatter(my_x, original_x/my_x)
-    plt.xlabel(x)
-    plt.ylabel("original / me" + x)
-    plt.show()
-
-    plt.figure()
-    plt.scatter(my_x, original_x - my_x)
-    plt.xlabel(x)
-    plt.ylabel("original - me" + x)
-    plt.show()
+# %% [markdown]
+# #  COMPARE
 
 # %%
-plt.figure()
-plt.scatter(stars["En"], stars["original_En"])
-plt.show()
-
-plt.figure()
-plt.scatter(stars["En"], stars["original_En"]/stars["En"])
-plt.show()
-
-plt.figure()
-plt.scatter(stars["En"], stars["original_En"]-stars["En"])
-plt.show()
+for x in ["En", "Lz", "Lperp", "circ", "x", "y", "z", "vx", "vy", "vz"]:
+    plt.figure()
+    if x in ["Lz", "circ"]:
+        plt.hist(-stars[x], bins=100, density=True, label="Me")
+    else:
+        plt.hist(stars[x], bins=100, density=True, label="Me")
+    plt.hist(sof_stars[x], bins=100, density=True, label="Sof", histtype="step", zorder=10)
+    plt.xlabel(x)
+    plt.legend()
+    plt.show()
 
 # %%

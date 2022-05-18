@@ -32,20 +32,21 @@ params = dataf.read_param_file("gaia_params.yaml")
 data_params = params["data"]
 result_folder = data_params["result_folder"]
 min_sig = params["label"]["min_sig"]
+min_sig = 3
 
 # %% [markdown]
 # ## Load
 
 # %%
-data = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
-stars = data["stars"]
+stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
 
 # %%
 cluster_data = dataf.read_data(fname=data_params["result_folder"] + data_params["cluster"])
 Z = cluster_data["Z"]
 
 # %%
-sig_data = dataf.read_data(fname=result_folder+ data_params["sig"])#, extra="_SOF_ART_cut")
+# sig_data = dataf.read_data(fname=result_folder+ data_params["sig"], extra="_SOF_ART_cut")
+sig_data = dataf.read_data(fname=result_folder+ data_params["sig"], extra="_SOF_cut")
 sig = sig_data["significance"]
 
 # %% [markdown]
