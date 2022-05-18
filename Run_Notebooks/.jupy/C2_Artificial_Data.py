@@ -65,10 +65,6 @@ data = dataf.read_data(fname=data_params["result_folder"]+data_params["base_dyn"
 # %%
 additional_props = []
 
-# %%
-print("Creating Artificial_data")
-print(f"{N_art} realisations")
-
 # %% tags=[]
 art_data = adf.get_shuffled_artificial_set(N_art, data, pot_name, additional_props)
 
@@ -81,9 +77,12 @@ dicf.h5py_save(fname=folder + fname, dic=art_data, verbose=True, overwrite=True)
 # # Plots comparing Shuffled Smooth dataset
 
 # %%
+print(art_data["stars"].keys())
+
+# %%
 from KapteynClustering.legacy import plotting_utils, vaex_funcs
 df_artificial = vaex_funcs.vaex_from_dict(art_data["stars"][0])
-df= vaex_funcs.vaex_from_dict(stars)
+df= vaex_funcs.vaex_from_dict(data["stars"])
 
 # %%
 plotting_utils.plot_original_data(df)
@@ -93,8 +92,9 @@ plotting_utils.plot_original_data(df_artificial)
 
 # %%
 art_stars = art_data["stars"][0]
-sample_data = dataf.read_data(fname=data_params["sample"], data_params=data_params)
+sample_data = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
 sample_stars = sample_data["stars"]
+stars = data["stars"]
 
 for x in ["En", "Lz", "Lperp", "circ"]:
     plt.figure()

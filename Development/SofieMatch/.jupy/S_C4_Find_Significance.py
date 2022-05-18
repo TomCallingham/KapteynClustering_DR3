@@ -30,28 +30,37 @@ import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.plot_funcs as plotf
 
-from params import data_params, gaia2, auriga, cosma
+# from params import data_params, gaia2, auriga, cosma
+
+# %% [markdown]
+# ### Paramaters
+# Consistent across Notebooks
 
 # %%
-print("Test")
+params = dataf.read_param_file("gaia_params.yaml")
+data_params = params["data"]
+result_folder = data_params["result_folder"]
+min_sig = params["label"]["min_sig"]
 
 # %% [markdown]
 # # LOAD
 
 # %%
-cluster_data = dataf.read_data(fname=data_params["cluster"], data_params=data_params)
+result_folder = data_params["result_folder"]
+
+cluster_data = dataf.read_data(fname=result_folder + data_params["cluster"])
 Z = cluster_data["Z"]
-# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_slow_minimal")
-sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_SOF_ART_cut_serial")
-# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_SOF_ART_cut")
-# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_SOF_ART")
-# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_slow")
-# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_slow_sof")
+# sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_slow_minimal")
+sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_serial_cut")
+# sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_SOF_ART_cut")
+# sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_SOF_ART")
+# sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_slow")
+# sig_data = dataf.read_data(fname=result_folder+data_params["sig"] ,extra="_slow_sof")
 
 # %%
 # sof_stats = dataf.load_vaex_to_dic("/net/gaia2/data/users/dodd/Clustering_EDR3/cluster_in_3D_test/results/df_labels_3D_3sigma")
 s_result_path = "/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/"
-sof_stats = dataf.load_vaex_to_dic(s_result_path+ "stats" )
+sof_stats = dataf.read_data(fname=s_result_path+ "stats" )
 print(sof_stats.keys())
 sof_Z = np.stack((sof_stats["index1"], sof_stats["index2"])).T
 s_sig_data = {}

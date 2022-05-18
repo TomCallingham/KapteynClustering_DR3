@@ -5,10 +5,10 @@ except Exception:
     from KapteynClustering import cluster_funcs as clusterf
 
 def find_group_data(significance, Z, minimum_significance=3):
-    selected, significance = select_maxsig_clusters_from_tree(significance, Z, minimum_significance)
+    selected, cluster_sig = select_maxsig_clusters_from_tree(significance, Z, minimum_significance)
     tree_members = clusterf.find_tree(Z, prune=True)
     N_clusters = len(Z)
-    labels, star_sig =  get_cluster_labels_with_significance(selected, significance, tree_members, N_clusters)
+    labels, star_sig =  get_cluster_labels_with_significance(selected, cluster_sig, tree_members, N_clusters)
     labels, Groups, Pops = order_labels(labels)
     G_sig = np.array([star_sig[labels==g][0] for g in Groups])
     print(f'Number of clusters: {len(Groups)-1}')
@@ -132,20 +132,18 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
 
 
 
-def order_labels(old_labels, fluff_label=-1):
-    Groups, Pops = np.unique(old_labels, return_counts=True)
-    p_sort = np.argsort(Pops)[::-1]  # Decreasing order
-    Groups, Pops = Groups[p_sort], Pops[p_sort]
-    labels = -np.ones_like(old_labels, dtype=int)
-    for i, l in enumerate(Groups[Groups != fluff_label]):
-        labels[old_labels == l] = i
-        Groups[i] = i
-    Groups[Groups==fluff_label] = -1
-    # Error here? can't set fluff_label as -1
-    Groups, Pops = np.unique(labels, return_counts=True)
-    p_sort = np.argsort(Pops)[::-1]  # Decreasing order
-    Groups, Pops = Groups[p_sort], Pops[p_sort]
-    # print(Groups, Pops)
-    # print(np.unique(labels))
-    return labels, Groups, Pops
 
+def order_labels(old_labels, fluff_label=-1):
+    ''' relabel, using 0 as largest group then descending. Fluff on -1'''
+    Groups, Pops = np.unique(old_labels[old_labels!=fluff_label], return_counts=True)
+    p_sort = np.argsort(Pops)[::-1]  # Decreasing order
+    old_Groups, Pops = Groups[p_sort].astype(int), Pops[p_sort]
+    N_groups = len(old_Groups)
+    Groups = -np.ones((N_groups+1), dtype=int)
+    labels = -np.ones_like(old_labels, dtype=int)
+    for i, l in enumerate(old_Groups, start=0):
+        labels[old_labels == l] = i
+        Groups[i+1] = i
+    Nfluff = (old_labels==fluff_label).sum()
+    Pops = np.concatenate(([[Nfluff], Pops]))
+    return labels, Groups, Pops

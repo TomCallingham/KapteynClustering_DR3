@@ -30,7 +30,8 @@ import KapteynClustering as KC
 # Consistent across Notebooks
 
 # %%
-params = dataf.read_param_file("gaia_params.yaml")
+param_file = "gaia_params.yaml"
+params = dataf.read_param_file(param_file)
 data_params = params["data"]
 
 # %% [markdown] tags=[]
@@ -46,11 +47,14 @@ data_params = params["data"]
 #     elif gaia2:
 #         !python "../KapteynClustering/KapteynClustering/Run_Significance.py"
 
-# %%
-if False: # Careful, time consuming!
+# %% tags=[]
+if True: # Careful, time consuming! Better To Run in cmdline to see output
     module_folder = os.path.dirname(KC.__file__)
     script_file = module_folder + "/Run_Significance.py"
-    os.system(f"python {script_file} {param_file}")
+    run_cmd = f"python {script_file} {param_file}"
+    print(run_cmd)
+    os.system(run_cmd)
+    # !python run_cmd
     print("Finished")
 
 # %% [markdown]

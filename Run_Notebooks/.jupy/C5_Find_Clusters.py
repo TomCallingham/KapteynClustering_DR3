@@ -30,7 +30,6 @@ import KapteynClustering.label_funcs as labelf
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
 data_params = params["data"]
-print(data_params.keys())
 result_folder = data_params["result_folder"]
 min_sig = params["label"]["min_sig"]
 
@@ -69,7 +68,11 @@ dicf.h5py_save(fname=result_folder + data_params["label"], dic=label_data, verbo
                                            ["labels","star_sig", "Groups", "Pops", "G_sig"]]
 
 # %%
-print(G_sig[Groups==-1])
+N_fluff = Pops[Groups==-1]
+N_grouped = len(labels) - N_fluff
+f_grouped = N_grouped/len(labels)
+
+print(f"Fraction Grouped: {f_grouped}")
 
 # %%
 plt.figure(figsize=(8,8))
@@ -79,17 +82,6 @@ plt.yscale("log")
 plt.xlabel("Population")
 plt.ylabel("Significance")
 for g,p,s in zip(Groups[G_sig>min_sig], Pops[G_sig>min_sig], G_sig[G_sig>min_sig]):
-    plt.text(p,s,g, size=15)
-plt.show()
-
-# %%
-plt.figure(figsize=(8,8))
-plt.scatter(Pops, G_sig)
-# plt.xscale("log")
-# plt.yscale("log")
-plt.xlabel("Population")
-plt.ylabel("Significance")
-for g,p,s in zip(Groups, Pops, G_sig):
     plt.text(p,s,g, size=15)
 plt.show()
 
@@ -136,10 +128,11 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
     for i,(xkey,ykey) in enumerate(zip(xkeys, ykeys)):
         plt.sca(axs[int(i / 3), i % 3])
         for j,(g,p,s) in enumerate(zip(Groups, Pops, G_sig)):
-            label  = f"{g}|{s:.1f} : {p}"
-            x, y = prop_select(stars,g, xkey, ykey,flip)
-            plt.scatter(x, y, label=label,
-                       alpha=0.5,s=size, edgecolors="none", zorder=-j)
+            if g!=-1:
+                label  = f"{g}|{s:.1f} : {p}"
+                x, y = prop_select(stars,g, xkey, ykey,flip)
+                plt.scatter(x, y, label=label,
+                           alpha=0.5,s=size, edgecolors="none", zorder=-j)
 
         g=-1
         fluff_pop = (stars["groups"]==g).sum()
