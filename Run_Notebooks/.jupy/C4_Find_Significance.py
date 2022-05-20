@@ -16,12 +16,8 @@
 # # Setup
 
 # %% tags=[]
-import numpy as np
 import matplotlib.pyplot as plt
-import KapteynClustering.dynamics_funcs as dynf
-import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.plot_funcs as plotf
 import os
 import KapteynClustering as KC
 
@@ -38,17 +34,8 @@ data_params = params["data"]
 # # PCA Fit
 # multiprocessing struggles in notebook. Below launches the scripts with given parameters.
 
-# %%
-# If on cosma, sbatch this!
-
-# if True:
-#     if cosma:
-#         !sbatch "Batch/"
-#     elif gaia2:
-#         !python "../KapteynClustering/KapteynClustering/Run_Significance.py"
-
 # %% tags=[]
-if False: # Careful, time consuming! Better To Run in cmdline to see output
+if True: # Careful, time consuming! Better To Run in cmdline to see output
     module_folder = os.path.dirname(KC.__file__)
     script_file = module_folder + "/Run_Significance.py"
     run_cmd = f"python {script_file} {param_file}"

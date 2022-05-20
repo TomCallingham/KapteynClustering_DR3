@@ -12,11 +12,12 @@
 #     name: conda-env-py39-py
 # ---
 
-# %% jupyter={"source_hidden": true} tags=[]
+# %% tags=[]
 import numpy as np
 import sys,glob,os,time
 import vaex, vaex.ml, vaex.ml.cluster
-import importdata, cluster_utils, plotting_utils
+# import importdata, cluster_utils
+import KapteynClustering.legacy.importdata, cluster_utils
 
 import matplotlib.pyplot as plt
 %matplotlib inline
@@ -33,10 +34,10 @@ plt.rc('figure', titlesize=16)  # fontsize of the figure title
 from IPython.core.display import display, HTML
 display(HTML("<style>.container { width:80% !important; }</style>"))
 
-from importlib import reload
-reload(importdata)
-reload(cluster_utils)
-reload(plotting_utils)
+# from importlib import reload
+# reload(importdata)
+# reload(cluster_utils)
+# reload(plotting_utils)
 np.random.seed(0)
 
 # %% [markdown] jp-MarkdownHeadingCollapsed=true tags=[]
@@ -228,15 +229,17 @@ print(features)
 
 # %% tags=[]
 s_result_path = result_path
-stars = dataf.load_vaex_to_dic(f'{s_result_path}df.hdf5')
-stars = dataf.scale_features(stars, features = features_to_be_scaled, plot=False)[0]
+# stars = dataf.load_vaex_to_dic(f'{s_result_path}df.hdf5')
+stars = dataf.read_data(f'{s_result_path}df.hdf5')
+stars = clusterf.scale_features(stars, features = features_to_be_scaled, plot=False)[0]
 # my_features = ["En", "Lz", "Lperp"]
 
 # %% tags=[]
 X = clusterf.find_X(features, stars)
 
 # %%
-sof_art_stars = dataf.load_vaex_to_dic(f'{s_result_path}df_artificial_3D.hdf5')
+# sof_art_stars = dataf.load_vaex_to_dic(f'{s_result_path}df_artificial_3D.hdf5')
+sof_art_stars = dataf.read_data(f'{s_result_path}df_artificial_3D.hdf5')
 sof_art_stars = dicf.groups(sof_art_stars, group="index", verbose=True)
 art_X = clusterf.art_find_X(features, sof_art_stars)
 del sof_art_stars
@@ -258,11 +261,11 @@ s_art_region_counts_std = stats["region_count_stds"].values
 N_potential_clusters = stats.count()
 
 # %%
-from params import data_params, gaia2, auriga, cosma
-sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_SOF_ART_cut")
-my_region_counts = sig_data["region_count"]
-my_art_region_counts = sig_data["art_region_count"]
-my_art_region_counts_std = sig_data["art_region_count_std"]
+# from params import data_params, gaia2, auriga, cosma
+# sig_data = dataf.read_data(fname=data_params["sig"], data_params=data_params, extra="_SOF_ART_cut")
+# my_region_counts = sig_data["region_count"]
+# my_art_region_counts = sig_data["art_region_count"]
+# my_art_region_counts_std = sig_data["art_region_count_std"]
 
 # %% [markdown]
 # # Running
@@ -286,8 +289,13 @@ for i in list(range(N_potential_clusters)):
     diff = np.abs(s_region_counts[i] - region_counts[i]) +  np.abs(s_art_region_counts[i] - art_region_counts[i])\
     +  np.abs(s_art_region_counts_std[i] - art_region_counts_std[i])
     # + np.abs(my_region_counts[i] - region_counts[i]) +  np.abs(my_art_region_counts[i] - art_region_counts[i]) +  np.abs(my_art_region_counts_std[i] - art_region_counts_std[i])
-    if i%500 ==0:
+    if region_counts[i]>0:
         print(i)
+        print(art_region_counts[i])
+        print(members)
+        print(s_art_region_counts[i])
+        
+        break
     if diff>1e-3:
         print("different")
         print(i)

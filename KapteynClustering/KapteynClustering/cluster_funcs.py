@@ -100,22 +100,27 @@ def find_tree(Z, i_max=None, prune=False):
 
 def find_X(features, stars, scaled=False):
     n_features = len(features)
-    N_stars = len(stars["vx"])
+    try:
+        N_stars = stars.count()
+    except Exception:
+        N_stars = len(stars["pos"][:,0])
     X = np.empty((N_stars, n_features))
     for n, p in enumerate(features):
         if scaled:
-            X[:, n] = stars["scaled_"+p]
+            p= "scaled_" + p
             print("using scaled ", p)
-        else:
+        try:
+            X[:, n] = stars[p].values
+        except Exception:
             X[:, n] = stars[p]
     return X
 
 
-def art_find_X(features, art_stars):
+def art_find_X(features, art_stars, scaled=False):
     arts = list(art_stars.keys())
     art_X = {}
     for a in arts:
-        art_X[a] = find_X(features, art_stars[a])
+        art_X[a] = find_X(features, art_stars[a], scaled=scaled)
     return art_X
 
 
@@ -140,7 +145,7 @@ def find_art_X_array(features, art_stars, scaled=False):
 
 
 def scale_features(stars, features=cluster_params0["features"],
-                   scales=cluster_params0["scales"], plot=True):
+                   scales=cluster_params0["scales"], plot=False):
     scale_data = {}
     percent = 5
     for p in features:

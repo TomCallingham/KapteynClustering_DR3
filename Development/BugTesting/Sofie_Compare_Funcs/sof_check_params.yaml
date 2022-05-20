@@ -4,7 +4,7 @@ run:
   # steps: [significance, serial_sig]
 
 data:
-  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/second_test_gaia/"
+  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
   base_dyn: "test_gaia_Dyn" #Dynamics and scaled
   sample: "SOF" #Toomre Selection and others,
   art: "SOF"

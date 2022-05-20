@@ -19,21 +19,8 @@
 # - [ ] Compare Artifical Halos
 
 # %% [markdown]
-# #  INTRO
-# This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
-# Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
-#
-#
-# The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
-# # Running Kapetyn Clustering
-# Implentation of Lövdal et al. (2021).
-# Can just import KapetynCluster module
-# Notebooks below take through the entire process
-
-# %% [markdown]
-# ## Paramaters
-# defaults are given in params.py
-#
+# # Paramaters
+# params are given in .yaml file
 
 # %% [markdown]
 # # NOTEBOOKS
@@ -62,7 +49,14 @@
 # %% [markdown]
 # ## Analysis
 
-# %% tags=[]
-
-# %%
-print("Added on gaia2 py")
+# %% [markdown]
+# #  INTRO
+# This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
+# Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
+#
+#
+# The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
+# # Running Kapetyn Clustering
+# Implentation of Lövdal et al. (2021).
+# Can just import KapetynCluster module
+# Notebooks below take through the entire process

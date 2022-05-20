@@ -2,12 +2,12 @@ import numpy as np
 try:
     from .mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
     from . import data_funcs as dataf
-    from . import dic_funcs as dicf
+    # from . import dic_funcs as dicf
     from . import cluster_funcs as clusterf
 except Exception:
     from KapteynClustering.mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
     from KapteynClustering import data_funcs as dataf
-    from KapteynClustering import dic_funcs as dicf
+    # from KapteynClustering import dic_funcs as dicf
     from KapteynClustering import cluster_funcs as clusterf
 
 
@@ -32,6 +32,7 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
         # if (N_members < min_members):
         # print("Out of range:",N_members, max_members)
         return(np.array([0, N_members, 0]))
+
 
     # Fit Gaussian
     mean, covar = fit_gaussian(X[members, :])
@@ -73,6 +74,7 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
         # print("Out of range:",N_members, max_members)
         return(np.array([0, N_members, 0]))
 
+
     # Fit Gaussian
     mean, covar = fit_gaussian(X[members, :])
 
@@ -96,6 +98,11 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
         counts_per_halo[n] = counts_per_halo[n] * \
             (len(X[:, 0])/len(art_X[n][:, 0]))
 
+    # print(counts_per_halo)
+    # print(mean)
+    # print(covar)
+    # print(xmins)
+    # print(xmaxs)
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)
 
@@ -142,7 +149,9 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
 
 
 # %% LOAD
-def sig_load_data(param_file):
+def sig_load_data(param_file, scaled_force=True):
+    if scaled_force:
+        print("USING SCALED FEATURES manually")
     params = dataf.read_param_file(param_file)
     data_params = params["data"]
     result_folder = data_params["result_folder"]
@@ -163,7 +172,7 @@ def sig_load_data(param_file):
         stars = lsd.load_sof_df()
     else:
         stars = dataf.read_data(result_folder + sample_file)
-    X = clusterf.find_X(features, stars)
+    X = clusterf.find_X(features, stars, scaled=scaled_force)
     del stars
 
     if art_file == "SOF":
@@ -172,10 +181,10 @@ def sig_load_data(param_file):
         art_stars = lsd.load_sof_art()
     else:
         art_stars = dataf.read_data(result_folder + art_file)
-    art_X = clusterf.art_find_X(features, art_stars)
+    art_X = clusterf.art_find_X(features, art_stars, scaled=scaled_force)
     del art_stars
 
-    cluster_data = dicf.h5py_load(result_folder + cluster_file)
+    cluster_data = dataf.read_data(result_folder + cluster_file)
     Z = cluster_data["Z"]
     del cluster_data
     N_clusters = len(Z[:, 0])

@@ -34,6 +34,30 @@ import KapteynClustering.cluster_funcs as clusterf
 from params import data_params, gaia2, auriga
 
 # %% [markdown]
+# # TEST
+
+# %%
+import vaex
+from KapteynClustering.legacy import cluster_utils
+stats = vaex.from_dict({"index1":Z[:,0], "index2":Z[:,1], "significance":sig,
+                       "i":np.arange(len(Z))})
+
+# %%
+selected, statistical_significance = cluster_utils.select_maxsig_clusters_from_tree(stats, minimum_significance = min_sig)
+maxsigclusters = stats.take(selected)
+s_labels, s_significance_list = cluster_utils.get_cluster_labels_with_significance(maxsigclusters, Z)
+
+
+# %%
+print(np.min(s_labels))
+
+# %%
+os_labels = labelf.order_labels(s_labels,fluff_label=0)[0]
+
+# %%
+print((os_labels==labels).sum()/len(s_labels))
+
+# %% [markdown]
 # # Params
 
 # %%

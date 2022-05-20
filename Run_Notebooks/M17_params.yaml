@@ -12,7 +12,7 @@ data:
   cluster: "test_gaia_Cluster.hdf5"
   sig: "test_gaia_Significance.hdf5"
   label: "test_gaia_Labels.hdf5"
-  pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
+  pot_name: "McMillan17.ini"
 
 art: # Artificial dataset
   N_art: 100

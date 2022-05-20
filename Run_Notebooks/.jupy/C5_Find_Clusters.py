@@ -17,6 +17,7 @@
 
 # %% tags=[]
 import numpy as np
+import vaex
 import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.dic_funcs as dicf
@@ -38,16 +39,21 @@ min_sig = 3
 # ## Load
 
 # %%
-stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
+stars = vaex.open(data_params["result_folder"] + data_params["sample"])
 
 # %%
 cluster_data = dataf.read_data(fname=data_params["result_folder"] + data_params["cluster"])
 Z = cluster_data["Z"]
 
 # %%
-# sig_data = dataf.read_data(fname=result_folder+ data_params["sig"], extra="_SOF_ART_cut")
-sig_data = dataf.read_data(fname=result_folder+ data_params["sig"], extra="_SOF_cut")
+sig_data = dataf.read_data(fname=result_folder+ data_params["sig"])
 sig = sig_data["significance"]
+
+# %%
+# s_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
+# emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
+# s_stats = dataf.read_data(f"{emma_result_path}stats")
+# s_sig = s_stats["significance"]
 
 # %% [markdown]
 # # Find Clusters
@@ -55,18 +61,23 @@ sig = sig_data["significance"]
 # %%
 label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 
+[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in 
+                                           ["labels","star_sig", "Groups", "Pops", "G_sig"]]
+
+# %%
+# emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
+# emma_results = dataf.read_data(f"{emma_result_path}df_labels_3D")
+# e_labels = emma_results["labels"]
+# e_sig_list = emma_results["maxsig"]
+
 # %% [markdown]
 # ## Save
 
 # %%
-dicf.h5py_save(fname=result_folder + data_params["label"], dic=label_data, verbose=True, overwrite=True)
+dataf.write_data(fname=result_folder + data_params["label"], dic=label_data, verbose=True, overwrite=True)
 
 # %% [markdown]
 # # RESULTS
-
-# %%
-[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in 
-                                           ["labels","star_sig", "Groups", "Pops", "G_sig"]]
 
 # %%
 N_fluff = Pops[Groups==-1]
@@ -94,7 +105,7 @@ stars["groups"] = labels
 
 # %%
 from matplotlib import colors
-def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
+def plot_IOM_subspaces(stars, minsig=3, savepath=None):
     '''
     Plots the clusters for each combination of clustering features
 
@@ -115,15 +126,16 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
     #original s=0.5, alpha=0.1 but vaex?
 
     # cmap, norm = plotting_utils.get_cmap(df_minsig)
-    def prop_select(stars,g, xkey, ykey, flip):
-        g_filt = (stars["groups"] == g)
-        x = stars[xkey][g_filt]
-        y = stars[ykey][g_filt]
-        if flip:
-            if xkey in ["Lz", "circ"]:
-                x = -x
-            if ykey in ["Lz", "circ"]:
-                y=-y
+    def prop_select(stars,g, xkey, ykey):
+        try:
+            g_filt = (stars["groups"].values == g)
+            x = stars[xkey].values[g_filt]
+            y = stars[ykey].values[g_filt]
+        except Exception as e:
+            print(e)
+            g_filt = (stars["groups"] == g)
+            x = stars[xkey][g_filt]
+            y = stars[ykey][g_filt]
         return x,y
 
     for i,(xkey,ykey) in enumerate(zip(xkeys, ykeys)):
@@ -131,14 +143,14 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
         for j,(g,p,s) in enumerate(zip(Groups, Pops, G_sig)):
             if g!=-1:
                 label  = f"{g}|{s:.1f} : {p}"
-                x, y = prop_select(stars,g, xkey, ykey,flip)
+                x, y = prop_select(stars,g, xkey, ykey)
                 plt.scatter(x, y, label=label,
                            alpha=0.5,s=size, edgecolors="none", zorder=-j)
 
         g=-1
         fluff_pop = (stars["groups"]==g).sum()
         label  = f"fluff|{fluff_pop}"
-        x, y= prop_select(stars,g, xkey, ykey,flip)
+        x, y= prop_select(stars,g, xkey, ykey)
         plt.scatter(x, y, label=label,
                    alpha=0.2,s=size, edgecolors="none", zorder=-(j+1), c='lightgrey')
 
@@ -156,7 +168,7 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None, flip=False):
     return
 
 # %%
-plot_IOM_subspaces(stars, minsig=min_sig, savepath=None, flip=True)
+plot_IOM_subspaces(stars, minsig=min_sig, savepath=None)
 # plotting_utils.plot_IOM_subspaces(df, minsig=N_sigma_significance, savepath=None)
 
 # %% [markdown]

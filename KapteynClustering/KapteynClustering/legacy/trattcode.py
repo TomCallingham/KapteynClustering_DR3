@@ -16,7 +16,7 @@ def plot_tratt(En_circ, Lz_circ):
     plt.show()
 
 
-def calc_tratt(rmin=0.1,rmax=100,N=5000):
+def calc_tratt(rmin=0.1,rmax=300,N=5000):
     """
     This code calculates the circularity of orbiting objects.
     The circularity indicates how far the Lz of the orbiting
@@ -37,7 +37,7 @@ def calc_tratt(rmin=0.1,rmax=100,N=5000):
     """
 
     # Generate a bunch of (En,Lz)_circ  combinations of circular orbits
-    r = np.linspace(rmin, rmax,N)
+    r = np.geomspace(rmin, rmax,N)
     zeros = np.zeros_like(r)
 
     vc = pot.vc_full(r,zeros,zeros)
@@ -47,7 +47,18 @@ def calc_tratt(rmin=0.1,rmax=100,N=5000):
     return En_circ, Lz_circ
 
 #TODO:check this
-def calc_circ(En, En_circ, Lz, Lz_circ):
+def calc_circ(En,  Lz):
+    print("New circ calc")
+    Ncl = len(En)
+    circularity = np.zeros(Ncl)+np.nan
+    En_circ, Lz_circ = calc_tratt()
+    E_fit = (np.min(En_circ)<En)*(En<np.max(En_circ))
+    circularity[E_fit] = Lz[E_fit]/np.interp(En[E_fit],En_circ,Lz_circ)
+
+    return circularity
+
+def old_calc_circ(En,  Lz):
+    En_circ, Lz_circ = calc_tratt()
     Ncl = len(En)
     circularity = np.zeros(Ncl)+np.nan
 

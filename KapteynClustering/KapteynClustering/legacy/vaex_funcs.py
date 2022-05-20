@@ -8,8 +8,8 @@ def vaex_from_dict(dict, flip_sign=True):
         try:
             new_dict[translate[k]] = new_dict[k]
             del new_dict[k]
-        except Exception as e:
-            print(k,e)
+        except Exception:
+            pass
     if flip_sign:
         print("Flipping sign for vaex")
         new_dict["Lz"] = - new_dict["Lz"]

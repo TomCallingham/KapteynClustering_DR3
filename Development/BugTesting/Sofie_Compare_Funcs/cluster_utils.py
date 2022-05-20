@@ -11,10 +11,10 @@ Sofie L
 
 import vaex
 import numpy as np
-import H99Potential as Potential
+# import H99Potential as Potential
 import matplotlib
 import matplotlib.pyplot as plt
-import trattcode as tc
+# import trattcode as tc
 from vaex.ml import MinMaxScaler
 from scipy.cluster.hierarchy import linkage
 from tqdm.notebook import tqdm

@@ -23,51 +23,46 @@
 # # Setup
 
 # %%
-import numpy as np
 import matplotlib.pyplot as plt
-import KapteynClustering.dynamics_funcs as dynf
-import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.artificial_data_funcs as adf
-# import KapteynClustering.plot_funcs as plotf
-# from params import data_params, gaia2, auriga
+import vaex
 
 # %% [markdown]
 # ## Params
 
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
+
 data_params = params["data"]
+folder, pot_name = data_params["result_folder"], data_params["pot_name"]
+
 art_params = params["art"]
-N_art = art_params["N_art"]
-pot_name = data_params["pot_name"]
-folder = data_params["result_folder"]
+N_art, additional_props = art_params["N_art"], art_params["additional"]
+
+cluster_params = params["cluster"]
+scales, features = cluster_params["scales"], cluster_params["features"]
 
 # %% [markdown]
 # ## Load Data
-# Load data before TOOMRE selection. We apply that after
+# Load the initial dynamics dataset, not the toomre cut setection.
 
 # %%
-stars = dataf.read_data(fname=folder+data_params["base_dyn"])
+stars = vaex.open(folder+data_params["base_dyn"])
 
 # %% [markdown]
 # # Artificial DataSet
-#
-# Shuffles vx, vz.
-# Keeps pos + vy
-# Recalculates dynamics
-
-# %% [markdown] tags=[]
-# if auriga:
-#     additional_props = ["R", "group", "Fe_H", "Age"]
-# elif gaia2:
-#     additional_props = []
+# Calculates N_art number of artificial halos by shuffling galactic vx, vz (keeping pos + vy). Recalculates dynamics. Can also propogate forward additional properties of the initial dataset.
 
 # %%
-additional_props = []
+print(additional_props)
 
 # %% tags=[]
-art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, additional_props)
+art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_scale=features, scales=scales)
+
+# %% [markdown]
+# ## Save Artifical Dataset
+# Note that we save and read this dataset with dataf.write_data and dataf.read_data. The artificial datasets can be different lengths, which vaex does not like. These functions write as hdf5 similar to vaex, but load all of the data into a nested dictionary and numpy array format.
 
 # %%
 fname = data_params["art"]
@@ -78,11 +73,13 @@ dataf.write_data(fname=folder + fname, dic=art_stars, verbose=True, overwrite=Tr
 
 # %%
 print(art_stars.keys())
+print(art_stars[0].keys())
+print(art_stars[0]["En"])
 
 # %%
-from KapteynClustering.legacy import plotting_utils, vaex_funcs
-df_artificial = vaex_funcs.vaex_from_dict(art_stars[0])
-df= vaex_funcs.vaex_from_dict(stars)
+from KapteynClustering.legacy import plotting_utils #, vaex_funcs
+df_artificial = vaex.from_dict(art_stars[0]) 
+df= stars
 
 # %%
 plotting_utils.plot_original_data(df)

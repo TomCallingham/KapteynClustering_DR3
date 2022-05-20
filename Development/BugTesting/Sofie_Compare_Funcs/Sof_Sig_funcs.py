@@ -5,9 +5,9 @@ def original_s_expected_density_parallel(idx, dic):
     art_region_count, art_region_count_std = original_s_only_expected_density_parallel(idx, dic)
     region_count = original_s_density_within_ellipse(idx, dic)
     return np.array([region_count, art_region_count, art_region_count_std])
-    
+
 def original_s_only_expected_density_parallel(idx,dic):
-    features = ["scaled_En", "scaled_Lz", "scaled_Lperp"]
+    features = ["En", "Lz", "Lperp"]
     '''
     The input parameter idx specifies the thread index of the parallel execution, and 
     thread i applies the function to the cluster formed at step i of the single linkage algorithm.
@@ -53,14 +53,14 @@ def original_s_only_expected_density_parallel(idx,dic):
     
     #TODO: This is still hardcoded according to four features
     [[En_lower, En_upper], [Lperp_lower, Lperp_upper], [Lz_lower, Lz_upper]] = \
-    df_members.minmax(['scaled_En', 'scaled_Lperp', 'scaled_Lz'])
+    df_members.minmax(['En', 'Lperp', 'Lz'])
 
     eps = 0.05 #large enough such that ellipse fits within
 
     #Extract neighborhood of C, so that we do not have to PCA-map the full artificial dataset  
-    region = df_artificial[(df_artificial.scaled_En>En_lower-eps) & (df_artificial.scaled_En<En_upper+eps) & 
-                  (df_artificial.scaled_Lperp>Lperp_lower-eps) & (df_artificial.scaled_Lperp<Lperp_upper+eps) &
-                  (df_artificial.scaled_Lz>Lz_lower-eps) & (df_artificial.scaled_Lz<Lz_upper+eps)]
+    region = df_artificial[(df_artificial.En>En_lower-eps) & (df_artificial.En<En_upper+eps) & 
+                  (df_artificial.Lperp>Lperp_lower-eps) & (df_artificial.Lperp<Lperp_upper+eps) &
+                  (df_artificial.Lz>Lz_lower-eps) & (df_artificial.Lz<Lz_upper+eps)]
     
     #Map the stars in the artificial data set to the PCA-space defined by C
     region = pca.transform(region)
@@ -88,7 +88,7 @@ def original_s_only_expected_density_parallel(idx,dic):
     return(np.array([region_count, region_count_std]))
 
 def original_s_density_within_ellipse(idx,dic):
-    features = ["scaled_En", "scaled_Lz", "scaled_Lperp"]
+    features = ["En", "Lz", "Lperp"]
     Z = dic["Z"]
     min_members = dic["min_members"]
     max_members = dic["max_members"]
@@ -113,14 +113,14 @@ def original_s_density_within_ellipse(idx,dic):
     df_members = df.take(np.array(members))
 
     [[En_lower, En_upper], [Lperp_lower, Lperp_upper], [Lz_lower, Lz_upper]] = \
-    df_members.minmax(['scaled_En', 'scaled_Lperp', 'scaled_Lz'])
+    df_members.minmax(['En', 'Lperp', 'Lz'])
 
     eps = 0.05 #large enough such that ellipse fits within
 
     #Take out minmax-region, so that we do not have to apply PCA to the full dataset.
-    region = df[(df.scaled_En>En_lower-eps) & (df.scaled_En<En_upper+eps) & 
-                (df.scaled_Lperp>Lperp_lower-eps) & (df.scaled_Lperp<Lperp_upper+eps) &
-                (df.scaled_Lz>Lz_lower-eps) & (df.scaled_Lz<Lz_upper+eps)]
+    region = df[(df.En>En_lower-eps) & (df.En<En_upper+eps) & 
+                (df.Lperp>Lperp_lower-eps) & (df.Lperp<Lperp_upper+eps) &
+                (df.Lz>Lz_lower-eps) & (df.Lz<Lz_upper+eps)]
 
     pca.fit(df_members)
     region = pca.transform(region)

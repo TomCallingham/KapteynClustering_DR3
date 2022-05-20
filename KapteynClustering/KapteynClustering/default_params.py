@@ -9,5 +9,5 @@ cluster_params0 = {"features": ["En", "Lperp", "Lz"],
 
 art_params0 = {"N_art": 100}
 
-solar_params0 = {"vslr": 232.8, "R0": 8.20,
+solar_params0 = {"vlsr": 232.8, "R0": 8.20,
                  "_U": 11.1, "_V": 12.24, "_W": 7.25}

@@ -9,29 +9,19 @@ except Exception:
     from KapteynClustering import dic_funcs as dicf
     from KapteynClustering.default_params import data_params0, solar_params0
 
-
-def read_data(fname, verbose=True, extra=None):
-    if extra is not None:
-        fname += extra
-    dic = dicf.h5py_load(fname, verbose=verbose)
-    props = list(dic.keys())
-    if props == ["table"]:
-        dic = dic_from_vaex_dic(dic)
-        props = list(dic.keys())
-    return dic
-
-
-def write_data(fname, dic, verbose=True, overwrite=True):
-    dic = vaex_dic_from_dic(dic, delete=False)
-    dicf.h5py_save(fname, dic, verbose=verbose, overwrite=overwrite)
-    return
+# Paramater Load
+def read_param_file(param_file):
+    param_path = os.path.abspath(param_file)
+    with open(param_path, 'r') as stream:
+        params = yaml.safe_load(stream)
+    return params
 
 # TOOMRE SELECTION
 
 
 def create_galactic_posvel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
-                          ["vslr", "_U", "_V", "_W"]]
+                          ["vlsr", "_U", "_V", "_W"]]
     stars["_vx"] = stars["vx"] + _U
     stars["_vy"] = stars["vy"] + _V + vlsr
     stars["_vz"] = stars["vz"] + _W
@@ -40,51 +30,53 @@ def create_galactic_posvel(stars, solar_params=solar_params0):
     stars["_y"] = stars["y"]
     stars["_z"] = stars["z"]
 
-    stars["vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
-    stars["pos"] = np.stack((stars["_x"], stars["_y"], stars["_z"])).T
+    try:
+        stars["vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
+        stars["pos"] = np.stack((stars["_x"], stars["_y"], stars["_z"])).T
+    except Exception:
+        stars["vel"] = np.stack((stars["_vx"].values, stars["_vy"].values, stars["_vz"].values)).T
+        stars["pos"] = np.stack((stars["_x"].values, stars["_y"].values, stars["_z"].values)).T
 
     return stars
 
 
-def create_geo_vel(stars, solar_params=solar_params0):
-    # print("Creating geo vel")
-    [vlsr, _U, _V, _W] = [solar_params[p] for p in
-                          ["vslr", "_U", "_V", "_W"]]
-    stars["vx"] = stars["_vx"] - _U
-    stars["vy"] = stars["_vy"] - (_V + vlsr)
-    stars["vz"] = stars["_vz"] - _W
+def calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
+    # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
+    v_toomre = np.sqrt(((vel[:,0] - vlsr*np.sin(phi))**2)+ ((vel[:,1]+vlsr*np.cos(phi))**2) + (vel[:,2]**2))
+    return v_toomre
 
-    return stars
+def sof_calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
+    # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
+    v_toomre = np.sqrt(((vel[:,0] - vlsr*np.sin(phi))**2)+ ((vel[:,1]-vlsr*(1+np.cos(phi))-232)**2) + (vel[:,2]**2))
+    return v_toomre
 
 
 def create_toomre(stars, solar_params=solar_params0):
-    [vlsr, _U, _V, _W] = [solar_params[p] for p in
-                          ["vslr", "_U", "_V", "_W"]]
     # Toomre velocity: velocity offset from being a disk orbit
-    # print("Sofie Toomre, check!")
-    sof_vx = stars["vx"] + _U - (vlsr * np.sin(stars["phi"]))
-    sof_vy = stars["vy"] + _V - (vlsr * np.cos(stars["phi"]))
-    sof_vz = stars["vz"] + _W
-    stars["v_toomre"] = np.sqrt(
-        (sof_vx**2) + (((sof_vy-232)**2) + (sof_vz**2)))
-    # stars["v_toomre"] = np.sqrt(
-    #     (stars["_vx"]**2) + (((stars["_vy"]-232)**2) + (stars["_vz"]**2)))
-    # stars["v_toomre"] = np.sqrt(
-    #     (stars["vR"]**2) + (((-stars["vT"]-232)**2) + (stars["vz"]**2)))
+    try:
+        stars["v_toomre"] = calc_toomre(stars["vel"].values, stars["phi"].values,vlsr = solar_params["vlsr"])
+    except Exception:
+        stars["v_toomre"] = calc_toomre(stars["vel"], stars["phi"],vlsr = solar_params["vlsr"])
     return stars
-
 
 def apply_toomre_filt(stars, v_toomre_cut=210, solar_params=solar_params0):
     # print("Applying toomre filt!")
     # The selection
-    if "v_toomre" not in stars.keys():
+    try:
+        props = stars.keys()
+    except Exception:
+        props = stars.column_names
+    if "v_toomre" not in props:
         # print("No v_toomre defined, creating")
         stars = create_toomre(stars, solar_params)
     filt = (stars["v_toomre"] > v_toomre_cut)
-    frac_filt = filt.sum() / len(filt)
+    # frac_filt = filt.sum() / len(filt)
     # print(f"Toomre filt cuts to {frac_filt}")
 
-    stars = dicf.filt(dic=stars, filt=filt, copy=False)
+    try:
+        stars = dicf.filt(dic=stars, filt=filt, copy=False)
+    except Exception:
+        stars = stars[filt]
 
     return stars
 
@@ -129,11 +121,29 @@ def vaex_dic_from_dic(dic, delete=True):
     return save_dic
 
 
-# Paramater Load
+
+def create_geo_vel(stars, solar_params=solar_params0):
+    # print("Creating geo vel")
+    [vlsr, _U, _V, _W] = [solar_params[p] for p in
+                          ["vlsr", "_U", "_V", "_W"]]
+    stars["vx"] = stars["_vx"] - _U
+    stars["vy"] = stars["_vy"] - (_V + vlsr)
+    stars["vz"] = stars["_vz"] - _W
+
+    return stars
+
+def read_data(fname, verbose=True, extra=None):
+    if extra is not None:
+        fname += extra
+    dic = dicf.h5py_load(fname, verbose=verbose)
+    props = list(dic.keys())
+    if props == ["table"]:
+        dic = dic_from_vaex_dic(dic)
+        props = list(dic.keys())
+    return dic
 
 
-def read_param_file(param_file):
-    param_path = os.path.abspath(param_file)
-    with open(param_path, 'r') as stream:
-        params = yaml.safe_load(stream)
-    return params
+def write_data(fname, dic, verbose=True, overwrite=True):
+    dic = vaex_dic_from_dic(dic, delete=False)
+    dicf.h5py_save(fname, dic, verbose=verbose, overwrite=overwrite)
+    return

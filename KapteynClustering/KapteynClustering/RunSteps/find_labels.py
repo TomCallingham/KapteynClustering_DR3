@@ -1,6 +1,4 @@
-import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
-# import KapteynClustering.cluster_funcs as clusterf
 import KapteynClustering.label_funcs as labelf
 
 def find_labels(params):
@@ -19,7 +17,7 @@ def find_labels(params):
     print("Labels Found")
     folder = data_params["result_folder"]
     fname = data_params["label"]
-    dicf.h5py_save(fname=folder + fname, dic=label_data, verbose=True, overwrite=True)
+    dataf.write_data(fname=folder + fname, dic=label_data, verbose=True, overwrite=True)
 
     print("Labels saved")
     return

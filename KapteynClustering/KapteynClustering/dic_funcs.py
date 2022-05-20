@@ -93,10 +93,10 @@ def h5py_save(fname, dic, verbose=False, overwrite=False):
     if not overwrite:
         if os.path.exists(save_name):
             print('File already here, moving old to _OLD')
-            if os.path.exists(fname + '_OLD.hdf5'):
+            if os.path.exists(fname[:-5] + '_OLD.hdf5'):
                 print('OLD_File already here, deleting')
-                os.remove(fname + '_OLD.hdf5')
-            os.rename(fname + '.hdf5', fname + '_OLD.hdf5')
+                os.remove(fname[:-5] + '_OLD.hdf5')
+            os.rename(fname[:-5] + '.hdf5', fname + '_OLD.hdf5')
 
     with h5py.File(save_name, 'w') as hf:
         writer(hf, dic)

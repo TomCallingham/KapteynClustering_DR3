@@ -37,7 +37,7 @@ def init_worker(share_dic):
 
 
 print("Using cut function")
-save_name += "_cut"
+# save_name += "_cut"
 
 
 def worker_func(members):

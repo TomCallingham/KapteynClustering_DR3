@@ -7,9 +7,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.13.8
 #   kernelspec:
-#     display_name: Python 3 (ipykernel)
+#     display_name: Python [conda env:py39]
 #     language: python
-#     name: python3
+#     name: conda-env-py39-py
 # ---
 
 # %% [markdown]
@@ -17,11 +17,10 @@
 
 # %% tags=[]
 import numpy as np
+import vaex
 import matplotlib.pyplot as plt
-import KapteynClustering.dynamics_funcs as dynf
-import KapteynClustering.dic_funcs as dicf
+# import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.plot_funcs as plotf
 import KapteynClustering.cluster_funcs as clusterf
 
 # %% [markdown]
@@ -30,25 +29,25 @@ import KapteynClustering.cluster_funcs as clusterf
 
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
-data_params = params["data"]
-cluster_params = params["cluster"]
-scales, features = cluster_params["scales"], cluster_params["features"]
+data_p = params["data"]
+cluster_p = params["cluster"]
+scales, features = cluster_p["scales"], cluster_p["features"]
 
 # %%
-print(data_params)
+print(data_p)
 
 # %% [markdown]
 # # Load
 
 # %%
-stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
+stars = vaex.open(data_p["result_folder"] + data_p["sample"])
 
 # %%
-print(len(stars["x"]))
+print(stars.count())
 
 # %% [markdown]
 # # Linkage Clustering
-# Takes ~30s on 5e4 sample
+# Takes ~10s on 5e4 sample
 # Applies single linkage clustering.
 
 # %%
@@ -65,7 +64,7 @@ print(cluster_data.keys())
 # # Save
 
 # %%
-dicf.h5py_save(data_params["result_folder"]+data_params["cluster"], cluster_data)
+dataf.write_data(data_p["result_folder"]+data_p["cluster"], cluster_data)
 
 # %% [markdown]
 # # Plots

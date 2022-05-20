@@ -1,34 +1,46 @@
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.cluster_funcs as clusterf
+import vaex
 
 # from params import data_params
 def sample_prepare(params):
-    data_params = params["data"]
+    print("Using base_data:")
+    print(params["data"]["base_data"])
+
     print("Finding Dynamics")
-    save_dynamics(data_params)
+    save_dynamics(params)
     print("Finding Toomre Sample")
-    create_toomre_example(data_params)
+    create_toomre_example(params)
     print("Samples Created \n")
     return
 
 
-def save_dynamics(data_params):
-    stars = dataf.read_data(fname=data_params["base_data"], verbose=True)
+def save_dynamics(params):
+    data_p = params["data"]
+    cluster_p = params["cluster"]
+
+    #Load Base Data
+    stars = vaex.open(data_p["base_data"])
     # Create dynamics
-    pot_name = data_params["pot_name"]
+    pot_name = data_p["pot_name"]
+    if "pos" not in stars.column_names:
+        print("Creating Galactic Pos/Vel")
+        solar_p = params["solar"]
+        stars = dataf.create_galactic_posvel(stars, solar_params=solar_p)
     stars = dynf.add_dynamics(stars, pot_name, circ=True)
-    stars = dynf.add_cylindrical(stars)
+    stars = stars[stars["En"]<0]
+    stars = clusterf.scale_features(stars, features=cluster_p["features"], scales=cluster_p["scales"])[0]
     #save dynamics
-    folder = data_params["result_folder"]
-    dataf.write_data(fname=folder + data_params["base_dyn"], dic=stars, verbose=True, overwrite=True)
+    folder = data_p["result_folder"]
+    stars.export(folder+ data_p["base_dyn"])
     return
 
-def create_toomre_example(data_params):
-    folder = data_params["result_folder"]
-    stars = dataf.read_data(fname=folder+data_params["base_dyn"])
+def create_toomre_example(params):
+    data_p= params["data"]
+    folder = data_p["result_folder"]
+    stars = vaex.open(folder+data_p["base_dyn"])
     toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210)
-    del stars
-    toomre_stars = dicf.filt(toomre_stars, toomre_stars["En"]<0)
-    dataf.write_data(fname=folder + data_params["sample"], dic=toomre_stars, verbose=True, overwrite=True)
+    toomre_stars = toomre_stars[toomre_stars["En"]<0]
+    toomre_stars.export(folder+data_p["sample"])
     return
