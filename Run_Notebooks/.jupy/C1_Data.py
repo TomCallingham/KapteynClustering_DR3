@@ -25,8 +25,8 @@ import matplotlib.pyplot as plt
 import vaex
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.plot_funcs as plotf
 import KapteynClustering.cluster_funcs as clusterf
+import KapteynClustering.plot_funcs as plotf
 
 # %% [markdown]
 # ### Paramaters
@@ -34,13 +34,12 @@ import KapteynClustering.cluster_funcs as clusterf
 
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
-data_params = params["data"]
-folder = data_params["result_folder"]
-solar_params = params["solar"]
-cluster_params = params["cluster"]
-features = cluster_params["features"]
-scales = cluster_params["scales"]
-# solar_params={'vslr': 232.8, 'R0': 8.2, '_U': 11.1, '_V': 12.24, '_W': 7.25}
+data_p = params["data"]
+solar_p = params["solar"]
+cluster_p = params["cluster"]
+features = cluster_p["features"]
+scales = cluster_p["scales"]
+# solar_p={'vslr': 232.8, 'R0': 8.2, '_U': 11.1, '_V': 12.24, '_W': 7.25}
 
 # %%
 print(params.keys())
@@ -52,7 +51,7 @@ print(params["data"].keys())
 print(params["data"]["base_data"])
 
 # %%
-print(solar_params)
+print(solar_p)
 
 # %% [markdown] tags=[]
 # # Basic Dataset
@@ -61,8 +60,8 @@ print(solar_params)
 # - (x,y,z,vx,vy,vz). These are helio centric (following sofie)
 
 # %%
-print(data_params["base_data"])
-gaia_catalogue = vaex.open(data_params["base_data"])
+print(data_p["base_data"])
+gaia_catalogue = vaex.open(data_p["base_data"])
 
 
 # %% [markdown]
@@ -70,7 +69,7 @@ gaia_catalogue = vaex.open(data_params["base_data"])
 # Given solar params, we can create the galactic pos,vel (along with _x, _vx)
 
 # %%
-stars = dataf.create_galactic_posvel(gaia_catalogue, solar_params=solar_params)
+stars = dataf.create_galactic_posvel(gaia_catalogue, solar_params=solar_p)
 
 # %%
 print(stars.count())
@@ -80,8 +79,8 @@ print(stars.count())
 # Read in in the potential name and calculates the dynamics based on that. The pot_name can be "H99", or any Agama ini file in packaged with Agama, or the path to a specific Agama ini file.
 
 # %%
-print(data_params["pot_name"])
-stars = dynf.add_dynamics(stars, data_params["pot_name"], circ=True)
+print(data_p["pot_name"])
+stars = dynf.add_dynamics(stars, data_p["pot_name"], circ=True)
 stars = stars[stars["En"]<0]
 stars = clusterf.scale_features(stars, features=features,scales=scales, plot=False)[0]
 
@@ -89,23 +88,23 @@ stars = clusterf.scale_features(stars, features=features,scales=scales, plot=Fal
 # ## Save Dyn
 
 # %%
-print(data_params["base_dyn"])
-stars.export(folder + data_params["base_dyn"])
+print(data_p["base_dyn"])
+stars.export( data_p["base_dyn"])
 
 # %% [markdown] tags=[]
 # # Toomre Sample
 # Apply the vtoomre>210
 
 # %%
-toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210,solar_params=solar_params)
+toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210,solar_params=solar_p)
 toomre_stars = toomre_stars[toomre_stars["En"]<0]
 
 # %% [markdown]
 # ## Save Sample
 
 # %%
-print(data_params["sample"])
-toomre_stars.export(folder+ data_params["sample"])
+print(data_p["sample"])
+toomre_stars.export( data_p["sample"])
 
 # %%
 print(toomre_stars.count())

@@ -67,11 +67,9 @@ def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
             try:
                 next_index = index_dic[i + N+1]
             except:
-                # print("FOUND TOP")
                 break
 
             if not untraversed_filt[next_index]:
-                # print("Traversed")
                 break
 
             i = sort_index[next_index]
@@ -93,7 +91,6 @@ def select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3):
 
         # FASTER -= len(traversed_currentpath)  #
         N_sig_untraversed = sig_untraversed_filt.sum()
-        # print(f"{N_sig_untraversed} still untraversed")
 
     # print("Finished")
     # print((time.time()-T)/60)
@@ -115,7 +112,6 @@ def get_cluster_labels_with_significance(selected, significance, tree_members, N
     '''
 
     print("Extracting labels...")
-    # print(f"Initialy {len(significance)} clusters")
     N = len(tree_members.keys())
 
     labels = -np.ones((N_clusters+1), dtype=int)

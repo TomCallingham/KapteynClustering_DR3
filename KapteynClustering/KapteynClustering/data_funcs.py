@@ -9,15 +9,65 @@ except Exception:
     from KapteynClustering import dic_funcs as dicf
     from KapteynClustering.default_params import data_params0, solar_params0
 
-# Paramater Load
+# Paramater Load #
 def read_param_file(param_file):
     param_path = os.path.abspath(param_file)
     with open(param_path, 'r') as stream:
         params = yaml.safe_load(stream)
+    params["data"] = data_params_check(params["data"])
     return params
 
-# TOOMRE SELECTION
+def data_params_check(data_params):
+    check_make_folder(data_params["result_folder"])
+    data_params = check_sofie_data(data_params)
+    data_params = check_file_path(data_params)
+    return data_params
 
+def check_make_folder(folder):
+    if not os.path.exists(folder):
+        print('Creating Folder: ', folder)
+        os.makedirs(folder)
+    return
+
+def check_sofie_data(data_params):
+    if  data_params["sample"] == "SOFIE":
+        print("Sofies sample")
+        s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
+        data_params["sample"] = s_result_folder + "df.hdf5"
+    if  data_params["art"] == "SOFIE":
+        print("Sofies art sample")
+        s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
+        data_params["art"] = s_result_folder + "df_artificial_3D.hdf5"
+    return data_params
+
+def check_file_path(data_params):
+    props = np.array(list(data_params.keys()))
+    props = props[np.isin(props,np.array(["result_folder", "pot_name", "base_data"]),invert=True)]
+    for p in props:
+        file = data_params[p]
+        if "/" not in file:
+            data_params[p] = data_params["result_folder"] + data_params[p]
+    return data_params
+
+## Read DATA
+
+def read_data(fname, verbose=True, extra=None):
+    if extra is not None:
+        fname += extra
+    dic = dicf.h5py_load(fname, verbose=verbose)
+    props = list(dic.keys())
+    if props == ["table"]:
+        dic = dic_from_vaex_dic(dic)
+        props = list(dic.keys())
+    return dic
+
+
+def write_data(fname, dic, verbose=True, overwrite=True):
+    dic = vaex_dic_from_dic(dic, delete=False)
+    dicf.h5py_save(fname, dic, verbose=verbose, overwrite=overwrite)
+    return
+
+# TOOMRE SELECTION
 
 def create_galactic_posvel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
@@ -60,14 +110,12 @@ def create_toomre(stars, solar_params=solar_params0):
     return stars
 
 def apply_toomre_filt(stars, v_toomre_cut=210, solar_params=solar_params0):
-    # print("Applying toomre filt!")
     # The selection
     try:
         props = stars.keys()
     except Exception:
         props = stars.column_names
     if "v_toomre" not in props:
-        # print("No v_toomre defined, creating")
         stars = create_toomre(stars, solar_params)
     filt = (stars["v_toomre"] > v_toomre_cut)
     # frac_filt = filt.sum() / len(filt)
@@ -106,7 +154,6 @@ def dic_from_vaex_dic(vaex_dic):
             vaex_dic[p] = vaex_dic[p]["data"]
         except Exception as e:
             pass
-            # print(p, "\n",e)
     return vaex_dic
 
 
@@ -123,7 +170,6 @@ def vaex_dic_from_dic(dic, delete=True):
 
 
 def create_geo_vel(stars, solar_params=solar_params0):
-    # print("Creating geo vel")
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
                           ["vlsr", "_U", "_V", "_W"]]
     stars["vx"] = stars["_vx"] - _U
@@ -132,18 +178,3 @@ def create_geo_vel(stars, solar_params=solar_params0):
 
     return stars
 
-def read_data(fname, verbose=True, extra=None):
-    if extra is not None:
-        fname += extra
-    dic = dicf.h5py_load(fname, verbose=verbose)
-    props = list(dic.keys())
-    if props == ["table"]:
-        dic = dic_from_vaex_dic(dic)
-        props = list(dic.keys())
-    return dic
-
-
-def write_data(fname, dic, verbose=True, overwrite=True):
-    dic = vaex_dic_from_dic(dic, delete=False)
-    dicf.h5py_save(fname, dic, verbose=verbose, overwrite=overwrite)
-    return

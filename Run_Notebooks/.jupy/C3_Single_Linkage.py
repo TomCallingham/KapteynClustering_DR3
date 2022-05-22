@@ -40,7 +40,7 @@ print(data_p)
 # # Load
 
 # %%
-stars = vaex.open(data_p["result_folder"] + data_p["sample"])
+stars = vaex.open( data_p["sample"])
 
 # %%
 print(stars.count())
@@ -64,7 +64,7 @@ print(cluster_data.keys())
 # # Save
 
 # %%
-dataf.write_data(data_p["result_folder"]+data_p["cluster"], cluster_data)
+dataf.write_data(data_p["cluster"], cluster_data)
 
 # %% [markdown]
 # # Plots

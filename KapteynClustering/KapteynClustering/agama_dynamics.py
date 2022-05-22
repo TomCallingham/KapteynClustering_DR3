@@ -21,7 +21,6 @@ def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex
         dyn['U'] = pot.potential(pos)
         dyn['En'] = dyn['U'] + dyn['K']
         if circ:
-            print("calc Circ")
             NR = 1000
             Rspace = np.geomspace(0.1, 500, NR)
             vc_space = vcirc(Rspace, pot)

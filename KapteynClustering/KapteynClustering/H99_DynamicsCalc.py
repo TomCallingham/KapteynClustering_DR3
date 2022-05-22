@@ -3,7 +3,6 @@ import numpy as np
 
 
 def H99_dyn_calc(pos, vel):
-    print("New calc")
     dyn = {}
     dyn['pos'] = pos
     dyn['vel'] = vel
@@ -23,7 +22,6 @@ def H99_dyn_calc(pos, vel):
 
 
 def calc_circ(En,  Lz):
-    # print("New circ calc")
     Ncl = len(En)
     circularity = np.zeros(Ncl)+np.nan
     En_circ, Lz_circ = calc_tratt()

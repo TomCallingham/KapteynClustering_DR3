@@ -4,7 +4,7 @@ print('My Packages:')
 print(packages)
 setup( name='KapteynClustering',
       packages =packages,
-      auhtor_email="t.m.callingham@astro.rug.nl",
+      author_email="t.m.callingham@astro.rug.nl",
       install_requires=[
           "<pyyaml>",
           "<h5py>",

@@ -1,13 +1,13 @@
 import numpy as np
 import time
 import KapteynClustering.significance_funcs as sigf
-import KapteynClustering.dic_funcs as dicf
+import KapteynClustering.data_funcs as dataf
 from multiprocessing import Pool, RawArray
 import sys
 
 # LOADING Params
 param_file = sys.argv[1]
-save_name, result_folder, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
+save_name, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
     param_file)
 
 print("LOADED all data")
@@ -99,5 +99,5 @@ pca_data = {"region_count": region_count,
             "significance": significance}
 
 
-dicf.h5py_save(result_folder + save_name, pca_data,
+dataf.write_data( save_name, pca_data,
                verbose=True, overwrite=True)

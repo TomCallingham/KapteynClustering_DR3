@@ -34,21 +34,21 @@ import vaex
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
 
-data_params = params["data"]
-folder, pot_name = data_params["result_folder"], data_params["pot_name"]
+data_p = params["data"]
+pot_name =  data_p["pot_name"]
 
-art_params = params["art"]
-N_art, additional_props = art_params["N_art"], art_params["additional"]
+art_p = params["art"]
+N_art, additional_props = art_p["N_art"], art_p["additional"]
 
-cluster_params = params["cluster"]
-scales, features = cluster_params["scales"], cluster_params["features"]
+cluster_p = params["cluster"]
+scales, features = cluster_p["scales"], cluster_p["features"]
 
 # %% [markdown]
 # ## Load Data
 # Load the initial dynamics dataset, not the toomre cut setection.
 
 # %%
-stars = vaex.open(folder+data_params["base_dyn"])
+stars = vaex.open(data_p["base_dyn"])
 
 # %% [markdown]
 # # Artificial DataSet
@@ -65,8 +65,7 @@ art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_
 # Note that we save and read this dataset with dataf.write_data and dataf.read_data. The artificial datasets can be different lengths, which vaex does not like. These functions write as hdf5 similar to vaex, but load all of the data into a nested dictionary and numpy array format.
 
 # %%
-fname = data_params["art"]
-dataf.write_data(fname=folder + fname, dic=art_stars, verbose=True, overwrite=True)
+dataf.write_data(fname=data_p["art"], dic=art_stars, verbose=True, overwrite=True)
 
 # %% [markdown]
 # # Plots comparing Shuffled Smooth dataset
@@ -78,7 +77,7 @@ print(art_stars[0]["En"])
 
 # %%
 from KapteynClustering.legacy import plotting_utils #, vaex_funcs
-df_artificial = vaex.from_dict(art_stars[0]) 
+df_artificial = vaex.from_dict(art_stars[0])
 df= stars
 
 # %%
@@ -89,7 +88,7 @@ plotting_utils.plot_original_data(df_artificial)
 
 # %%
 art_stars0 = art_stars[0]
-sample_stars = dataf.read_data(fname=data_params["result_folder"] + data_params["sample"])
+sample_stars = dataf.read_data(fname=data_p["sample"])
 
 for x in ["En", "Lz", "Lperp", "circ"]:
     plt.figure()

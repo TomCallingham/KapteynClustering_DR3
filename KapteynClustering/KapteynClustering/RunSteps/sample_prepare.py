@@ -32,15 +32,13 @@ def save_dynamics(params):
     stars = stars[stars["En"]<0]
     stars = clusterf.scale_features(stars, features=cluster_p["features"], scales=cluster_p["scales"])[0]
     #save dynamics
-    folder = data_p["result_folder"]
-    stars.export(folder+ data_p["base_dyn"])
+    stars.export(data_p["base_dyn"])
     return
 
 def create_toomre_example(params):
     data_p= params["data"]
-    folder = data_p["result_folder"]
-    stars = vaex.open(folder+data_p["base_dyn"])
+    stars = vaex.open(data_p["base_dyn"])
     toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210)
     toomre_stars = toomre_stars[toomre_stars["En"]<0]
-    toomre_stars.export(folder+data_p["sample"])
+    toomre_stars.export(data_p["sample"])
     return

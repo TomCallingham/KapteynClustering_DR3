@@ -30,10 +30,8 @@ def get_shuffled_artificial_set(N_art, stars, pot_fname, additional_props=[], v_
     props.extend(additional_props)
     try:
         dic_stars = {p: np.copy(stars[p].values) for p in props}
-        # print("vaex way")
     except Exception:
         dic_stars = {p: np.copy(stars[p]) for p in props}
-        # print("dic way")
 
     art_stars_all = {}
     for n in range(N_art):

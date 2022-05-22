@@ -30,7 +30,6 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     # ignore these clusters, return placeholder (done for computational efficiency)
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
-        # print("Out of range:",N_members, max_members)
         return(np.array([0, N_members, 0]))
 
 
@@ -45,7 +44,6 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     for n in range(N_art):
         counts_per_halo[n] = find_mahalanobis_N_members(
             N_std, mean, covar, art_X[n])
-        # print("SCALING COUNTS")
         counts_per_halo[n] = counts_per_halo[n] * \
             (len(X[:, 0])/len(art_X[n][:, 0]))
 
@@ -71,7 +69,6 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
     # ignore these clusters, return placeholder (done for computational efficiency)
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
-        # print("Out of range:",N_members, max_members)
         return(np.array([0, N_members, 0]))
 
 
@@ -94,15 +91,9 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
                        (art_X[n] < xmaxs[None, :] + eps), axis=1).astype(bool)
         counts_per_halo[n] = find_mahalanobis_N_members(
             N_std, mean, covar, art_X[n][filt, :])
-        # print("SCALING COUNTS")
         counts_per_halo[n] = counts_per_halo[n] * \
             (len(X[:, 0])/len(art_X[n][:, 0]))
 
-    # print(counts_per_halo)
-    # print(mean)
-    # print(covar)
-    # print(xmins)
-    # print(xmaxs)
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)
 
@@ -125,7 +116,6 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
     # ignore these clusters, return placeholder (done for computational efficiency)
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
-        # print("Out of range:",N_members, max_members)
         return(np.array([0, N_members, 0]))
 
     # Fit Gaussian
@@ -140,8 +130,6 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
     N_art_stars = np.array([len(art_X_array[n][:, 0]) for n in range(N_art)])
     counts_per_halo = counts_per_halo * (len(X[:, 0])/N_art_stars)
 
-    # print("My counts per halo:")
-    # print(counts_per_halo)
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)
 
@@ -153,42 +141,33 @@ def sig_load_data(param_file, scaled_force=True):
     if scaled_force:
         print("USING SCALED FEATURES manually")
     params = dataf.read_param_file(param_file)
-    data_params = params["data"]
-    result_folder = data_params["result_folder"]
-    cluster_file, sample_file, art_file = data_params[
-        "cluster"], data_params["sample"], data_params["art"]
-    save_name = data_params["sig"]
+    data_p = params["data"]
 
-    cluster_params = params["cluster"]
-    min_members, max_members = cluster_params["min_members"], cluster_params["max_members"]
-    features = cluster_params["features"]
-    N_art, N_std, N_process = cluster_params["N_art"], cluster_params[
-        "N_sigma_ellipse_axis"], cluster_params["N_process"]
+    cluster_p = params["cluster"]
+    min_members, max_members = cluster_p["min_members"], cluster_p["max_members"]
+    features = cluster_p["features"]
+    N_art, N_std, N_process = cluster_p["N_art"], cluster_p[ "N_sigma_ellipse_axis"], cluster_p["N_process"]
 
-    # LOADING all necessary Data
-    if sample_file == "SOF":
-        from KapteynClustering.legacy import load_sofie_data as lsd
-        print("using sof sample")
-        stars = lsd.load_sof_df()
-    else:
-        stars = dataf.read_data(result_folder + sample_file)
-    X = clusterf.find_X(features, stars, scaled=scaled_force)
+    stars = dataf.read_data(data_p["sample"])
+    try:
+        X = clusterf.find_X(features, stars, scaled=scaled_force)
+    except Exception:
+        stars = clusterf.scale_features(stars,features=features,scales=cluster_p["scales"])[0]
+        X = clusterf.find_X(features, stars, scaled=scaled_force)
     del stars
 
-    if art_file == "SOF":
-        from KapteynClustering.legacy import load_sofie_data as lsd
-        print("using sof artificial")
-        art_stars = lsd.load_sof_art()
-    else:
-        art_stars = dataf.read_data(result_folder + art_file)
+    art_stars = dataf.read_data(data_p["art"])
+    if 0 not in list(art_stars.keys()):
+        import KapteynClustering.dic_funcs as dicf
+        art_stars = dicf.groups(art_stars, group="index", verbose=True)
     art_X = clusterf.art_find_X(features, art_stars, scaled=scaled_force)
     del art_stars
 
-    cluster_data = dataf.read_data(result_folder + cluster_file)
+    cluster_data = dataf.read_data(data_p["cluster"])
     Z = cluster_data["Z"]
     del cluster_data
     N_clusters = len(Z[:, 0])
     tree_members = clusterf.find_tree(Z, prune=True)
     list_tree_members = [tree_members[i + N_clusters+1]
                          for i in range(N_clusters)]
-    return save_name, result_folder, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std
+    return data_p["sig"], max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std

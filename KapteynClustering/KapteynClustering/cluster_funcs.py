@@ -92,7 +92,6 @@ def find_tree(Z, i_max=None, prune=False):
         tree_dic = next_members(tree_dic, Z, i, N_cluster1)
     print("Tree found")
     if prune:
-        print("del")
         for i in range(N_cluster):
             del tree_dic[i]
     return tree_dic
@@ -103,7 +102,7 @@ def find_X(features, stars, scaled=False):
     try:
         N_stars = stars.count()
     except Exception:
-        N_stars = len(stars["pos"][:,0])
+        N_stars = len(stars[list(stars.keys())[0]])
     X = np.empty((N_stars, n_features))
     for n, p in enumerate(features):
         if scaled:

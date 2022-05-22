@@ -37,8 +37,6 @@ art_region_count_std = np.zeros((N_clusters))
 for i, m in enumerate(list_tree_members):
     region_count[i], art_region_count[i], art_region_count_std[i] = worker_func(
         m)
-    if i % 500 == 0:
-        print(i)
 print("Finished")
 dt = time.time() - T
 print(f" Time taken: {dt/60} mins")

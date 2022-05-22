@@ -20,7 +20,6 @@ import numpy as np
 import vaex
 import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
-import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.label_funcs as labelf
 
@@ -30,8 +29,7 @@ import KapteynClustering.label_funcs as labelf
 
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
-data_params = params["data"]
-result_folder = data_params["result_folder"]
+data_p = params["data"]
 min_sig = params["label"]["min_sig"]
 min_sig = 3
 
@@ -39,14 +37,14 @@ min_sig = 3
 # ## Load
 
 # %%
-stars = vaex.open(data_params["result_folder"] + data_params["sample"])
+stars = vaex.open(data_p["sample"])
 
 # %%
-cluster_data = dataf.read_data(fname=data_params["result_folder"] + data_params["cluster"])
+cluster_data = dataf.read_data(fname=data_p["cluster"])
 Z = cluster_data["Z"]
 
 # %%
-sig_data = dataf.read_data(fname=result_folder+ data_params["sig"])
+sig_data = dataf.read_data(fname=data_p["sig"])
 sig = sig_data["significance"]
 
 # %%
@@ -61,7 +59,7 @@ sig = sig_data["significance"]
 # %%
 label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 
-[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in 
+[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in
                                            ["labels","star_sig", "Groups", "Pops", "G_sig"]]
 
 # %%
@@ -74,7 +72,7 @@ label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 # ## Save
 
 # %%
-dataf.write_data(fname=result_folder + data_params["label"], dic=label_data, verbose=True, overwrite=True)
+dataf.write_data(fname= data_p["label"], dic=label_data, verbose=True, overwrite=True)
 
 # %% [markdown]
 # # RESULTS
@@ -138,6 +136,7 @@ def plot_IOM_subspaces(stars, minsig=3, savepath=None):
             y = stars[ykey][g_filt]
         return x,y
 
+    j=0
     for i,(xkey,ykey) in enumerate(zip(xkeys, ykeys)):
         plt.sca(axs[int(i / 3), i % 3])
         for j,(g,p,s) in enumerate(zip(Groups, Pops, G_sig)):
