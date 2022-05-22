@@ -1,6 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
+#     hide_notebook_metadata: true
 #     text_representation:
 #       extension: .py
 #       format_name: hydrogen
@@ -14,7 +15,7 @@
 
 # %% [markdown]
 # # Data Notebook
-# Notebook to setup the basic
+# Notebook to setup the basic dataset.
 
 # %% [markdown]
 # ## Setup
@@ -39,16 +40,6 @@ solar_p = params["solar"]
 cluster_p = params["cluster"]
 features = cluster_p["features"]
 scales = cluster_p["scales"]
-# solar_p={'vslr': 232.8, 'R0': 8.2, '_U': 11.1, '_V': 12.24, '_W': 7.25}
-
-# %%
-print(params.keys())
-
-# %%
-print(params["data"].keys())
-
-# %%
-print(params["data"]["base_data"])
 
 # %%
 print(solar_p)

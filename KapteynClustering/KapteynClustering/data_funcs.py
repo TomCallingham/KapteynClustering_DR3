@@ -53,7 +53,10 @@ def check_file_path(data_params):
 
 def read_data(fname, verbose=True, extra=None):
     if extra is not None:
-        fname += extra
+        if fname[-5:] == ".hdf5":
+            fname= fname[:-5] + "_" + extra + ".hdf5"
+        else:
+            fname += "_" + extra
     dic = dicf.h5py_load(fname, verbose=verbose)
     props = list(dic.keys())
     if props == ["table"]:

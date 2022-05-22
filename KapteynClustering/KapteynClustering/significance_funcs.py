@@ -11,7 +11,6 @@ except Exception:
     from KapteynClustering import cluster_funcs as clusterf
 
 
-max_members = 25000
 
 
 def expected_density_members(members, N_std, X, art_X, N_art, min_members):
@@ -28,8 +27,9 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
-    if((N_members > max_members) or (N_members < min_members)):
-        # if (N_members < min_members):
+    # max_members = 25000
+    # if((N_members > max_members) or (N_members < min_members)):
+    if (N_members < min_members):
         return(np.array([0, N_members, 0]))
 
 

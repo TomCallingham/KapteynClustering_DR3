@@ -29,9 +29,9 @@ import KapteynClustering.label_funcs as labelf
 
 # %%
 params = dataf.read_param_file("gaia_params.yaml")
+# params = dataf.read_param_file("sof_check_params.yaml")
 data_p = params["data"]
 min_sig = params["label"]["min_sig"]
-min_sig = 3
 
 # %% [markdown]
 # ## Load
@@ -47,12 +47,6 @@ Z = cluster_data["Z"]
 sig_data = dataf.read_data(fname=data_p["sig"])
 sig = sig_data["significance"]
 
-# %%
-# s_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-# emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-# s_stats = dataf.read_data(f"{emma_result_path}stats")
-# s_sig = s_stats["significance"]
-
 # %% [markdown]
 # # Find Clusters
 
@@ -62,17 +56,14 @@ label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 [labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in
                                            ["labels","star_sig", "Groups", "Pops", "G_sig"]]
 
-# %%
-# emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-# emma_results = dataf.read_data(f"{emma_result_path}df_labels_3D")
-# e_labels = emma_results["labels"]
-# e_sig_list = emma_results["maxsig"]
-
 # %% [markdown]
 # ## Save
 
 # %%
 dataf.write_data(fname= data_p["label"], dic=label_data, verbose=True, overwrite=True)
+
+# %%
+print(np.std(diff[np.isfinite(diff)]))
 
 # %% [markdown]
 # # RESULTS
@@ -190,16 +181,10 @@ display(HTML("<style>.container { width:80% !important; }</style>"))
 
 
 # %%
-emma_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-emma_results = dataf.read_data(f"{emma_result_path}df_labels_3D")
-e_labels = emma_results["labels"]
-e_sig_list = emma_results["maxsig"]
-
-# %%
 from KapteynClustering.legacy.vaex_funcs import vaex_from_dict
-df = vaex_from_dict(stars)
-df["labels"] = e_labels
-df["maxsig"] = e_sig_list
+df = stars
+df["labels"] = labels
+df["maxsig"] = sig_list
 from KapteynClustering.legacy import plotting_utils
 
 # %%

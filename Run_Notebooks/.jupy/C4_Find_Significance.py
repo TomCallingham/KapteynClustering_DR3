@@ -17,6 +17,7 @@
 
 # %% tags=[]
 import matplotlib.pyplot as plt
+import numpy as np
 import KapteynClustering.data_funcs as dataf
 import os
 import KapteynClustering as KC
@@ -41,7 +42,6 @@ if False: # Careful, time consuming! Better To Run in cmdline to see output
     run_cmd = f"python {script_file} {param_file}"
     print(run_cmd)
     os.system(run_cmd)
-    # !python run_cmd
     print("Finished")
 
 # %% [markdown]
@@ -54,9 +54,16 @@ sig, region_count, art_region_count, art_region_count_std =\
 sig_data["significance"], sig_data["region_count"], sig_data["art_region_count"], sig_data["art_region_count_std"]
 
 # %%
+print((~np.isfinite(sig)).sum())
 plt.figure()
-plt.hist(region_count, bins="auto",density=True, label="fit", histtype="step")
-plt.hist(art_region_count, bins="auto",density=True, label= "art")
+plt.hist(sig[np.isfinite(sig)], bins="auto",density=True)
+plt.xlabel("Significance")
+plt.show()
+
+# %%
+plt.figure()
+plt.hist(region_count[np.isfinite(sig)], bins=100,density=True, label="fit", histtype="step")
+plt.hist(art_region_count[np.isfinite(sig)], bins=100,density=True, label= "art")
 plt.legend()
 plt.show()
 

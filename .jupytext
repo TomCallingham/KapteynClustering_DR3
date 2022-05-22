@@ -1,2 +1,4 @@
 formats = "ipynb,.jupy//py:hydrogen"
 outdated_text_notebook_margin = 5
+notebook_metadata_filter="-all"
+cell_metadata_filter="-all"

@@ -13,11 +13,9 @@
 # ---
 
 # %% [markdown]
-# This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
-# Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
+# # Creating the Artificial Dataset
 #
-#
-# The input catalogue should contain heliocentric xyz coordinates and xyz velocity components, where necessary quality cuts has been readily imposed. The input should contain halo stars and a little bit more, as we use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
+# To compare the sample stellar halo to, we generate a sample of artificially smooth halos. We use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
 
 # %% [markdown] tags=[]
 # # Setup

@@ -1,12 +1,10 @@
 run:
   steps: [sample,artificial,linkage,significance,label]
-  # steps: [significance,label]
-  # steps: [serial_sig]
 
 # - All files without a "/" in the name will have the result folder added to them when read in.
 # - for sample and art, using "SOFIE" will result in the original sofie datasets being used
 data:
-  base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5" #Path to raw data
+  base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5"
   result_folder: "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
   base_dyn: "test_gaia_Dyn.hdf5"
   sample: "test_gaia_Sample.hdf5"

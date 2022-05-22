@@ -36,12 +36,14 @@ def init_worker(share_dic):
     var_dict["share_art_X"] = share_art_X
 
 
-print("Using cut function")
+print("No MAX")
 # save_name += "_cut"
-
-
+# print("Using cut function")
+# def worker_func(members):
+#     return sigf.cut_expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
+#                                              min_members=min_members)
 def worker_func(members):
-    return sigf.cut_expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
+    return sigf.expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
                                              min_members=min_members)
 
 
