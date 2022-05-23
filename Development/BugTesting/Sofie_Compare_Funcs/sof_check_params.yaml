@@ -1,20 +1,21 @@
 run:
-  # steps: [sample,artificial,linkage,significance,label]
-  steps: [serial_sig]
-  # steps: [significance, serial_sig]
+  # steps: [linkage,significance,label]
+  steps: [significance,label]
 
 data:
-  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
-  base_dyn: "test_gaia_Dyn" #Dynamics and scaled
-  sample: "SOF" #Toomre Selection and others,
-  art: "SOF"
-  cluster: "test_gaia_Cluster"
-  sig: "test_gaia_Significance_SOF"
-  label: "test_gaia_Labels"
+  base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5" #Path to raw data
+  result_folder: "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/Sof_gaia_results/"
+  # base_dyn: "SOFIE_Check_Dyn.hdf5" #Dynamics and scaled
+  sample: "SOFIE" # "SOF_Check_Sample.hdf5" #Toomre Selection and others,
+  art: "SOFIE" #"SOF_Check_Art.hdf5"
+  cluster: "SOFIE_Check_Cluster.hdf5"
+  sig: "SOFIE_Check_Significance.hdf5"
+  label: "SOFIE_Check_Labels.hdf5"
   pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
 
 art: # Artificial dataset
   N_art: 100
+  additional: []
 
 # Clustering Params
 cluster:
@@ -31,4 +32,12 @@ cluster:
 
 label:
   min_sig: 3
+
+solar:
+  vlsr: 232.8
+  R0: 8.2
+  _U: 11.1
+  _V: 12.24
+  _W: 7.25
+
 

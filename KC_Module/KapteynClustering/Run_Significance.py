@@ -36,7 +36,7 @@ def init_worker(share_dic):
     var_dict["share_art_X"] = share_art_X
 
 
-print("No MAX")
+# print("No MAX")
 # save_name += "_cut"
 # print("Using cut function")
 # def worker_func(members):

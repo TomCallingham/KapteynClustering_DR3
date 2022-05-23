@@ -1,21 +1,7 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
 # %% [markdown]
 # # Setup
 
-# %% tags=[]
+# %%
 import numpy as np
 import vaex
 import matplotlib.pyplot as plt
@@ -61,9 +47,6 @@ label_data =labelf.find_group_data(sig, Z, minimum_significance=min_sig)
 
 # %%
 dataf.write_data(fname= data_p["label"], dic=label_data, verbose=True, overwrite=True)
-
-# %%
-print(np.std(diff[np.isfinite(diff)]))
 
 # %% [markdown]
 # # RESULTS

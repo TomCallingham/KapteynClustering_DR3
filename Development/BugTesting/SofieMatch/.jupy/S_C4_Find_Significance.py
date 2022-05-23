@@ -1,17 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
 # %% [markdown]
 # This notebook takes a Gaia-style catalogue and performs clustering in integral of motion space according to Lövdal et al. (2021).
 # Requires some libraries, most notably vaex, numpy and matplotlib. After changing the variable "catalogue_path" to indicate where your star catalogue is stored, you should be able to run the cells in order, and obtain a catalogue containing labels for significant clusters in integral of motion space.
@@ -40,7 +26,7 @@ import KapteynClustering.plot_funcs as plotf
 # # LOAD
 
 # %%
-params = dataf.read_param_file("../../../Run_Notebooks/sof_check_params.yaml")
+params = dataf.read_param_file("../../../Params/sof_check_params.yaml")
 data_params = params["data"]
 
 cut_sig_data = dataf.read_data(fname=data_params["sig"], extra="cut" )
@@ -89,10 +75,15 @@ for k in s_sig_data.keys():
     # s_filt = (s_sig_data["region_count"]!=0)
     x = sig_data[k]
     y = s_sig_data[k]
-    x = x[np.isfinite(x)]
-    y = y[np.isfinite(y)]
+    # x = x[np.isfinite(x)]
+    # y = y[np.isfinite(y)]
+    diff = np.abs(x-y)
+    diff[(~np.isfinite(x))*(~np.isfinite(y))] = 0
     n_diff = (np.abs(x-y)>1e-6).sum()
     print(n_diff/len(x))
+    fin_filt =  np.isfinite(x)*np.isfinite(y)
+    x = x[fin_filt]
+    y = y[fin_filt]
     plt.figure()
     plt.hist(x, bins="auto", density=True, label="me")
     plt.hist(y, bins="auto", density=True, histtype="step", label="sof")

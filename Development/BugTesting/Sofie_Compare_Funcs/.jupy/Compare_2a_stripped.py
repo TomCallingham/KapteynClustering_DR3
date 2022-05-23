@@ -1,21 +1,7 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
+# %% [markdown]
 # # Setup
 
-# %% tags=[]
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 import KapteynClustering.dic_funcs as dicf
@@ -24,26 +10,7 @@ import KapteynClustering.plot_funcs as plotf
 import KapteynClustering.cluster_funcs as clusterf
 import KapteynClustering.significance_funcs as sigf
 
-from params import data_params, gaia2, cosma
-
-# %%
-%load_ext line_profiler
-
-# %% tags=[]
-from KapteynClustering.default_params import  cluster_params0
-min_members = cluster_params0["min_members"]
-max_members = cluster_params0["max_members"]
-# features = cluster_params0["features"]
-N_sigma_ellipse_axis = cluster_params0["N_sigma_ellipse_axis"]
-
-# %%
-print("Try N_art =100!")
-
-N_art = 100
-
-# %%
-
-# %% [markdown] tags=[]
+# %% [markdown]
 # ## Load Data
 
 # %%
@@ -52,116 +19,26 @@ import vaex
 import time
 
 # %%
-import time
+params = dataf.read_param_file("gaia_params.yaml")
+# params = dataf.read_param_file("sof_check_params.yaml")
+cluster_p = params["cluster"]
+features = cluster_p["features"]
+print(features)
 
 # %%
-from params import gaia2
+param_file = "../../../Params/gaia_params.yaml"
+save_name, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
+    param_file)
 
-file_base= data_params["result_path"] + data_params["data_folder"]
-cluster_file= data_params["cluster"]
-sample_file= data_params["sample"]
-art_file= data_params["art"]
-save_name= data_params["sig"]
-
-
-cluser_data = dicf.h5py_load(file_base + cluster_file)
-Z = cluser_data["Z"]
-
-N_clusters = len(Z[:,0])
 
 # %%
-if False:
-    sample_data = dicf.h5py_load(file_base + sample_file)
-    stars = sample_data["stars"]
+param_file = "../../../Params/gaia_params.yaml"
+save_name, max_members, min_members, scaled_X, scaled_art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
+    param_file,scaled_force=False)
 
-    dataf.scale_features(stars, features = ["E", "Lz", "Lp"])
-    stars["Lperp"] = stars["Lp"]
-    stars["En"] = stars["E"]
-    stars["scaled_En"] = stars["scaled_E"]
-    stars["scaled_Lperp"] = stars["scaled_Lp"]
-    df  = vaex.from_dict(stars)
-
-# %% tags=[]
-if True:
-    import vaex
-    s_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-    df = vaex.open(f'{s_result_path}df.hdf5')
-    features_to_be_scaled = ['En', 'Lperp', 'Lz'] #Clustering features that need scaling
-    minmax_values = vaex.from_arrays(En=[-170000, 0], Lperp=[0, 4300], Lz=[-4500,4600]) #Fix origin for scaling of features
-    df = cluster_utils.scaleData(df, features_to_be_scaled, minmax_values)
-    
-    stars = dataf.load_vaex_to_dic(f'{s_result_path}df.hdf5')
-    dataf.scale_features(stars, features = ["En", "Lz", "Lperp"])
-        # del stars[k]
 
 # %%
-if False:
-    def get_artificial_set():
-        '''
-        Creates a data set of N artificial halos
-
-        Parameters:
-        N(int): The number of artificial halos to be generated
-        ds(vaex.DataFrame): A dataframe containing the halo stars and a little bit more, recommended: V-V_{lsr}>180.
-
-        Returns:
-        df_art_all(vaex.DataFrame): A dataframe containing each artificial halo, their integrals of motion, and data set index.
-        '''
-        temp=0
-        N = len(art_stars.keys())
-        for n in range(N):
-            # art_stars[n]["scaled_Lperp"] = art_stars[n]["scaled_Lp"]
-            df_art= vaex.from_dict(art_stars[n])
-            # df_art = get_artificial_dataset(ds)
-            df_art['index'] = np.array(int(df_art.count())*[n])
-
-            if(temp==0):
-                df_art_all = df_art
-                temp=1
-            else:    
-                df_art_all=df_art_all.concat(df_art)
-
-        return df_art_all
-
-
-    df_artificial = get_artificial_set()
-    art_data = dicf.h5py_load(file_base + art_file)
-    art_stars = art_data["stars"]
-
-# %%
-if True:
-    import vaex
-    s_result_path = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/' #Path to folder where intermediate and final results are stored
-    df_artificial = vaex.open(f'{s_result_path}df_artificial_3D.hdf5')
-
-
-
-    sof_art_stars = dataf.load_vaex_to_dic(f'{s_result_path}df_artificial_3D.hdf5')
-    trans_pops = {"En":"E", "Lperp":"Lp"}
-    # for k in trans_pops.keys():
-    #     sof_art_stars[trans_pops[k]] = sof_art_stars[k]
-        # del sof_art_stars[k]
-    sof_art_stars = dicf.groups(sof_art_stars, group="index", verbose=True)
-    art_stars = sof_art_stars
-
-# %%
-
-features = ["scaled_En", "scaled_Lperp", "scaled_Lz"]
-s_features = features
-my_features= features# ["E", "Lz", "Lp"]
-# my_features=  ["scaled_E", "scaled_Lz", "scaled_Lp"]
-
-# %%
-X = clusterf.find_X(my_features, stars)
-art_X = clusterf.art_find_X(my_features, art_stars)
-
-# %%
-import cluster_utils
-N_datasets = N_art
-
-# %% tags=[]
-tree_members = clusterf.find_tree(Z, prune=True)
-Nclusters = len(Z) +1
+Nclusters = np.shape(scaled_X)[0]
 
 # %% [markdown]
 # # Funcs
@@ -172,9 +49,10 @@ Nclusters = len(Z) +1
 # i_test =  15430
 i_test =  35665
 print(i_test)
-members= tree_members[i_test+Nclusters]
+# members= tree_members[i_test+Nclusters]
+members= list_tree_members[i_test]
 
-# %% [markdown] tags=[] jp-MarkdownHeadingCollapsed=true
+# %% [markdown]
 # ### My Sig Find
 
 # %%
@@ -184,7 +62,6 @@ import scipy
 from KapteynClustering.mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
 # def expected_density_members(members, N_std, X, art_X, N_art, min_members):
 # Fit Gaussian
-N_std = N_sigma_ellipse_axis
 mean, covar = fit_gaussian(X[members, :])
 
 my_evs = np.linalg.eigvals(covar)
@@ -207,10 +84,14 @@ art_region_count = np.mean(counts_per_halo)
 art_region_count_std = np.std(counts_per_halo)
 
 
+# %%
+print(features)
+s_features = features
+
 # %% [markdown]
 # ### Sofie
 
-# %% tags=[]
+# %%
 
 # def  members_s_expected_density_parallel(members):
     
@@ -294,7 +175,7 @@ def wrong_fit_gaussian(X):
     return mean, covar
 
 
-# %% tags=[]
+# %%
 for i_test in np.random.choice(np.arange(Nclusters),size=500):
     members= tree_members[i_test+Nclusters]
     print(i_test)

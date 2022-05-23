@@ -27,9 +27,9 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
-    # max_members = 25000
-    # if((N_members > max_members) or (N_members < min_members)):
-    if (N_members < min_members):
+    max_members = 25000
+    if((N_members > max_members) or (N_members < min_members)):
+    # if (N_members < min_members):
         return(np.array([0, N_members, 0]))
 
 
@@ -67,6 +67,7 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
+    max_members = 25000
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
         return(np.array([0, N_members, 0]))
@@ -114,6 +115,7 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
+    max_members = 25000
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
         return(np.array([0, N_members, 0]))
@@ -137,7 +139,7 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
 
 
 # %% LOAD
-def sig_load_data(param_file, scaled_force=True):
+def sig_load_data(param_file, scaled_force=False):
     if scaled_force:
         print("USING SCALED FEATURES manually")
     params = dataf.read_param_file(param_file)
@@ -149,6 +151,8 @@ def sig_load_data(param_file, scaled_force=True):
     N_art, N_std, N_process = cluster_p["N_art"], cluster_p[ "N_sigma_ellipse_axis"], cluster_p["N_process"]
 
     stars = dataf.read_data(data_p["sample"])
+    print("Using features:")
+    print(features)
     try:
         X = clusterf.find_X(features, stars, scaled=scaled_force)
     except Exception:
@@ -157,7 +161,7 @@ def sig_load_data(param_file, scaled_force=True):
     del stars
 
     art_stars = dataf.read_data(data_p["art"])
-    if 0 not in list(art_stars.keys()):
+    if 0 not in list(art_stars.keys()): # Then using sofies, needs individual datasets split
         import KapteynClustering.dic_funcs as dicf
         art_stars = dicf.groups(art_stars, group="index", verbose=True)
     art_X = clusterf.art_find_X(features, art_stars, scaled=scaled_force)

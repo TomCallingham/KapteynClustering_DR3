@@ -9,10 +9,10 @@ def single_linkage(params):
     scales, features = cluster_p["scales"], cluster_p["features"]
     print("Applying single linkage clustering. Using the following features and scales:")
     print(scales, "\n", features)
-
+    print("Scaling...")
     stars = vaex.open(data_p["sample"])
 
-    print("Now clustering")
+    print("Clustering...")
 
     cluster_data = clusterf.clusterData(stars, features=features, scales = scales)
 

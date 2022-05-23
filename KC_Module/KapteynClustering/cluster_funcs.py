@@ -8,10 +8,9 @@ import time
 
 def clusterData(stars, features, linkage_method="single", scales={}):
     print(features)
-    scale_features(stars, features=features, scales=scales, plot=False)
-
-    T = time.time()
+    stars = scale_features(stars, features=features, scales=scales, plot=False)[0]
     X = find_X(features, stars, scaled=True)
+    T = time.time()
     print("Starting clustering.")
     Z = linkage_vector(X, linkage_method)
     dt = time.time() - T

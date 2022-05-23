@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     hide_notebook_metadata: true
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
 # %% [markdown]
 # # Data Notebook
 # Notebook to setup the basic dataset.
@@ -20,7 +5,7 @@
 # %% [markdown]
 # ## Setup
 
-# %% tags=[]
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 import vaex
@@ -44,7 +29,7 @@ scales = cluster_p["scales"]
 # %%
 print(solar_p)
 
-# %% [markdown] tags=[]
+# %% [markdown]
 # # Basic Dataset
 # The basic dataset needs to contain
 # - (pos,Vel) in N x 3 form. These are GALACTIC centric
@@ -82,7 +67,7 @@ stars = clusterf.scale_features(stars, features=features,scales=scales, plot=Fal
 print(data_p["base_dyn"])
 stars.export( data_p["base_dyn"])
 
-# %% [markdown] tags=[]
+# %% [markdown]
 # # Toomre Sample
 # Apply the vtoomre>210
 
