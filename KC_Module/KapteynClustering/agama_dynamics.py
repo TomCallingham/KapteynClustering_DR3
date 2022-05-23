@@ -12,7 +12,7 @@ def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex
 
     dyn['K'] = 0.5 * np.sum(vel**2, axis=1)
 
-    Lvec = np.cross(vel,pos)
+    Lvec = np.cross(vel, pos)
     dyn['L'] = np.linalg.norm(Lvec, axis=1)
     dyn['Lz'] = Lvec[:, 2]
     dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))

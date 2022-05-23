@@ -1,6 +1,7 @@
 import os
 import KapteynClustering as KC
 
+
 def significance_find(param_file):
     print("Running Significance Find")
     module_folder = os.path.dirname(KC.__file__)
@@ -8,6 +9,7 @@ def significance_find(param_file):
     os.system(f"python {script_file} {param_file}")
     print("Finished \n")
     return
+
 
 def serial_significance_find(param_file):
     print("Running Significance Find")

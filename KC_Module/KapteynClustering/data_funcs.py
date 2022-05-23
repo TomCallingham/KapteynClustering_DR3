@@ -1,60 +1,19 @@
-import os
-import yaml
 import numpy as np
 
 try:
     from . import dic_funcs as dicf
-    from .default_params import data_params0, solar_params0
+    from .default_params import solar_params0
 except Exception:
     from KapteynClustering import dic_funcs as dicf
-    from KapteynClustering.default_params import data_params0, solar_params0
+    from KapteynClustering.default_params import solar_params0
 
-# Paramater Load #
-def read_param_file(param_file):
-    param_path = os.path.abspath(param_file)
-    with open(param_path, 'r') as stream:
-        params = yaml.safe_load(stream)
-    params["data"] = data_params_check(params["data"])
-    return params
 
-def data_params_check(data_params):
-    check_make_folder(data_params["result_folder"])
-    data_params = check_sofie_data(data_params)
-    data_params = check_file_path(data_params)
-    return data_params
-
-def check_make_folder(folder):
-    if not os.path.exists(folder):
-        print('Creating Folder: ', folder)
-        os.makedirs(folder)
-    return
-
-def check_sofie_data(data_params):
-    if  data_params["sample"] == "SOFIE":
-        print("Sofies sample")
-        s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
-        data_params["sample"] = s_result_folder + "df.hdf5"
-    if  data_params["art"] == "SOFIE":
-        print("Sofies art sample")
-        s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
-        data_params["art"] = s_result_folder + "df_artificial_3D.hdf5"
-    return data_params
-
-def check_file_path(data_params):
-    props = np.array(list(data_params.keys()))
-    props = props[np.isin(props,np.array(["result_folder", "pot_name", "base_data"]),invert=True)]
-    for p in props:
-        file = data_params[p]
-        if "/" not in file:
-            data_params[p] = data_params["result_folder"] + data_params[p]
-    return data_params
-
-## Read DATA
+# Read DATA
 
 def read_data(fname, verbose=True, extra=None):
     if extra is not None:
         if fname[-5:] == ".hdf5":
-            fname= fname[:-5] + "_" + extra + ".hdf5"
+            fname = fname[:-5] + "_" + extra + ".hdf5"
         else:
             fname += "_" + extra
     dic = dicf.h5py_load(fname, verbose=verbose)
@@ -72,6 +31,7 @@ def write_data(fname, dic, verbose=True, overwrite=True):
 
 # TOOMRE SELECTION
 
+
 def create_galactic_posvel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
                           ["vlsr", "_U", "_V", "_W"]]
@@ -87,30 +47,38 @@ def create_galactic_posvel(stars, solar_params=solar_params0):
         stars["vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
         stars["pos"] = np.stack((stars["_x"], stars["_y"], stars["_z"])).T
     except Exception:
-        stars["vel"] = np.stack((stars["_vx"].values, stars["_vy"].values, stars["_vz"].values)).T
-        stars["pos"] = np.stack((stars["_x"].values, stars["_y"].values, stars["_z"].values)).T
+        stars["vel"] = np.stack(
+            (stars["_vx"].values, stars["_vy"].values, stars["_vz"].values)).T
+        stars["pos"] = np.stack(
+            (stars["_x"].values, stars["_y"].values, stars["_z"].values)).T
 
     return stars
 
 
 def calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
     # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
-    v_toomre = np.sqrt(((vel[:,0] - vlsr*np.sin(phi))**2)+ ((vel[:,1]+vlsr*np.cos(phi))**2) + (vel[:,2]**2))
+    v_toomre = np.sqrt(((vel[:, 0] - vlsr*np.sin(phi))**2) +
+                       ((vel[:, 1]+vlsr*np.cos(phi))**2) + (vel[:, 2]**2))
     return v_toomre
+
 
 def sof_calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
     # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
-    v_toomre = np.sqrt(((vel[:,0] - vlsr*np.sin(phi))**2)+ ((vel[:,1]-vlsr*(1+np.cos(phi))-232)**2) + (vel[:,2]**2))
+    v_toomre = np.sqrt(((vel[:, 0] - vlsr*np.sin(phi))**2) +
+                       ((vel[:, 1]-vlsr*(1+np.cos(phi))-232)**2) + (vel[:, 2]**2))
     return v_toomre
 
 
 def create_toomre(stars, solar_params=solar_params0):
     # Toomre velocity: velocity offset from being a disk orbit
     try:
-        stars["v_toomre"] = calc_toomre(stars["vel"].values, stars["phi"].values,vlsr = solar_params["vlsr"])
+        stars["v_toomre"] = calc_toomre(
+            stars["vel"].values, stars["phi"].values, vlsr=solar_params["vlsr"])
     except Exception:
-        stars["v_toomre"] = calc_toomre(stars["vel"], stars["phi"],vlsr = solar_params["vlsr"])
+        stars["v_toomre"] = calc_toomre(
+            stars["vel"], stars["phi"], vlsr=solar_params["vlsr"])
     return stars
+
 
 def apply_toomre_filt(stars, v_toomre_cut=210, solar_params=solar_params0):
     # The selection
@@ -171,7 +139,6 @@ def vaex_dic_from_dic(dic, delete=True):
     return save_dic
 
 
-
 def create_geo_vel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
                           ["vlsr", "_U", "_V", "_W"]]
@@ -180,4 +147,3 @@ def create_geo_vel(stars, solar_params=solar_params0):
     stars["vz"] = stars["_vz"] - _W
 
     return stars
-

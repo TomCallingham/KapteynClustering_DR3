@@ -31,7 +31,7 @@ def add_dynamics(stars, pot_fname=None, J_finder=None, angles=True, circ=True, e
         stars = stars | dyn
     except Exception:
         import vaex
-        stars = stars.join( vaex.from_dict(dyn), how="right")
+        stars = stars.join(vaex.from_dict(dyn), how="right")
     stars = add_cylindrical(stars)
     return stars
 
@@ -58,7 +58,7 @@ def cart_to_cylinder(pos, vel=None):
     R = np.sqrt((x * x) + (y * y))
     phi = np.arctan2(y, x)
 
-    if vel is  None:
+    if vel is None:
         return (R, phi, z)
     else:
         vx = vel[:, 0]

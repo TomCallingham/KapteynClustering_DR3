@@ -44,7 +44,7 @@ def init_worker(share_dic):
 #                                              min_members=min_members)
 def worker_func(members):
     return sigf.expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
-                                             min_members=min_members)
+                                         min_members=min_members)
 
 
 def init_memory(X, art_X):
@@ -101,5 +101,5 @@ pca_data = {"region_count": region_count,
             "significance": significance}
 
 
-dataf.write_data( save_name, pca_data,
-               verbose=True, overwrite=True)
+dataf.write_data(save_name, pca_data,
+                 verbose=True, overwrite=True)

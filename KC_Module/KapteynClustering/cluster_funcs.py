@@ -8,7 +8,8 @@ import time
 
 def clusterData(stars, features, linkage_method="single", scales={}):
     print(features)
-    stars = scale_features(stars, features=features, scales=scales, plot=False)[0]
+    stars = scale_features(stars, features=features,
+                           scales=scales, plot=False)[0]
     X = find_X(features, stars, scaled=True)
     T = time.time()
     print("Starting clustering.")
@@ -105,7 +106,7 @@ def find_X(features, stars, scaled=False):
     X = np.empty((N_stars, n_features))
     for n, p in enumerate(features):
         if scaled:
-            p= "scaled_" + p
+            p = "scaled_" + p
             print("using scaled ", p)
         try:
             X[:, n] = stars[p].values
