@@ -44,7 +44,7 @@ print(additional_props)
 
 # %%
 art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_scale=features, scales=scales,
-                                           v_toomre_cut=108)
+                                           v_toomre_cut=180)
 
 # %% [markdown]
 # ## Save Artifical Dataset

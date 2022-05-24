@@ -1,6 +1,7 @@
 **.jupyterlab-workspace
 *.ipynb
 Data/**
+Data
 Batch/
 default_params.yaml
 

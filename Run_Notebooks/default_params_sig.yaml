@@ -4,18 +4,18 @@ run:
 # - All files without a "/" in the name will have the result folder added to them when read in.
 # - for sample and art, using "SOFIE" will result in the original sofie datasets being used
 data:
-  base_data: "/cosma5/data/dp004/dc-call1/Clustering_Data/AuData/Au5Lv4_toomre180_acc.hdf5"
-  result_folder: "/cosma5/data/dp004/dc-call1/Clustering_Data/Au5Lv4/"
-  base_dyn: "Au5Lv4_Dyn.hdf5"
-  sample: "Au5Lv4_Sample.hdf5"
-  art: "Au5Lv4_Art.hdf5"
-  cluster: "Au5Lv4_Cluster.hdf5"
-  sig: "Au5Lv4_Significance.hdf5"
-  label: "Au5Lv4_Labels.hdf5"
-  pot_name: ["/cosma5/data/dp004/dc-call1/Auriga_Analysis/level4_MHD/halo_5/snap_127/axi_disc.coef_cylsp","/cosma5/data/dp004/dc-call1/Auriga_Analysis/level4_MHD/halo_5/snap_127/axi_sphere.coef_mul"]
+  base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5"
+  result_folder: "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
+  base_dyn: "test_gaia_Dyn.hdf5"
+  sample: "test_gaia_Sample.hdf5"
+  art: "test_gaia_Art.hdf5"
+  cluster: "test_gaia_Cluster.hdf5"
+  sig: "test_gaia_Significance.hdf5"
+  label: "test_gaia_Labels.hdf5"
+  pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
 
 art: # Artificial dataset
-  N_art: 10
+  N_art: 100
   additional: []
 
 # Clustering Params
@@ -24,7 +24,7 @@ cluster:
   min_members: 10
   max_members: 25000
   N_sigma_ellipse_axis: 2.83
-  N_art: 10
+  N_art: 100
   N_process: 8
   scales:
     En: [-170000, 0]
