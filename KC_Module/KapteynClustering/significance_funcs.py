@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats._multivariate import _PSD
 try:
     from .mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
     from . import data_funcs as dataf
@@ -32,17 +33,18 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
 
     # Fit Gaussian
     mean, covar = fit_gaussian(X[members, :])
-
+    psd = _PSD(covar, allow_singular=False)
     # Count Fit
-    region_count = find_mahalanobis_N_members(N_std, mean, covar, X)
+    region_count = find_mahalanobis_N_members(N_std, mean, covar, X, psd=psd)
 
     # Artificial
     counts_per_halo = np.zeros((N_art))
     for n in range(N_art):
         counts_per_halo[n] = find_mahalanobis_N_members(
-            N_std, mean, covar, art_X[n])
-        counts_per_halo[n] = counts_per_halo[n] * \
-            (len(X[:, 0])/len(art_X[n][:, 0]))
+            N_std, mean, covar, art_X[n], psd=psd)
+
+    N_art_stars = np.array([len(art_X[n][:, 0]) for n in range(N_art)])
+    counts_per_halo = counts_per_halo * (len(X[:, 0])/N_art_stars)
 
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)
@@ -71,25 +73,33 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
 
     # Fit Gaussian
     mean, covar = fit_gaussian(X[members, :])
+    psd = _PSD(covar, allow_singular=False)
 
     xmins = np.min(X[members, :], axis=0)
     xmaxs = np.max(X[members, :], axis=0)
-    eps = 0.05
-    filt = np.prod((X > xmins[None, :] - eps) *
-                   (X < xmaxs[None, :] + eps), axis=1).astype(bool)
+    x_range = 0.1*(xmaxs-xmins)
+    xmins = xmins - x_range
+    xmaxs = xmaxs + x_range
+    # xmins = xmins - eps
+    # xmaxs = xmaxs + eps
+    # eps = 0.05
 
     # Count Fit
-    region_count = find_mahalanobis_N_members(N_std, mean, covar, X[filt])
+    filt = np.prod((X > xmins[None, :]) *
+                   (X < xmaxs[None, :]), axis=1).astype(bool)
+
+    region_count = find_mahalanobis_N_members(N_std, mean, covar, X[filt],psd=psd)
 
     # Artificial
     counts_per_halo = np.zeros((N_art))
     for n in range(N_art):
-        filt = np.prod((art_X[n] > xmins[None, :] - eps) *
-                       (art_X[n] < xmaxs[None, :] + eps), axis=1).astype(bool)
+        filt = np.prod((art_X[n] > xmins[None, :]) *
+                       (art_X[n] < xmaxs[None, :]), axis=1).astype(bool)
         counts_per_halo[n] = find_mahalanobis_N_members(
-            N_std, mean, covar, art_X[n][filt, :])
-        counts_per_halo[n] = counts_per_halo[n] * \
-            (len(X[:, 0])/len(art_X[n][:, 0]))
+            N_std, mean, covar, art_X[n][filt, :], psd=psd)
+
+    N_art_stars = np.array([len(art_X[n][:, 0]) for n in range(N_art)])
+    counts_per_halo = counts_per_halo * (len(X[:, 0])/N_art_stars)
 
     art_region_count = np.mean(counts_per_halo)
     art_region_count_std = np.std(counts_per_halo)

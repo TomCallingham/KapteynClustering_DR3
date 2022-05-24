@@ -1,0 +1,44 @@
+run:
+  steps: [significance,label]
+
+# - All files without a "/" in the name will have the result folder added to them when read in.
+# - for sample and art, using "SOFIE" will result in the original sofie datasets being used
+data:
+  base_data: "/cosma5/data/dp004/dc-call1/Clustering_Data/AuData/Au5Lv4_toomre180_acc.hdf5"
+  result_folder: "/cosma5/data/dp004/dc-call1/Clustering_Data/Au5Lv4/"
+  base_dyn: "Au5Lv4_Dyn.hdf5"
+  sample: "Au5Lv4_Sample.hdf5"
+  art: "Au5Lv4_Art.hdf5"
+  cluster: "Au5Lv4_Cluster.hdf5"
+  sig: "Au5Lv4_Significance.hdf5"
+  label: "Au5Lv4_Labels.hdf5"
+  pot_name: ["/cosma5/data/dp004/dc-call1/Auriga_Analysis/level4_MHD/halo_5/snap_127/axi_disc.coef_cylsp","/cosma5/data/dp004/dc-call1/Auriga_Analysis/level4_MHD/halo_5/snap_127/axi_sphere.coef_mul"]
+
+art: # Artificial dataset
+  N_art: 10
+  additional: []
+
+# Clustering Params
+cluster:
+  features: [En,Lperp,Lz]
+  min_members: 10
+  max_members: 25000
+  N_sigma_ellipse_axis: 2.83
+  N_art: 10
+  N_process: 8
+  scales:
+    En: [-170000, 0]
+    Lperp: [0, 4300]
+    Lz: [-4500, 4600]
+
+label:
+  min_sig: 3
+
+solar:
+  vlsr: 232.8
+  R0: 8.2
+  _U: 11.1
+  _V: 12.24
+  _W: 7.25
+
+

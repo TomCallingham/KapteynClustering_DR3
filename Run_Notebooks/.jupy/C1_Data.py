@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import vaex
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.param_funcs as paramf
 import KapteynClustering.cluster_funcs as clusterf
 import KapteynClustering.plot_funcs as plotf
 
@@ -19,7 +20,7 @@ import KapteynClustering.plot_funcs as plotf
 # Consistent across Notebooks
 
 # %%
-params = dataf.read_param_file("gaia_params.yaml")
+params = paramf.read_param_file("default_params.yaml")
 data_p = params["data"]
 solar_p = params["solar"]
 cluster_p = params["cluster"]
@@ -45,10 +46,16 @@ gaia_catalogue = vaex.open(data_p["base_data"])
 # Given solar params, we can create the galactic pos,vel (along with _x, _vx)
 
 # %%
+print(gaia_catalogue.column_names)
+
+# %%
 stars = dataf.create_galactic_posvel(gaia_catalogue, solar_params=solar_p)
 
 # %%
 print(stars.count())
+
+# %%
+print(stars.column_names)
 
 # %% [markdown]
 # ## Galactic PosVel
@@ -58,7 +65,9 @@ print(stars.count())
 print(data_p["pot_name"])
 stars = dynf.add_dynamics(stars, data_p["pot_name"], circ=True)
 stars = stars[stars["En"]<0]
-stars = clusterf.scale_features(stars, features=features,scales=scales, plot=False)[0]
+
+# %%
+print(stars.column_names)
 
 # %% [markdown]
 # ## Save Dyn

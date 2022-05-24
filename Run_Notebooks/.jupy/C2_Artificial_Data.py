@@ -1,28 +1,15 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
 # %% [markdown]
 # # Creating the Artificial Dataset
 #
 # To compare the sample stellar halo to, we generate a sample of artificially smooth halos. We use vtoomre>180 when scrambling velocity components to obtain an artificial reference representation of a halo.
 
-# %% [markdown] tags=[]
+# %% [markdown]
 # # Setup
 
 # %%
 import matplotlib.pyplot as plt
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.param_funcs as paramf
 import KapteynClustering.artificial_data_funcs as adf
 import vaex
 
@@ -30,7 +17,7 @@ import vaex
 # ## Params
 
 # %%
-params = dataf.read_param_file("gaia_params.yaml")
+params = paramf.read_param_file("default_params.yaml")
 
 data_p = params["data"]
 pot_name =  data_p["pot_name"]
@@ -55,8 +42,9 @@ stars = vaex.open(data_p["base_dyn"])
 # %%
 print(additional_props)
 
-# %% tags=[]
-art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_scale=features, scales=scales)
+# %%
+art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_scale=features, scales=scales,
+                                           v_toomre_cut=108)
 
 # %% [markdown]
 # ## Save Artifical Dataset
@@ -81,7 +69,7 @@ df= stars
 # %%
 plotting_utils.plot_original_data(df)
 
-# %% tags=[]
+# %%
 plotting_utils.plot_original_data(df_artificial)
 
 # %%

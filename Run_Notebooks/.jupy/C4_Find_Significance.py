@@ -1,24 +1,11 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
-
 # %% [markdown]
 # # Setup
 
-# %% tags=[]
+# %%
 import matplotlib.pyplot as plt
 import numpy as np
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.param_funcs as paramf
 import os
 import KapteynClustering as KC
 
@@ -27,16 +14,16 @@ import KapteynClustering as KC
 # Consistent across Notebooks
 
 # %%
-param_file = "gaia_params.yaml"
-params = dataf.read_param_file(param_file)
+param_file = "default_params.yaml"
+params = paramf.read_param_file(param_file)
 data_p= params["data"]
 
-# %% [markdown] tags=[]
+# %% [markdown]
 # # PCA Fit
 # multiprocessing struggles in notebook. Below launches the scripts with given parameters.
 
-# %% tags=[]
-if False: # Careful, time consuming! Better To Run in cmdline to see output
+# %%
+if True: # Careful, time consuming! Better To Run in cmdline to see output
     module_folder = os.path.dirname(KC.__file__)
     script_file = module_folder + "/Run_Significance.py"
     run_cmd = f"python {script_file} {param_file}"

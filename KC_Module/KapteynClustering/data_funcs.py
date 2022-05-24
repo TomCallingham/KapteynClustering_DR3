@@ -35,6 +35,15 @@ def write_data(fname, dic, verbose=True, overwrite=True):
 def create_galactic_posvel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
                           ["vlsr", "_U", "_V", "_W"]]
+
+    try:
+        props = list(stars.keys())
+    except Exception: # Then vaex
+        props = stars.column_names
+        for p in ["_vx", "_vy", "_vz", "_x", "_y", "_z", "vel", "pos"]:
+            if p in props:
+                del stars[p]
+
     stars["_vx"] = stars["vx"] + _U
     stars["_vy"] = stars["vy"] + _V + vlsr
     stars["_vz"] = stars["vz"] + _W
@@ -71,7 +80,10 @@ def sof_calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
 
 def create_toomre(stars, solar_params=solar_params0):
     # Toomre velocity: velocity offset from being a disk orbit
-    try:
+    try: # is vaex
+        props = stars.column_names
+        if "v_toomre" in props:
+            del stars["v_toomre"]
         stars["v_toomre"] = calc_toomre(
             stars["vel"].values, stars["phi"].values, vlsr=solar_params["vlsr"])
     except Exception:
@@ -145,5 +157,11 @@ def create_geo_vel(stars, solar_params=solar_params0):
     stars["vx"] = stars["_vx"] - _U
     stars["vy"] = stars["_vy"] - (_V + vlsr)
     stars["vz"] = stars["_vz"] - _W
+
+
+
+    stars["x"] = stars["_x"] + solar_params["R0"]
+    stars["y"] = stars["_y"]
+    stars["z"] = stars["_z"]
 
     return stars

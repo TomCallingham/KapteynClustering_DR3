@@ -1,3 +1,4 @@
+from threadpoolctl import threadpool_limits
 import numpy as np
 import time
 import KapteynClustering.significance_funcs as sigf
@@ -81,8 +82,9 @@ share_dic = init_memory(X, art_X)
 
 # Start the process pool and do the computation.
 T = time.time()
-with Pool(processes=N_process, initializer=init_worker, initargs=(share_dic,)) as pool:
-    result = pool.map(worker_func, list_tree_members)
+with threadpool_limits(limits=1):
+    with Pool(processes=N_process, initializer=init_worker, initargs=(share_dic,)) as pool:
+        result = pool.map(worker_func, list_tree_members)
 print("Finished")
 dt = time.time() - T
 print(f" Time taken: {dt/60} mins")

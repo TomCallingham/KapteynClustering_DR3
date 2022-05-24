@@ -5,15 +5,20 @@ import numpy as np
 
 
 def read_param_file(param_file, check_data=True):
+    params = read_yaml(param_file)
+    if check_data:
+        params["data"] = check_data_params(params["data"])
+    params["solar"] = check_solar_params(params["solar"])
+    return params
+
+def read_yaml(param_file):
     param_path = os.path.abspath(param_file)
     with open(param_path, 'r') as stream:
         params = yaml.safe_load(stream)
-    if check_data:
-        params["data"] = data_params_check(params["data"])
     return params
 
 
-def data_params_check(data_params):
+def check_data_params(data_params):
     check_make_folder(data_params["result_folder"])
     data_params = check_sofie_data(data_params)
     data_params = check_file_path(data_params)
@@ -37,6 +42,12 @@ def check_sofie_data(data_params):
         s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
         data_params["art"] = s_result_folder + "df_artificial_3D.hdf5"
     return data_params
+
+def check_solar_params(solar_params):
+    if "file" in list(solar_params.keys()):
+        import KapteynClustering.dic_funcs as dicf
+        solar_params = dicf.h5py_load(solar_params["file"])
+    return solar_params
 
 
 def check_file_path(data_params):

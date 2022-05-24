@@ -9,16 +9,16 @@ def fit_gaussian(X):
     return mean, covar
 
 
-def find_mahalanobis(mean, covar, X):
-    return np.sqrt(find_maha(X, mean=mean, cov=covar))
+def find_mahalanobis(mean, covar, X, psd=None):
+    return np.sqrt(find_maha(X, mean=mean, cov=covar, psd=psd))
 
 
-def find_mahalanobis_members(N_std, mean, covar, X):
-    return (find_mahalanobis(mean, covar, X) <= N_std)
+def find_mahalanobis_members(N_std, mean, covar, X,psd=None):
+    return (find_mahalanobis(mean, covar, X, psd=psd) <= N_std)
 
 
-def find_mahalanobis_N_members(N_std, mean, covar, X):
-    N_members = find_mahalanobis_members(N_std, mean, covar, X).sum(axis=-1)
+def find_mahalanobis_N_members(N_std, mean, covar, X, psd=None):
+    N_members = find_mahalanobis_members(N_std, mean, covar, X,psd=psd).sum(axis=-1)
     return N_members
 
 
@@ -39,6 +39,7 @@ def find_maha(x, mean, cov, psd=None, allow_singular=False):
     if psd is None:
         psd = _PSD(cov, allow_singular=allow_singular)
     # dev = x - mean
+    # maha = np.sum(np.square(np.dot(x-mean, psd.U)), axis=-1)
     maha = np.sum(np.square(np.dot(x-mean, psd.U)), axis=-1)
     return maha
 

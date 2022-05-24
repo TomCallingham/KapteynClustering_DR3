@@ -2,7 +2,8 @@
 *.ipynb
 Data/**
 Batch/
-Significance_params
+default_params.yaml
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

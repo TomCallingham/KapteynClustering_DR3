@@ -29,7 +29,7 @@ def agama_dyn_calc(pos, vel, pot=None, J_finder=None, angles=True, circ=True, ex
             pot_space = pot.potential(cart_space)
             Ecspace = pot_space + ((vc_space**2) / 2)
             dyn['Lcirc_En'] = np.interp(dyn['En'], Ecspace, Lspace)
-            dyn['Circ'] = dyn['Lz'] / dyn['Lcirc_En']
+            dyn['circ'] = dyn['Lz'] / dyn['Lcirc_En']
 
         if ex:
             print('Extremums')
@@ -68,7 +68,7 @@ def vcirc(Rspace, pot):
 
 
 def load_agama_potential(pot_fname):
-    ''' Loads an agama potetial localy, or from the installed data folder'''
+    ''' Loads an agama potential localy, or from the installed data folder'''
     if type(pot_fname) == str:
         try:
             a_pot = agama.Potential(pot_fname)
@@ -79,5 +79,5 @@ def load_agama_potential(pot_fname):
         return a_pot
     else:
         a_pots = [load_agama_potential(p) for p in pot_fname]
-        a_pot = agama.Potential(a_pots)
+        a_pot = agama.Potential(*a_pots)
         return a_pot
