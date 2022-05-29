@@ -12,7 +12,7 @@ except Exception:
     from KapteynClustering import cluster_funcs as clusterf
 
 
-def expected_density_members(members, N_std, X, art_X, N_art, min_members):
+def expected_density_members(members, N_std, X, art_X, N_art, min_members, max_members):
     '''
     Returns:
     [members within region, mean_art_region_count, std_art_region_cound](np.array): The number of stars in the artificial halo
@@ -26,14 +26,13 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
-    max_members = 25000
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
         return(np.array([0, N_members, 0]))
 
     # Fit Gaussian
     mean, covar = fit_gaussian(X[members, :])
-    psd = _PSD(covar, allow_singular=False)
+    psd = _PSD(covar, allow_singular=True)
     # Count Fit
     region_count = find_mahalanobis_N_members(N_std, mean, covar, X, psd=psd)
 
@@ -50,7 +49,6 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members):
     art_region_count_std = np.std(counts_per_halo)
 
     return np.array([region_count, art_region_count, art_region_count_std])
-
 
 def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
     '''
@@ -106,8 +104,7 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
 
     return np.array([region_count, art_region_count, art_region_count_std])
 
-
-def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_members):
+def mask_expected_density_members(members, N_std, X, art_X, N_art, min_members):
     '''
     Returns:
     [members within region, mean_art_region_count, std_art_region_cound](np.array): The number of stars in the artificial halo
@@ -122,6 +119,60 @@ def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_memb
 
     # ignore these clusters, return placeholder (done for computational efficiency)
     max_members = 25000
+    if((N_members > max_members) or (N_members < min_members)):
+        # if (N_members < min_members):
+        return(np.array([0, N_members, 0]))
+
+    # Fit Gaussian
+    mean, covar = fit_gaussian(X[members, :])
+    psd = _PSD(covar, allow_singular=False)
+
+    xmins = np.min(X[members, :], axis=0)
+    xmaxs = np.max(X[members, :], axis=0)
+    x_range = 0.1*(xmaxs-xmins)
+    xmins = xmins - x_range
+    xmaxs = xmaxs + x_range
+    # xmins = xmins - eps
+    # xmaxs = xmaxs + eps
+    # eps = 0.05
+
+    # Count Fit
+    filt = np.prod((X > xmins[None, :]) *
+                   (X < xmaxs[None, :]), axis=1).astype(bool)
+
+    region_count = find_mahalanobis_N_members(N_std, mean, covar, np.ma.masked_where(condition=filt,a = X),psd=psd)
+
+    # Artificial
+    counts_per_halo = np.zeros((N_art))
+    for n in range(N_art):
+        filt = np.prod((art_X[n] > xmins[None, :]) *
+                       (art_X[n] < xmaxs[None, :]), axis=1).astype(bool)
+        counts_per_halo[n] = find_mahalanobis_N_members(
+            N_std, mean, covar, art_X[n][filt, :], psd=psd)
+
+    N_art_stars = np.array([len(art_X[n][:, 0]) for n in range(N_art)])
+    counts_per_halo = counts_per_halo * (len(X[:, 0])/N_art_stars)
+
+    art_region_count = np.mean(counts_per_halo)
+    art_region_count_std = np.std(counts_per_halo)
+
+    return np.array([region_count, art_region_count, art_region_count_std])
+
+
+def vec_expected_density_members(members, N_std, X, art_X_array, N_art, min_members, max_members):
+    '''
+    Returns:
+    [members within region, mean_art_region_count, std_art_region_cound](np.array): The number of stars in the artificial halo
+                                                in the region of cluster i, and the standard
+                                                deviation in counts across the artificial
+                                                halo data sets.
+    '''
+
+    # get a list of members (indices in our halo set) of the cluster C we are currently investigating
+
+    N_members = len(members)
+
+    # ignore these clusters, return placeholder (done for computational efficiency)
     if((N_members > max_members) or (N_members < min_members)):
         # if (N_members < min_members):
         return(np.array([0, N_members, 0]))
@@ -152,9 +203,10 @@ def sig_load_data(param_file, scaled_force=False):
     data_p = params["data"]
 
     cluster_p = params["cluster"]
-    min_members, max_members = cluster_p["min_members"], cluster_p["max_members"]
+    min_members = cluster_p["min_members"]
     features = cluster_p["features"]
-    N_art, N_std, N_process = cluster_p["N_art"], cluster_p["N_sigma_ellipse_axis"], cluster_p["N_process"]
+    N_art, N_process = cluster_p["N_art"],  cluster_p["N_process"]
+    N_std = paraf.find_Nstd_from_params(params)
 
     stars = dataf.read_data(data_p["sample"])
     print("Using features:")
@@ -166,6 +218,11 @@ def sig_load_data(param_file, scaled_force=False):
             stars, features=features, scales=cluster_p["scales"])[0]
         X = clusterf.find_X(features, stars, scaled=scaled_force)
     del stars
+
+    max_members  = cluster_p.get("max_members",None)
+    if max_members is None:
+        max_members = len(X[:,0])/4
+        print("auto max members, quarter of Nstars:",max_members)
 
     art_stars = dataf.read_data(data_p["art"])
     # Then using sofies, needs individual datasets split

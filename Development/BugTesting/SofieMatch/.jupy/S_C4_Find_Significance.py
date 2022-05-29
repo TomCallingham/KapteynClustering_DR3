@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.dic_funcs as dicf
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.param_funcs as paramf
 import KapteynClustering.plot_funcs as plotf
 
 # from params import data_params, gaia2, auriga, cosma
@@ -26,13 +27,13 @@ import KapteynClustering.plot_funcs as plotf
 # # LOAD
 
 # %%
-params = dataf.read_param_file("../../../Params/sof_check_params.yaml")
+params = paramf.read_param_file("../../../Params/sof_check_params.yaml")
 data_params = params["data"]
 
-cut_sig_data = dataf.read_data(fname=data_params["sig"], extra="cut" )
-cut_sig = cut_sig_data["significance"]
-cut_label_data = dataf.read_data( data_params["label"], extra="cut")
-cut_my_labels = cut_label_data["labels"]
+# cut_sig_data = dataf.read_data(fname=data_params["sig"], extra="cut" )
+# cut_sig = cut_sig_data["significance"]
+# cut_label_data = dataf.read_data( data_params["label"], extra="cut")
+# cut_my_labels = cut_label_data["labels"]
 
 sig_data = dataf.read_data(fname=data_params["sig"] )
 label_data = dataf.read_data( data_params["label"])

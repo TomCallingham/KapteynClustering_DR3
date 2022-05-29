@@ -1,17 +1,15 @@
 run:
-  steps: [sample,artificial,linkage,significance,label]
+  steps: [linkage,significance,label]
 
 # - All files without a "/" in the name will have the result folder added to them when read in.
 # - for sample and art, using "SOFIE" will result in the original sofie datasets being used
 data:
-  base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5"
-  result_folder: "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/second_test_gaia_results/"
-  base_dyn: "test_gaia_Dyn.hdf5"
-  sample: "test_gaia_Sample.hdf5"
-  art: "test_gaia_Art.hdf5"
-  cluster: "test_gaia_Cluster.hdf5"
-  sig: "test_gaia_Significance.hdf5"
-  label: "test_gaia_Labels.hdf5"
+  result_folder: "/Users/users/callingham/Projects/clustering/Data/art_cluster_check/"
+  sample: "art_check_Sample.hdf5"
+  art: "/Users/users/callingham/Projects/clustering/Data/test_gaia_results/test_gaia_Art.hdf5"
+  cluster: "art_check_Cluster.hdf5"
+  sig: "art_check_Significance.hdf5"
+  label: "art_check_Labels.hdf5"
   pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
 
 art: # Artificial dataset
@@ -23,9 +21,8 @@ cluster:
   features: [En,Lperp,Lz]
   min_members: 10
   max_members: 25000
-  N_sigma_ellipse_axis: 2.83
   N_art: 100
-  N_process: 8
+  N_process: 16
   scales:
     En: [-170000, 0]
     Lperp: [0, 4300]

@@ -26,7 +26,7 @@ def get_test_gaia_data_params(pot_name="H99"):
     "Could also be McMillan17.ini"
     base= "test_gaia"
     test_gaia_data_params= {
-    "result_path" : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/",
+    "result_path" : "/Users/users/callingham/Projects/clustering/Data/",
     "data_folder" : "test_gaia/",
     "base_data": base+"_Stars",
     "base_dyn": base+"_Dyn", #Dynamics and scaled

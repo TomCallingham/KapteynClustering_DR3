@@ -5,14 +5,14 @@ run:
 # - for sample and art, using "SOFIE" will result in the original sofie datasets being used
 data:
   base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5"
-  result_folder: "/Users/users/callingham/Projects/clustering/Data/test_gaia_results/"
+  result_folder: "/Users/users/callingham/Projects/clustering/Data/C20_test_gaia_results/"
   base_dyn: "test_gaia_Dyn.hdf5"
   sample: "test_gaia_Sample.hdf5"
   art: "test_gaia_Art.hdf5"
   cluster: "test_gaia_Cluster.hdf5"
   sig: "test_gaia_Significance.hdf5"
   label: "test_gaia_Labels.hdf5"
-  pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
+  pot_name: "Cautun20.ini"
 
 art: # Artificial dataset
   N_art: 100
@@ -23,6 +23,7 @@ cluster:
   features: [En,Lperp,Lz]
   min_members: 10
   max_members: 25000
+  N_sigma_ellipse_axis: 2.83
   N_art: 100
   N_process: 8
   scales:

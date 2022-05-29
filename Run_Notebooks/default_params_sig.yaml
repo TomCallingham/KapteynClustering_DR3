@@ -5,7 +5,7 @@ run:
 # - for sample and art, using "SOFIE" will result in the original sofie datasets being used
 data:
   base_data: "/net/gaia2/data/users/lovdal/datasample_vtoomre180.hdf5"
-  result_folder: "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia_results/"
+  result_folder: "/Users/users/callingham/Projects/clustering/Data/test_gaia_results/"
   base_dyn: "test_gaia_Dyn.hdf5"
   sample: "test_gaia_Sample.hdf5"
   art: "test_gaia_Art.hdf5"

@@ -63,13 +63,6 @@ def next_members(tree_dic, Z, i, N_cluster):
     tree_dic[i + N_cluster] = tree_dic[Z[i, 0]] + tree_dic[Z[i, 1]]
     return tree_dic
 
-
-def next_members_del(tree_dic, Z, i, N_cluster):
-    tree_dic[i + N_cluster] = tree_dic[Z[i, 0]] + tree_dic[Z[i, 1]]
-    del tree_dic[Z[i, 0]], tree_dic[Z[i, 1]]
-    return tree_dic
-
-
 def find_members(ind, Z):
     N_cluster = len(Z)
     N_cluster1 = N_cluster + 1
@@ -148,13 +141,17 @@ def scale_features(stars, features=cluster_params0["features"],
     scale_data = {}
     percent = 5
     for p in features:
-        scale = scales.get(p, None)
-        if scale is None:
-            print(
-                f"No scale found for {p}, creating own using {percent} margin")
-            scale = get_scale(x=stars[p])
-        stars["scaled_" +
-              p] = apply_scale(stars, xkey=p, scale=scale, plot=plot)
+        given_scale = scales.get(p, None)
+        print(f"for {p}, given scale is {given_scale}")
+        if given_scale is None or None in given_scale:
+            print(f"No scale found for {p}, creating own using {percent} margin")
+        try:
+            x = stars[p].values
+        except Exception:
+            x = stars[p]
+        scale = get_partial_scale(x=x, percent=percent, given_scale = given_scale)
+        print(f"{p}, using scale: {scale}")
+        stars["scaled_" + p] = apply_scale(stars, xkey=p, scale=scale, plot=plot)
         scale_data[p] = scale
     return stars, scale_data
 
@@ -163,9 +160,23 @@ def get_scale(x, percent=5):
     scale = np.array(np.percentile(x, [percent, 100 - percent]))
     return scale
 
+def get_partial_scale(x,percent=5, given_scale=None):
+    if given_scale is None:
+        return get_scale(x, percent)
+    scale = get_scale(x, percent=5)
+    if given_scale[0] not in [None,"None"]:
+        scale[0] = given_scale[0]
+    if given_scale[1] not in [None,"None"]:
+        print("replacing top scale")
+        scale[1] = given_scale[1]
+    return scale
+
 
 def apply_scale(data, xkey, scale, plot=False):
-    x = data[xkey]
+    try:
+        x = data[xkey].values
+    except Exception:
+        x = data[xkey]
     scale_range = scale[1] - scale[0]
     scaled_x = ((x - scale[0]) / (scale_range / 2)) - 1
 

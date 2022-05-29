@@ -102,3 +102,36 @@ def list_files(folder, ext=True, path=True, n_multi=None):
         file_list = [os.path.splitext(file)[0] for file in file_list]
     print(file_list)
     return file_list
+
+# Find N_std
+def find_Nstd_from_params(params):
+    cluster_p = params["cluster"]
+    df = len(cluster_p["features"])
+    Nstd = cluster_p.get("Nstd",cluster_p.get("N_sigma_ellipse_axis",None))
+    sigma1d = cluster_p.get("sigma_1d",None)
+    sigma_percent = cluster_p.get("sigma_percent",None)
+    if Nstd is not None:
+        print("Nstd given")
+        pass
+    elif sigma1d is not None:
+        print("sigma1d given")
+        Nstd = find_Nstd_from_1dSigma(sigma1d,df)
+    elif sigma_percent is not None:
+        print("sigma percent given")
+        Nstd = find_Nstd_from_percent(sigma_percent,df)
+    else:
+        print(f"No Nstd given. Assume sigma1d = 2, using dof = {df}")
+        Nstd = find_Nstd_from_1dSigma(2,df)
+
+    print(f"Nstd: {Nstd}")
+    return Nstd
+
+def find_Nstd_from_percent(percent, df):
+    from scipy.stats import chi2
+    Nstd = np.sqrt(chi2.ppf(percent, df))
+    return Nstd
+
+def find_Nstd_from_1dSigma(sigma, df):
+    from scipy.stats import chi2
+    sigma_percent= chi2.cdf(sigma**2,df=1)
+    return find_Nstd_from_percent(sigma_percent, df)

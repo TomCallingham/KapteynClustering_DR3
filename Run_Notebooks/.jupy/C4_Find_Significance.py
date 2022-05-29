@@ -48,10 +48,3 @@ plt.xlabel("Significance")
 plt.show()
 
 # %%
-plt.figure()
-plt.hist(region_count[np.isfinite(sig)], bins=100,density=True, label="fit", histtype="step")
-plt.hist(art_region_count[np.isfinite(sig)], bins=100,density=True, label= "art")
-plt.legend()
-plt.show()
-
-# %%

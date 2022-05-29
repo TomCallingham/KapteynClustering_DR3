@@ -1,0 +1,43 @@
+run:
+  # steps: [sample,artificial,linkage,significance,label]
+  steps: [linkage,significance,label]
+
+# - All files without a "/" in the name will have the result folder added to them when read in.
+# - for sample and art, using "SOFIE" will result in the original sofie datasets being used
+data:
+  sample: "/Users/users/callingham/Projects/clustering/Data/J_test_gaia_results/J_test_gaia_Sample.hdf5"
+  art: "/Users/users/callingham/Projects/clustering/Data/J_test_gaia_results/J_test_gaia_Art.hdf5"
+
+  result_folder: "/Users/users/callingham/Projects/clustering/Data/EJ_test_gaia_results/"
+  cluster: "EJ_test_gaia_Cluster.hdf5"
+  sig: "EJ_test_gaia_Significance.hdf5"
+  label: "EJ_test_gaia_Labels.hdf5"
+  pot_name: "McMillan17.ini" # Could be "McMillan17.ini" or any AGAMA pot
+
+art: # Artificial dataset
+  N_art: 100
+  additional: []
+
+# Clustering Params
+cluster:
+  features: [En,JR,Jz,Lz]
+  min_members: 10
+  max_members: 25000
+  N_art: 100
+  N_process: 8
+  scales:
+    JR: [0,None]
+    Jz: [0,None]
+    Lz: [None,None]
+
+label:
+  min_sig: 3
+
+solar:
+  vlsr: 232.8
+  R0: 8.2
+  _U: 11.1
+  _V: 12.24
+  _W: 7.25
+
+

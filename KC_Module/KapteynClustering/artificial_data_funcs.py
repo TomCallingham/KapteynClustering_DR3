@@ -1,4 +1,3 @@
-from KapteynClustering.cluster_funcs import scale_features
 from . import dynamics_funcs as dynf
 from . import dic_funcs as dicf
 from . import data_funcs as dataf
@@ -8,7 +7,7 @@ import numpy as np
 np.random.seed(0)
 
 
-def get_shuffled_artificial_set(N_art, stars, pot_fname, additional_props=[], v_toomre_cut=180, solar_params=solar_params0, scales={}, features_to_scale=[]):
+def get_shuffled_artificial_set(N_art, stars, pot_fname, features=[], additional_props=[], v_toomre_cut=210, solar_params=solar_params0, N_original=None):
     '''
     Creates a data set of N artificial halos
 
@@ -26,6 +25,7 @@ def get_shuffled_artificial_set(N_art, stars, pot_fname, additional_props=[], v_
     This artificial halo is used to assess overdensities we find in the real data
     '''
     print(f'Creating {N_art} artificial datasets...')
+    print(f"Using v_toomre_cut of {v_toomre_cut}")
 
     props = ["pos", "vel", "phi"]
     props.extend(additional_props)
@@ -38,7 +38,7 @@ def get_shuffled_artificial_set(N_art, stars, pot_fname, additional_props=[], v_
     for n in range(N_art):
         print(f" {n+1} / {N_art}")
         art_stars = get_shuffled_artificial_dataset(
-            dic_stars, pot_fname,  v_toomre_cut, solar_params)  # , scales, features_to_scale)
+            dic_stars, pot_fname,  v_toomre_cut, solar_params, features, N_original = N_original)  # , scales, features_to_scale)
         N_stars = np.shape(art_stars["pos"])[0]
         art_stars['index'] = np.full((N_stars), n)
         art_stars_all[n] = art_stars
@@ -51,7 +51,7 @@ def get_shuffled_artificial_set(N_art, stars, pot_fname, additional_props=[], v_
 
 
 # , scales={}, features_to_scale=[]):
-def get_shuffled_artificial_dataset(stars_dic, pot_fname, v_toomre_cut=180, solar_params=solar_params0):
+def get_shuffled_artificial_dataset(stars_dic, pot_fname, v_toomre_cut=210, solar_params=solar_params0, features=[], N_original=None):
     '''
     Returns an artificial dataset by shuffling the vy and vz-components of the original dataset.
     The artificial dataset is cropped to have the exact same number of halo-members as the original.
@@ -70,16 +70,24 @@ def get_shuffled_artificial_dataset(stars_dic, pot_fname, v_toomre_cut=180, sola
 
     art_stars = dataf.apply_toomre_filt(art_stars, v_toomre_cut=v_toomre_cut,
                                         solar_params=solar_params)
-    art_stars = dynf.add_dynamics(art_stars, pot_fname=pot_fname, circ=True)
-    art_stars = dicf.filt(art_stars, art_stars["En"] < 0, copy=False)
-    # art_stars = scale_features(art_stars, features =features_to_scale , scales=scales)[0]
-    # print("Apply scale. (Shouldn't need to!)")
-    # TODO: check numbers of catalogues
-    # N_original = len(stars["vx"])
-    # N_shuffle = len(art_stars["vx"])
-    # if N_shuffle > num_stars:
-    #     df_art = df_art.sample(num_stars)
-
-    # return df_art
+    art_stars = dynf.add_dynamics(art_stars, pot_fname=pot_fname, additional_dynamics=features)
+    if N_original is None:
+        art_stars = dicf.filt(art_stars, art_stars["En"] < 0, copy=False)
+        return art_stars
+    print("Matching Number")
+    filt = (art_stars["En"]<0)
+    N_art_uncut = len(filt)
+    N_shuffle = filt.sum()
+    if N_shuffle < N_original:
+        print("Not enough stars to match original")
+        print(N_shuffle, N_original)
+        raise SystemError("Not enough stars")
+    index = np.arange(N_art_uncut)[filt]
+    index = np.random.choice(index, size = N_original)
+    filt = np.zeros((N_art_uncut), dtype=bool)
+    filt[index] = True
+    art_stars = dicf.filt(art_stars, filt, copy=False)
+    N_check = len(art_stars["En"])
+    print(N_check, N_original)
 
     return art_stars

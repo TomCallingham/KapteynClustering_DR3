@@ -7,15 +7,11 @@ import KapteynClustering.data_funcs as dataf
 import KapteynClustering.param_funcs as paramf
 import KapteynClustering.label_funcs as labelf
 
-# %%
-from KapteynClustering.plot_funcs import plot_simple_scatter
-from KapteynClustering.plotting_utils import plotting_scripts as ps 
-
 # %% [markdown]
 # # Load
 
 # %%
-params = paramf.read_param_file("default_params.yaml")
+params = paramf.read_param_file("../Params/J_gaia_params.yaml")
 data_p = params["data"]
 min_sig=params["label"]["min_sig"]
 
@@ -32,10 +28,6 @@ label_data = dataf.read_data(fname= data_p["label"])
 print(len(Groups))
 
 # %%
-G_Colours = ps.get_G_colours(Groups)
-G_Colours_list = np.array([G_Colours[g] for g in Groups])
-
-# %%
 N_fluff = Pops[Groups==-1]
 N_grouped = len(labels) - N_fluff
 f_grouped = N_grouped/len(labels)
@@ -44,7 +36,7 @@ print(f"Fraction Grouped: {f_grouped}")
 
 # %%
 plt.figure(figsize=(8,8))
-plt.scatter(Pops[G_sig>min_sig], G_sig[G_sig>min_sig],c=G_Colours_list[G_sig>min_sig])
+plt.scatter(Pops[G_sig>min_sig], G_sig[G_sig>min_sig])
 plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("Population")
@@ -57,14 +49,17 @@ plt.show()
 # ## Plots
 
 # %%
+from KapteynClustering.plot_funcs import plot_simple_scatter
+
+# %%
 xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"], 
            ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
 plot_simple_scatter(stars, xy_keys, Groups, labels)
 plt.show()
 
 # %%
-xy_keys = (["Lz", "Lperp"], ["En", "Lperp"])
-           
+xy_keys =( ["JR", "Jz", "Lz"], ["En"]) 
+         
 plot_simple_scatter(stars, xy_keys, Groups, labels)
 plt.show()
 

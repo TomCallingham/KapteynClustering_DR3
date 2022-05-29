@@ -1,11 +1,19 @@
 import numpy as np
 
 
-def add_dynamics(stars, pot_fname=None, J_finder=None, angles=True, circ=True, ex=False):
-    '''
+def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
+    '''circ
+    Jz returns actions
+    angles returns all actions and angles
+    rmin, rmax returns
+    actions, angles, circ, ex
     stars dic containg pos,vel as Nx3.
     pot_fname either "H99" or file path to agama Potential.
     '''
+    circ = ("circ" in additional_dynamics)
+    actions = bool(np.any(np.isin(np.array(["Jz","JR","Jphi"]), additional_dynamics)))
+    angles = bool(np.any(np.isin(np.array(["Az","AR","Aphi"]), additional_dynamics)))
+    extreme = bool(np.any(np.isin(np.array(["Rmin","Rmax"]), additional_dynamics)))
     try:
         pos = stars["pos"].values
         vel = stars["vel"].values
@@ -16,12 +24,14 @@ def add_dynamics(stars, pot_fname=None, J_finder=None, angles=True, circ=True, e
     if pot_fname == "H99":
         # from .H99_DynamicsCalc import H99_dyn_calc
         from KapteynClustering.H99_DynamicsCalc import H99_dyn_calc
-        dyn = H99_dyn_calc(pos, vel)
+        dyn = H99_dyn_calc(pos, vel, circ=circ)
+        if np.any([actions,angles,extreme]):
+            print("Error, dynamics not implemented for H99")
     else:
         from .agama_dynamics import load_agama_potential, agama_dyn_calc
         a_pot = load_agama_potential(pot_fname)
-        dyn = agama_dyn_calc(pos, vel, pot=a_pot, J_finder=J_finder,
-                             angles=angles, circ=circ, ex=ex)
+        dyn = agama_dyn_calc(pos, vel, pot=a_pot, actions=actions,
+                             angles=angles, circ=circ, ex=extreme)
     for prop in dyn.keys():
         try:
             del stars[prop]
@@ -36,7 +46,6 @@ def add_dynamics(stars, pot_fname=None, J_finder=None, angles=True, circ=True, e
     return stars
 
 
-# TODO: Make clearer x,y,z and vx,vy,vz differences!
 def add_cylindrical(stars):
     try:
         pos = stars["pos"].values

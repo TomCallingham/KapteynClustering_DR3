@@ -42,10 +42,10 @@ def init_worker(share_dic):
 # print("Using cut function")
 # def worker_func(members):
 #     return sigf.cut_expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
-#                                              min_members=min_members)
+#                                              min_members=min_members, max_members=max_members)
 def worker_func(members):
     return sigf.expected_density_members(members, N_std=N_std, X=var_dict["share_X"], art_X=var_dict["share_art_X"], N_art=N_art,
-                                         min_members=min_members)
+                                         min_members=min_members, max_members=max_members)
 
 
 def init_memory(X, art_X):

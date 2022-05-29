@@ -46,16 +46,7 @@ gaia_catalogue = vaex.open(data_p["base_data"])
 # Given solar params, we can create the galactic pos,vel (along with _x, _vx)
 
 # %%
-print(gaia_catalogue.column_names)
-
-# %%
 stars = dataf.create_galactic_posvel(gaia_catalogue, solar_params=solar_p)
-
-# %%
-print(stars.count())
-
-# %%
-print(stars.column_names)
 
 # %% [markdown]
 # ## Galactic PosVel
@@ -63,11 +54,8 @@ print(stars.column_names)
 
 # %%
 print(data_p["pot_name"])
-stars = dynf.add_dynamics(stars, data_p["pot_name"], circ=True)
+stars = dynf.add_dynamics(stars, data_p["pot_name"], additional_dynamics=["circ"])
 stars = stars[stars["En"]<0]
-
-# %%
-print(stars.column_names)
 
 # %% [markdown]
 # ## Save Dyn
@@ -101,3 +89,5 @@ print(toomre_stars.count())
 # %%
 from KapteynClustering.legacy import plotting_utils
 plotting_utils.plot_original_data(toomre_stars)
+
+# %%

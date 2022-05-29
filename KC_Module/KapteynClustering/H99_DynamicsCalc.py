@@ -2,7 +2,7 @@ from .legacy import H99Potential as H99Potential
 import numpy as np
 
 
-def H99_dyn_calc(pos, vel):
+def H99_dyn_calc(pos, vel, circ=True):
     dyn = {}
     dyn['pos'] = pos
     dyn['vel'] = vel
@@ -16,21 +16,23 @@ def H99_dyn_calc(pos, vel):
     dyn['Lvec'] = Lvec
     dyn["U"] = H99Potential.potential_full(pos[:, 0], pos[:, 1], pos[:, 2])
     dyn['En'] = dyn['U'] + dyn['K']
-    dyn["circ"] = calc_circ(dyn["En"], dyn["Lz"])
+    if circ:
+        dyn["circ"] = calc_circ(dyn["En"], dyn["Lz"])
     return dyn
 
 
 def calc_circ(En,  Lz):
     Ncl = len(En)
-    circularity = np.zeros(Ncl)+np.nan
+    circularity = np.full(Ncl,np.nan)
     En_circ, Lz_circ = calc_tratt()
-    E_fit = (np.min(En_circ) < En)*(En < np.max(En_circ))
+    E_fit = (En_circ[0] < En)*(En < En_circ[-1])
     circularity[E_fit] = Lz[E_fit]/np.interp(En[E_fit], En_circ, Lz_circ)
-
+    circularity[En_circ[0]>En] = Lz[En_circ[0]>En]/Lz_circ[0]
+    circularity[En_circ[-1]<En] = Lz[En_circ[-1]<En]/Lz_circ[-1]
     return circularity
 
 
-def calc_tratt(rmin=0.1, rmax=300, N=5000):
+def calc_tratt(rmin=0.01, rmax=500, N=5000):
     """
     This code calculates the circularity of orbiting objects.
     The circularity indicates how far the Lz of the orbiting

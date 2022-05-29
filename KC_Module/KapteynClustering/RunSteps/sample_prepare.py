@@ -20,7 +20,7 @@ def sample_prepare(params):
 
 def save_dynamics(params):
     data_p = params["data"]
-    # cluster_p = params["cluster"]
+    features = params["cluster"]["features"]
 
     # Load Base Data
     stars = vaex.open(data_p["base_data"])
@@ -30,7 +30,7 @@ def save_dynamics(params):
         print("Creating Galactic Pos/Vel")
         solar_p = params["solar"]
         stars = dataf.create_galactic_posvel(stars, solar_params=solar_p)
-    stars = dynf.add_dynamics(stars, pot_name, circ=True)
+    stars = dynf.add_dynamics(stars, pot_name, additional_dynamics=features)
     stars = stars[stars["En"] < 0]
     # stars = clusterf.scale_features(stars, features=cluster_p["features"], scales=cluster_p["scales"])[0]
     # save dynamics

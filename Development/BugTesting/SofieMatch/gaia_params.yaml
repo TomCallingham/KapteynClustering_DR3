@@ -3,8 +3,8 @@ run:
   steps: [serial_sig]
 
 data:
-  base_data : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/test_gaia/test_gaia_Stars"
-  result_folder : "/Users/users/callingham/Projects/Clustering/KapteynClustering_DR3/Data/second_test_gaia/"
+  base_data : "/Users/users/callingham/Projects/clustering/Data/test_gaia/test_gaia_Stars"
+  result_folder : "/Users/users/callingham/Projects/clustering/Data/second_test_gaia/"
   base_dyn: "test_gaia_Dyn" #Dynamics and scaled
   sample: "test_gaia_Sample" #Toomre Selection and others,
   art: "test_gaia_Art"
