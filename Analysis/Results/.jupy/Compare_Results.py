@@ -8,6 +8,9 @@ import KapteynClustering.param_funcs as paramf
 import KapteynClustering.label_funcs as labelf
 
 # %%
+plt.set_cmap("viridis_r")
+
+# %%
 params = paramf.read_param_file("../../Params/gaia_params.yaml")
 data_p = params["data"]
 
@@ -78,8 +81,8 @@ plt.figure()
 # plt.imshow(sim_Matrix)
 # plt.pcolor(np.arange(Ng), np.arange(Ng2),sim_Matrix.T)
 msim_Matrix = np.ma.masked_where(sim_Matrix==0,sim_Matrix).T
-plt.pcolor(plot_pop_list, plot_pop_list2, msim_Matrix,
-          cmap=plt.get_cmap("viridis_r"))
+plt.pcolor(plot_pop_list, plot_pop_list2, msim_Matrix)
+# , cmap=plt.get_cmap("viridis_r"))
 for p in plot_pop_list:
     plt.axvline(p, c="lightgrey", alpha=0.3)
 for p in plot_pop_list2:

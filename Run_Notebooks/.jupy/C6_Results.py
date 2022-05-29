@@ -11,6 +11,9 @@ import KapteynClustering.label_funcs as labelf
 from KapteynClustering.plot_funcs import plot_simple_scatter
 from KapteynClustering.plotting_utils import plotting_scripts as ps 
 
+# %%
+plt.set_cmap("
+
 # %% [markdown]
 # # Load
 

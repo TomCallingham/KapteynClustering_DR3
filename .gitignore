@@ -4,6 +4,7 @@ Data/**
 Data
 Batch/
 default_params.yaml
+Development/SampleSelection
 
 
 # Byte-compiled / optimized / DLL files
