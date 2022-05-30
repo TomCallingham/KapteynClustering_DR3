@@ -1,10 +1,11 @@
-**.jupyterlab-workspace
+*.jupyterlab-workspace
 *.ipynb
-Data/**
+Data/*
 Data
 Batch/
 default_params.yaml
 Development/SampleSelection
+*.hdf5
 
 
 # Byte-compiled / optimized / DLL files
