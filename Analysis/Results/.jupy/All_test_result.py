@@ -127,6 +127,7 @@ result_plots(param_file, title="circ 4 space")
 
 # %% [markdown]
 # ## Scaling
+# Scaling Energy at half
 
 # %%
 param_file = "../../Params/E2_gaia_params.yaml"

@@ -34,7 +34,9 @@ def save_dynamics(params):
     stars = stars[stars["En"] < 0]
     # stars = clusterf.scale_features(stars, features=cluster_p["features"], scales=cluster_p["scales"])[0]
     # save dynamics
+    print("Saving Dynamics...")
     stars.export(data_p["base_dyn"])
+    print("Saved!")
     return
 
 

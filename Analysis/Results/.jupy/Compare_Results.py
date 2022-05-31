@@ -95,10 +95,12 @@ for p in plot_bins:
 for p in plot_bins2:
     plt.axhline(p, c="lightgrey", alpha=0.5)
     
-for x,g in zip(plot_cents,Groups):
-    if g in [0,1,-1]:
-        print(g,x)
-        plt.text(x,0,g)
+plt.xticks(plot_cents,Groups)
+plt.yticks(plot_cents2,Groups2)
+plt.minorticks_off()
+plt.xlabel("Group1")
+plt.ylabel("Group2")
+plt.title("contained")
     
 plt.colorbar()
 plt.show()
@@ -195,11 +197,13 @@ for p in o_plot_bins:
 for p in o_plot_bins2:
     plt.axhline(p, c="lightgrey", alpha=0.5)
     
-for x,g in zip(o_plot_cents,o_Groups):
-    if g in [0,1,-1]:
-        print(g,x)
-        plt.text(x,5,g)
-    
+plt.xticks(plot_cents,o_Groups)
+plt.yticks(plot_cents2,o_Groups2)
+plt.minorticks_off()
+plt.xlabel("Group1")
+plt.ylabel("Group2")
+
+plt.title("Fraction of G1 contained in each G2")
 plt.colorbar()
 plt.show()
 

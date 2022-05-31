@@ -33,11 +33,11 @@ def check_make_folder(folder):
 
 
 def check_sofie_data(data_params):
-    if data_params["sample"] == "SOFIE":
+    if data_params.get("sample",None) == "SOFIE":
         print("Sofies sample")
         s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
         data_params["sample"] = s_result_folder + "df.hdf5"
-    if data_params["art"] == "SOFIE":
+    if data_params.get("art",None) == "SOFIE":
         print("Sofies art sample")
         s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
         data_params["art"] = s_result_folder + "df_artificial_3D.hdf5"
@@ -71,7 +71,7 @@ def multi_create_param_file(param_file, n_multi):
     sample_name = list_files(
         data_p[multi_stage], ext=False, path=False, n_multi=n_multi)[0]
     print("making multi param file with sample name: ", sample_name)
-    for p in ["sample", "art", "cluster", "sig", "label"]:
+    for p in ["base_data", "base_dyn","sample", "art", "cluster", "sig", "label"]:
         folder = data_p[p]
         if folder[-1] == "/":
             print("detected multiple in ", p)
@@ -94,13 +94,17 @@ def write_param_file(file_name, params):
 
 def list_files(folder, ext=True, path=True, n_multi=None):
     file_list = os.listdir(folder)
-    if n_multi is not None:
-        file_list = [file_list[n_multi]]
+    filetype_list = [os.path.splitext(file)[1] for file in file_list]
+    file_list = np.array(file_list)
+    filetype_list = np.array(filetype_list)
+    file_list = file_list[filetype_list==".hdf5"]
     if path is False:
         file_list = [os.path.basename(file) for file in file_list]
     if ext is False:
         file_list = [os.path.splitext(file)[0] for file in file_list]
-    print(file_list)
+
+    if n_multi is not None:
+        file_list = [file_list[n_multi]]
     return file_list
 
 # Find N_std

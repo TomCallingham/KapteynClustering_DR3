@@ -43,9 +43,12 @@ def multiple_main(param_file, params):
     multi_list = paraf.list_files(params["data"][multi_stage])
     n_multi_current = params["multiple"].get("current", 0)
     N_samples = len(multi_list)
+    print("Looping over files")
     for n_multi in range(n_multi_current, N_samples):
+        print("creating multi file:")
         multi_param_file = paraf.multi_create_param_file(
             param_file, n_multi=n_multi)
+        print("running main on file")
         main(multi_param_file)
         os.remove(multi_param_file)
     return

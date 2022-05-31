@@ -1,0 +1,58 @@
+multiple:
+  stage: "base_data"
+  # stage: "sample"
+
+run:
+  steps: [sample,artificial,linkage, significance, label]
+  # steps: [sample]
+
+# - All files without a "/" in the name will have the result folder added to them when read in.
+# - for sample and art, using "SOFIE" will result in the original sofie datasets being used
+data:
+  pot_name: "H99" # Could be "McMillan17.ini" or any AGAMA pot
+
+  result_folder: "/Users/users/callingham/Projects/clustering/Data/emma_volumes/"
+
+  # Use the same artificial
+  # sample: "/net/gaia2/data/users/dodd/DR3_Prep/cube_volumes_5kpc/"
+  # base_data: "/net/gaia2/data/users/dodd/DR3_Prep/df_vtoomre180_5kpc.hdf5"
+  # base_dyn: "vtoomre180_5kpc_Dyn.hdf5"
+  # art: "vtoomre180_5kpc_Art.hdf5"
+
+  base_data: "/net/gaia2/data/users/dodd/DR3_Prep/cube_volumes_5kpc/"
+  base_dyn: "volume_test_dynamics/"
+
+  sample: "volume_test_Sample/"
+  art: "volume_test_gaia_art/"
+  cluster: "volume_test_gaia_Cluster/"
+  sig: "volume_test_gaia_Significance/"
+  label: "volume_test_gaia_Labels/"
+
+art: # Artificial dataset
+  N_art: 100
+  additional: []
+
+# Clustering Params
+cluster:
+  features: [En,Lperp,Lz]
+  min_members: 10
+  max_members: 25000
+  N_sigma_ellipse_axis: 2.83
+  N_art: 100
+  N_process: 8
+  scales:
+    En: [-170000, 0]
+    Lperp: [0, 4300]
+    Lz: [-4500, 4600]
+
+label:
+  min_sig: 3
+
+solar:
+  vlsr: 232.8
+  R0: 8.2
+  _U: 11.1
+  _V: 12.24
+  _W: 7.25
+
+

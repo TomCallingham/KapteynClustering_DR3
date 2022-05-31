@@ -22,7 +22,6 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members, max_m
     '''
 
     # get a list of members (indices in our halo set) of the cluster C we are currently investigating
-
     N_members = len(members)
 
     # ignore these clusters, return placeholder (done for computational efficiency)
@@ -50,7 +49,7 @@ def expected_density_members(members, N_std, X, art_X, N_art, min_members, max_m
 
     return np.array([region_count, art_region_count, art_region_count_std])
 
-def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
+def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members, max_members):
     '''
     Returns:
     [members within region, mean_art_region_count, std_art_region_cound](np.array): The number of stars in the artificial halo
@@ -78,9 +77,6 @@ def cut_expected_density_members(members, N_std, X, art_X, N_art, min_members):
     x_range = 0.1*(xmaxs-xmins)
     xmins = xmins - x_range
     xmaxs = xmaxs + x_range
-    # xmins = xmins - eps
-    # xmaxs = xmaxs + eps
-    # eps = 0.05
 
     # Count Fit
     filt = np.prod((X > xmins[None, :]) *
