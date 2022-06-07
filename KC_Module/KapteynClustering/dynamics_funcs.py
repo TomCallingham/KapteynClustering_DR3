@@ -21,12 +21,11 @@ def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
         pos = stars["pos"]
         vel = stars["vel"]
 
-    if pot_fname == "H99":
-        # from .H99_DynamicsCalc import H99_dyn_calc
-        from KapteynClustering.H99_DynamicsCalc import H99_dyn_calc
-        dyn = H99_dyn_calc(pos, vel, circ=circ)
+    if pot_fname in ["H99", "BoxChoc"]:
+        from KapteynClustering.legacy import simple_dynamics_calc
+        dyn = simple_dynamics_calc.dynamics_calc(pot_fname,pos, vel, circ=circ)
         if np.any([actions,angles,extreme]):
-            print("Error, dynamics not implemented for H99")
+            raise AttributeError("Error, dynamics not implemented for None agama potentials")
     else:
         from .agama_dynamics import load_agama_potential, agama_dyn_calc
         a_pot = load_agama_potential(pot_fname)

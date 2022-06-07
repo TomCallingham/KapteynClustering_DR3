@@ -91,3 +91,15 @@ from KapteynClustering.legacy import plotting_utils
 plotting_utils.plot_original_data(toomre_stars)
 
 # %%
+print(stars.column_names)
+
+# %%
+plt.figure()
+plt.hist(stars["x"].values, bins=100)
+plt.show()
+
+plt.figure()
+plt.hist(stars["X"].values, bins=100)
+plt.show()
+
+# %%

@@ -1,17 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: hydrogen
-#       format_version: '1.3'
-#       jupytext_version: 1.13.8
-#   kernelspec:
-#     display_name: Python [conda env:py39]
-#     language: python
-#     name: conda-env-py39-py
-# ---
-
 # %% [markdown]
 # # Setup
 
@@ -90,7 +76,7 @@ print(s_max_sign)
 # %% [markdown]
 # # TEST
 
-# %% tags=[]
+# %%
 from tqdcluster_utilsebook import tqdm
 
 
@@ -170,7 +156,7 @@ print(len(old_selected))
 print(old_selected)
 print(old_max_sign)
 
-# %% tags=[]
+# %%
 from tqdm.notebook import tqdm
 
 
@@ -259,7 +245,7 @@ def old2_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=
 
 old2_selected, old2_max_sign = old2_select_maxsig_clusters_from_tree(significance, Z, minimum_significance=3)
 
-# %% tags=[]
+# %%
 %lprun -f old2_select_maxsig_clusters_from_tree old2_select_maxsig_clusters_from_tree( significance, Z, minimum_significance=N_sigma_significance)
 
 # %%
@@ -270,7 +256,7 @@ print(old2_max_sign)
 # %% [markdown]
 # # NEW FIXED and Current
 
-# %% tags=[]
+# %%
 from tqdm.notebook import tqdm
 
 

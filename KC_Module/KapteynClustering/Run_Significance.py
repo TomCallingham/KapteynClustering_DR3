@@ -81,12 +81,12 @@ def init_memory(X, art_X):
 share_dic = init_memory(X, art_X)
 
 # Start the process pool and do the computation.
-T = time.time()
+T = time.perf_counter()
 with threadpool_limits(limits=1):
     with Pool(processes=N_process, initializer=init_worker, initargs=(share_dic,)) as pool:
         result = pool.map(worker_func, list_tree_members)
 print("Finished")
-dt = time.time() - T
+dt = time.perf_counter() - T
 print(f" Time taken: {dt/60} mins")
 
 

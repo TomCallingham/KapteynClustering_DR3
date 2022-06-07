@@ -12,8 +12,8 @@ data:
   result_folder: "/Users/users/callingham/Projects/clustering/Data/multi_test_gaia_results/"
 
   sample: "multi_test_gaia_Sample/"
-  base_data: 
-  art: "/Users/users/callingham/Projects/clustering/Data/test_gaia_results/" 
+  base_data:
+  art: "/Users/users/callingham/Projects/clustering/Data/test_gaia_results/"
   #test_gaia_Art.hdf5"
   cluster: "multi_test_gaia_Cluster/"
   sig: "multi_test_gaia_Significance/"
@@ -42,8 +42,8 @@ label:
 solar:
   vlsr: 232.8
   R0: 8.2
-  _U: 11.1
-  _V: 12.24
-  _W: 7.25
+  U: 11.1
+  V: 12.24
+  W: 7.25
 
 

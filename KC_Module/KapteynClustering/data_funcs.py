@@ -33,54 +33,54 @@ def write_data(fname, dic, verbose=True, overwrite=True):
 
 
 def create_galactic_posvel(stars, solar_params=solar_params0):
-    [vlsr, _U, _V, _W] = [solar_params[p] for p in
-                          ["vlsr", "_U", "_V", "_W"]]
+    [vlsr, U, V, W] = [solar_params[p] for p in
+                          ["vlsr", "U", "V", "W"]]
 
     try:
         props = list(stars.keys())
-    except Exception: # Then vaex
+    except Exception:  # Then vaex
         props = stars.column_names
-        for p in ["_vx", "_vy", "_vz", "_x", "_y", "_z", "vel", "pos"]:
+        for p in ["vX", "vY", "vZ", "X", "Y", "Z", "vel", "pos"]:
             if p in props:
                 del stars[p]
 
-    stars["_vx"] = stars["vx"] + _U
-    stars["_vy"] = stars["vy"] + _V + vlsr
-    stars["_vz"] = stars["vz"] + _W
+    stars["vX"] = stars["vx"] + U
+    stars["vY"] = stars["vy"] + V + vlsr
+    stars["vZ"] = stars["vz"] + W
 
-    stars["_x"] = stars["x"] - solar_params["R0"]
-    stars["_y"] = stars["y"]
-    stars["_z"] = stars["z"]
+    # print("WRONG R0 correction")
+    stars["X"] = stars["x"] - solar_params["R0"]
+    # stars["X"] = stars["x"] + solar_params["R0"]
+    stars["Y"] = stars["y"]
+    stars["Z"] = stars["z"]
 
     try:
-        stars["vel"] = np.stack((stars["_vx"], stars["_vy"], stars["_vz"])).T
-        stars["pos"] = np.stack((stars["_x"], stars["_y"], stars["_z"])).T
+        stars["vel"] = np.stack( (stars["vX"].values, stars["vY"].values, stars["vZ"].values)).T
+        stars["pos"] = np.stack( (stars["X"].values, stars["Y"].values, stars["Z"].values)).T
     except Exception:
-        stars["vel"] = np.stack(
-            (stars["_vx"].values, stars["_vy"].values, stars["_vz"].values)).T
-        stars["pos"] = np.stack(
-            (stars["_x"].values, stars["_y"].values, stars["_z"].values)).T
+        stars["vel"] = np.stack((stars["vX"], stars["vY"], stars["vZ"])).T
+        stars["pos"] = np.stack((stars["X"], stars["Y"], stars["Z"])).T
 
     return stars
 
 
 def calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
     # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
-    v_toomre = np.sqrt(((vel[:, 0] - vlsr*np.sin(phi))**2) +
-                       ((vel[:, 1]+vlsr*np.cos(phi))**2) + (vel[:, 2]**2))
+    v_toomre = np.sqrt(((vel[:, 0] - vlsr * np.sin(phi))**2) +
+                       ((vel[:, 1] + vlsr * np.cos(phi))**2) + (vel[:, 2]**2))
     return v_toomre
 
 
 def sof_calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
     # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
-    v_toomre = np.sqrt(((vel[:, 0] - vlsr*np.sin(phi))**2) +
-                       ((vel[:, 1]-vlsr*(1+np.cos(phi))-232)**2) + (vel[:, 2]**2))
+    v_toomre = np.sqrt(((vel[:, 0] - vlsr * np.sin(phi))**2) +
+                       ((vel[:, 1] - vlsr * (1 + np.cos(phi)) - 232)**2) + (vel[:, 2]**2))
     return v_toomre
 
 
 def create_toomre(stars, solar_params=solar_params0):
     # Toomre velocity: velocity offset from being a disk orbit
-    try: # is vaex
+    try:  # is vaex
         props = stars.column_names
         if "v_toomre" in props:
             del stars["v_toomre"]
@@ -135,7 +135,7 @@ def dic_from_vaex_dic(vaex_dic):
     for p in props:
         try:
             vaex_dic[p] = vaex_dic[p]["data"]
-        except Exception as e:
+        except Exception:
             pass
     return vaex_dic
 
@@ -154,14 +154,12 @@ def vaex_dic_from_dic(dic, delete=True):
 def create_geo_vel(stars, solar_params=solar_params0):
     [vlsr, _U, _V, _W] = [solar_params[p] for p in
                           ["vlsr", "_U", "_V", "_W"]]
-    stars["vx"] = stars["_vx"] - _U
-    stars["vy"] = stars["_vy"] - (_V + vlsr)
-    stars["vz"] = stars["_vz"] - _W
+    stars["vx"] = stars["vX"] - _U
+    stars["vy"] = stars["vY"] - (_V + vlsr)
+    stars["vz"] = stars["vZ"] - _W
 
-
-
-    stars["x"] = stars["_x"] + solar_params["R0"]
-    stars["y"] = stars["_y"]
-    stars["z"] = stars["_z"]
+    stars["x"] = stars["X"] + solar_params["R0"]
+    stars["y"] = stars["Y"]
+    stars["z"] = stars["Z"]
 
     return stars

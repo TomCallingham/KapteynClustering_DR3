@@ -11,10 +11,10 @@ def clusterData(stars, features, linkage_method="single", scales={}):
     stars = scale_features(stars, features=features,
                            scales=scales, plot=False)[0]
     X = find_X(features, stars, scaled=True)
-    T = time.time()
+    T = time.perf_counter()
     print("Starting clustering.")
-    Z = linkage_vector(X, linkage_method)
-    dt = time.time() - T
+    Z = linkage_vector(X, linkage_method).astype(int)
+    dt = time.perf_counter() - T
     print(f"Finished! Time taken: {dt/60} minutes")
     cluster_data = {"Z": Z, "features": features}
     return cluster_data
@@ -22,7 +22,7 @@ def clusterData(stars, features, linkage_method="single", scales={}):
 ###
 
 
-def fast_get_members(i, Z):
+def get_members(i, Z):
     '''
     SOFIE
     Returns the list of members for a specific cluster included in the encoded linkage matrix
@@ -62,16 +62,6 @@ def fast_get_members(i, Z):
 def next_members(tree_dic, Z, i, N_cluster):
     tree_dic[i + N_cluster] = tree_dic[Z[i, 0]] + tree_dic[Z[i, 1]]
     return tree_dic
-
-def find_members(ind, Z):
-    N_cluster = len(Z)
-    N_cluster1 = N_cluster + 1
-    tree_dic = {i: [i] for i in range(N_cluster1)}
-    for i in range(N_cluster)[:ind + 1]:
-        tree_dic = next_members(tree_dic, Z, i, N_cluster1)
-    members = tree_dic[ind + N_cluster1]
-    return members, tree_dic
-
 
 def find_tree(Z, i_max=None, prune=False):
     print("Finding Tree")
@@ -208,3 +198,13 @@ def apply_scale(data, xkey, scale, plot=False):
         plt.show()
 
     return scaled_x
+
+def fit_clusters(stars, features, Groups, labels):
+    import KapteynClustering.mahalanobis_funcs as mahaf
+    x = find_X(features, stars, scaled=False)
+    mean_group = {}
+    cov_group = {}
+    for g in Groups:
+        g_filt = (labels == g)
+        mean_group[g] , cov_group[g] = mahaf.fit_gaussian(x[g_filt,:])
+    return mean_group, cov_group

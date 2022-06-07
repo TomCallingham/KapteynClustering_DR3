@@ -1,10 +1,12 @@
 import sys
 import os
+
+from KapteynClustering.RunSteps import c7_cluster_fits
 try:
-    from .RunSteps import sample_prepare, art_data, single_linkage, significance_find, find_labels
+    from .RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits
     import param_funcs as paraf
 except Exception:
-    from KapteynClustering.RunSteps import sample_prepare, art_data, single_linkage, significance_find, find_labels
+    from KapteynClustering.RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits
     import KapteynClustering.param_funcs as paraf
 
 
@@ -21,18 +23,17 @@ def main(param_file):
     print("Applying following steps:")
     print(steps, '\n')
     if "sample" in steps:
-        sample_prepare.sample_prepare(params)
+        c1_sample_prepare.sample_prepare(params)
     if "artificial" in steps:
-        art_data.art_data(params)
+        c2_art_data.art_data(params)
     if "linkage" in steps:
-        single_linkage.single_linkage(params)
+        c3_single_linkage.single_linkage(params)
     if "significance" in steps:
-        significance_find.significance_find(param_file)
-    if "serial_sig" in steps:
-        print("Running in serial!")
-        significance_find.serial_significance_find(param_file)
+        c4_significance_find.significance_find(param_file)
     if "label" in steps:
-        find_labels.find_labels(params)
+        c5_find_clusters.find_labels(params)
+    if "cluster_fits" in steps:
+        c7_cluster_fits.cluster_fit_step(params)
     return
 
 
