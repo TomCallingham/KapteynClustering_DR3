@@ -7,6 +7,9 @@
 # # Setup
 
 # %%
+print("Test")
+
+# %%
 import matplotlib.pyplot as plt
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.param_funcs as paramf
@@ -23,7 +26,7 @@ data_p = params["data"]
 pot_name =  data_p["pot_name"]
 
 art_p = params["art"]
-N_art, additional_props = art_p["N_art"], art_p["additional"]
+N_art, additional_props = art_p["N_art"], art_p.get("additional",[])
 
 cluster_p = params["cluster"]
 scales, features = cluster_p["scales"], cluster_p["features"]
@@ -40,11 +43,15 @@ stars = vaex.open(data_p["base_dyn"])
 # Calculates N_art number of artificial halos by shuffling galactic vx, vz (keeping pos + vy). Recalculates dynamics. Can also propogate forward additional properties of the initial dataset.
 
 # %%
+import copy
+dynamics_to_calc = copy.deepcopy(features)
+dynamics_to_calc.append("circ")
+
 print(additional_props)
+print(dynamics_to_calc)
 
 # %%
-art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, features_to_scale=features, scales=scales,
-                                           v_toomre_cut=180)
+art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, v_toomre_cut=210, dynamics=dynamics_to_calc)
 
 # %% [markdown]
 # ## Save Artifical Dataset
@@ -59,7 +66,6 @@ dataf.write_data(fname=data_p["art"], dic=art_stars, verbose=True, overwrite=Tru
 # %%
 print(art_stars.keys())
 print(art_stars[0].keys())
-print(art_stars[0]["En"])
 
 # %%
 from KapteynClustering.legacy import plotting_utils #, vaex_funcs

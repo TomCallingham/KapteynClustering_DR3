@@ -92,15 +92,23 @@ def check_xykeys(xy_keys):
     raise SystemError("xy keys error")
 
 
-def create_axis(xy_keys, shape=None, sharex=False,
-                sharey=False, xsize_scale=9, ysize_scale=7.5):
+def create_axis(N_plots, shape=(None,None), sharex=False, sharey=False, xsize_scale=9, ysize_scale=7.5):
     if shape is None:
-        N_plots = len(xy_keys)
+        NRow, NCol = None, None
+    else:
+        NRow,NCol = shape
+    if NCol is not None:
+        NRow = int(np.ceil(N_plots/NCol))
+    elif NRow is not None:
+        NCol = int(np.ceil(N_plots/NRow))
+    else:
         if N_plots > 3:
-            shape = (2, int(np.ceil(N_plots / 2)))
+            NRow= 2
+            NCol = int(np.ceil(N_plots/NRow))
         else:
-            shape = (1, N_plots)
-    NRow, NCol = shape
+            NRow= 1
+            NCol = N_plots
+
     Fig, axs_array = plt.subplots(NRow, NCol, figsize=(NCol * xsize_scale, NRow * ysize_scale),
                                   sharex=sharex, sharey=sharey)
     if NRow == NCol == 1:
@@ -108,53 +116,40 @@ def create_axis(xy_keys, shape=None, sharex=False,
     else:
         axs_array = axs_array.flatten()
 
-    axs = {}
-    for i_ax, (xkey, ykey) in enumerate(xy_keys):
-        axs[i_ax] = axs_array[i_ax]
-        axs[ykey] = axs.get(ykey, {})
-        axs[ykey][xkey] = axs[i_ax]
+    axs = {i:ax for i,ax in enumerate(axs_array)}
 
     imid = int(np.floor((NCol) / 2))
-    # counts up or   down?
     axs["mid"] = axs_array[imid]
 
-    return Fig, axs
+    return Fig, axs, axs_array
 
 
-def set_ax_label(axs, xy_keys, sharex=False, sharey=False):
-
-    for i,[xkey, ykey] in enumerate(xy_keys):
-        ax = axs[i]
-        if not sharex:
-            xlabel = get_key_label(xkey)
-            ax.set_xlabel(xlabel)
-        if not sharey:
-            ylabel = get_key_label(ykey)
-            ax.set_ylabel(ylabel)
-    if sharey:
-        ax = axs[0]
-        ykey = xy_keys[0][1]
+def set_ax_label(ax, xy_key):
+    xkey, ykey = xy_key
+    if xkey is not None:
+        xlabel = get_key_label(xkey)
+        ax.set_xlabel(xlabel)
+    if ykey is not None:
         ylabel = get_key_label(ykey)
         ax.set_ylabel(ylabel)
-
     return
 
 
-def set_ax_lims(axs, xy_keys, Lims=lims0):
-    for [xkey, ykey] in xy_keys:
-        ax = axs[ykey][xkey]
-        try:
-            ax.set_ylim(Lims[ykey])
-        except Exception:
-            pass
-        try:
-            ax.set_xlim(Lims[xkey])
-        except Exception:
-            pass
+
+def set_ax_lims(ax, xy_key, Lims=lims0):
+    xkey, ykey = xy_key
+    try:
+        ax.set_ylim(Lims[ykey])
+    except Exception:
+        pass
+    try:
+        ax.set_xlim(Lims[xkey])
+    except Exception:
+        pass
     return
 
 
-def set_ax_pos(Fig, sharex=False, sharey=False):
+def set_axs_pos(Fig, sharex=False, sharey=False):
     plt.tight_layout(w_pad=1)
     if sharex:
         Fig.subplots_adjust(wspace=0)
@@ -186,33 +181,23 @@ def set_G_labels(Fig, ax, Groups, G_colours, label_dic={},
     return
 
 
-def simple_scatter(stars, xy_keys, Groups, groups, G_colours, axs, group_order={},
+def simple_scatter(ax, xy_key, stars, Groups, groups, G_colours, group_order={},
                    arg_dic={"alpha": 0.2, "s": 20, "edgecolors": "none"}, fluff=True):
     # Scatter plotting
-
     plot_Groups = Groups[Groups != -1]
-    # for [xkey, ykey] in xy_keys:
-    #     ax = axs[ykey][xkey]
-    for i,[xkey, ykey] in enumerate(xy_keys):
-        ax = axs[i]
-        [x, y] = [get_val(stars, k) for k in [xkey, ykey]]
-        for i_g, g in enumerate(plot_Groups):
-            g_filt = (groups == g)
-            z_order = group_order.get(g, i_g)
-            ax.scatter(
-                x[g_filt],
-                y[g_filt],
-                c=G_colours[g],
-                zorder=z_order,
-                **arg_dic)
+    xkey, ykey = xy_key
+    x, y = get_val(stars, xkey), get_val(stars, ykey)
+    for i_g, g in enumerate(plot_Groups):
+        g_filt = (groups == g)
+        z_order = group_order.get(g, i_g)
+        ax.scatter( x[g_filt], y[g_filt],
+            c=G_colours[g], zorder=z_order,
+            **arg_dic)
 
-        if fluff:
-            g_filt = (groups == -1)
-            ax.scatter(
-                x[g_filt],
-                y[g_filt],
-                c="lightgrey",
-                zorder=-99,
-                **arg_dic)
+    if fluff:
+        g_filt = (groups == -1)
+        ax.scatter( x[g_filt], y[g_filt],
+            c="lightgrey", zorder=-99,
+            **arg_dic)
 
     return

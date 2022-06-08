@@ -16,6 +16,7 @@ def get_default_prop_unit_labels():
     prop_labels['JR_J'] = f"$J_{{R}}/J{{\\mathrm{{Tot}}}}$"
     prop_labels['Jz_J'] = f"$J_{{z}}/J{{\\mathrm{{Tot}}}}$"
     prop_labels['r'] = f"$r$"
+    prop_labels['cdf'] = f"CDF, Cumulatitive"
 
     unit_labels = {}
     for p in ["Lz", "Lx", "Ly", "Jz", "Jf", "Lp"]:
@@ -48,6 +49,7 @@ def get_default_lims():
     lims0["circ"] = [-1, 1]
     lims0["Circ"] = lims0["circ"]
     lims0["l"] = [0,360]
+    lims0["cdf"] = [0,1]
     # lims0["En"] = [None,0]
     return lims0
 

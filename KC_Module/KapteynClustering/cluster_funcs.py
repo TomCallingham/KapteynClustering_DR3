@@ -199,12 +199,12 @@ def apply_scale(data, xkey, scale, plot=False):
 
     return scaled_x
 
-def fit_clusters(stars, features, Groups, labels):
+def fit_gaussian_clusters(stars, features, Clusters, labels):
     import KapteynClustering.mahalanobis_funcs as mahaf
     x = find_X(features, stars, scaled=False)
-    mean_group = {}
-    cov_group = {}
-    for g in Groups:
-        g_filt = (labels == g)
-        mean_group[g] , cov_group[g] = mahaf.fit_gaussian(x[g_filt,:])
-    return mean_group, cov_group
+    mean_cluster = {}
+    cov_cluster = {}
+    for c in Clusters:
+        c_filt = (labels == c)
+        mean_cluster[c] , cov_cluster[c] = mahaf.fit_gaussian(x[c_filt,:])
+    return mean_cluster, cov_cluster

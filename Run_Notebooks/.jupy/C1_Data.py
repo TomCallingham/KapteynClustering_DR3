@@ -55,29 +55,29 @@ stars = dataf.create_galactic_posvel(gaia_catalogue, solar_params=solar_p)
 # %%
 print(data_p["pot_name"])
 stars = dynf.add_dynamics(stars, data_p["pot_name"], additional_dynamics=["circ"])
-stars = stars[stars["En"]<0]
+stars = stars[stars["En"] < 0]
 
 # %% [markdown]
 # ## Save Dyn
 
 # %%
 print(data_p["base_dyn"])
-stars.export( data_p["base_dyn"])
+stars.export(data_p["base_dyn"])
 
 # %% [markdown]
 # # Toomre Sample
 # Apply the vtoomre>210
 
 # %%
-toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210,solar_params=solar_p)
-toomre_stars = toomre_stars[toomre_stars["En"]<0]
+toomre_stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210, solar_params=solar_p)
+toomre_stars = toomre_stars[toomre_stars["En"] < 0]
 
 # %% [markdown]
 # ## Save Sample
 
 # %%
 print(data_p["sample"])
-toomre_stars.export( data_p["sample"])
+toomre_stars.export(data_p["sample"])
 
 # %%
 print(toomre_stars.count())

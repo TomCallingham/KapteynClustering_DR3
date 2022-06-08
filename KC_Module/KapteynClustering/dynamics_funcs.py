@@ -53,8 +53,7 @@ def add_cylindrical(stars):
         pos = stars["pos"]
         vel = stars["vel"]
     stars['r'] = np.linalg.norm(pos, axis=1)
-    stars['R'], stars['phi'], temp_z, stars['vR'], stars['vT'], temp_vz = cart_to_cylinder(
-        pos, vel)
+    stars['R'], stars['phi'], temp_z, stars['vR'], stars['vT'], temp_vz = cart_to_cylinder(pos, vel)
     return stars
 
 

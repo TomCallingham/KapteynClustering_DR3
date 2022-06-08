@@ -10,7 +10,7 @@ import KapteynClustering.param_funcs as paramf
 import KapteynClustering.label_funcs as labelf
 
 # %%
-param_file = "../../Params/emma_volumes_params.yaml"
+param_file = "../../Params/emma_volumes_params_single_art.yaml"
 
 # %%
 volumes, vol_stars, vol_labels = paramf.load_volume_stars(param_file)
@@ -39,6 +39,11 @@ plt.show()
 
 # %%
 xy_key = ["vx", "vy"]
+vol_simple_scatter(volumes, vol_stars, vol_labels, xy_key, NCol=3)
+plt.show()
+
+# %%
+xy_key = ["vR", "vT"]
 vol_simple_scatter(volumes, vol_stars, vol_labels, xy_key, NCol=3)
 plt.show()
 

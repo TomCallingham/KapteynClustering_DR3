@@ -14,7 +14,7 @@ def find_labels(params):
     sig_data = dataf.read_data(fname=data_p["sig"])
     sig = sig_data["significance"]
 
-    label_data = labelf.find_group_data(sig, Z, minimum_significance=min_sig)
+    label_data = labelf.find_cluster_data(sig, Z, minimum_significance=min_sig)
     print("Labels Found")
     fname = data_p["label"]
     dataf.write_data(fname=fname, dic=label_data, verbose=True, overwrite=True)

@@ -15,8 +15,7 @@ from KapteynClustering import grouping_funcs as groupf
 
 # %%
 # df = vaex.open('/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/df_labels_3D_3sigma.hdf5')
-df = vaex.open(
-    '/net/gaia2/data/users/callingham/data/clustering/KapteynClustering_DR3/Development/emma_copy_df_labels_3D_3sigma.hdf5')
+df = vaex.open('/net/gaia2/data/users/callingham/data/clustering/KapteynClustering_DR3/Development/emma_copy_df_labels_3D_3sigma.hdf5')
 df
 # %%
 from KapteynClustering import param_funcs as paramf
@@ -40,7 +39,7 @@ maxsig_array = np.array(df['maxsig'].values)
 labels_array[(labels_array == 67)] = 0.0
 maxsig_array[(labels_array == 67)] = 0.0
 
-Groups = np.unique(labels_array[maxsig_array > 3])
+Clusters = np.unique(labels_array[maxsig_array > 3])
 
 df.add_column('labels', labels_array)
 df.add_column('maxsig', maxsig_array)
@@ -60,14 +59,14 @@ def plot_cluster_relation(df, distance_metric):
     # Customize a distance matrix, as if each cluster would be a single data point.
     # You can either measure the distance between the clusters by their 'mahalanobis' distance
     # or 'euclidean' distance.
-    dm = groupf.get_cluster_distance_matrix(df, features, Groups, distance_metric)[0]
+    dm = groupf.get_cluster_distance_matrix(df, features, Clusters, distance_metric)[0]
 
     # Perform single linkage with the custom made distance matrix
     Z = linkage(dm, 'single')
 
     def llf(id):
         '''For labelling the leaves in the dendrogram according to cluster index'''
-        return str(Groups[id])
+        return str(Clusters[id])
 
     plt.subplots(figsize=(20, 5))
     dendrogram(Z, leaf_label_func=llf, leaf_rotation=90, color_threshold=6)

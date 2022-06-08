@@ -107,6 +107,35 @@ def list_files(folder, ext=True, path=True, n_multi=None):
         file_list = [file_list[n_multi]]
     return file_list
 
+def get_list_multi_files(param_file):
+    params = read_param_file(param_file)
+    data_p = params["data"]
+    multi_dic = {}
+    for p in ["base_data", "base_dyn","sample", "art", "cluster", "sig", "label"]:
+        folder = data_p[p]
+        if folder[-1] == "/":
+            print("detected multiple in ", p)
+            files =   list_files(folder, ext=True, path=True)
+            multi_dic[p] = np.array([folder+f for f in files])
+    multi_stage = params["multiple"]["stage"]
+    multi_folder = data_p[multi_stage]
+    vols =   list_files(multi_folder, ext=False, path=False)
+    multi_dic["volumes"] = vols
+    return multi_dic
+
+def load_volume_stars(param_file):
+    import vaex
+    from KapteynClustering import data_funcs as dataf
+    multi_dic = get_list_multi_files(param_file)
+    vol_stars, vol_labels = {}, {}
+    volumes = multi_dic["volumes"]
+    for i,v in enumerate(volumes):
+        star_file = multi_dic["sample"][i]
+        vol_stars[v] = vaex.open(star_file)
+        label_file = multi_dic["label"][i]
+        vol_labels[v]  = dataf.read_data(label_file)["labels"]
+    return volumes, vol_stars, vol_labels
+
 # Find N_std
 def find_Nstd_from_params(params):
     cluster_p = params["cluster"]

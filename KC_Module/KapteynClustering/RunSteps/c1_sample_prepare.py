@@ -2,6 +2,7 @@ import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
 # import KapteynClustering.cluster_funcs as clusterf
 import vaex
+import copy
 
 # from params import data_params
 
@@ -20,7 +21,8 @@ def sample_prepare(params):
 
 def save_dynamics(params):
     data_p = params["data"]
-    features = params["cluster"]["features"]
+    dynamics_include = copy.deepcopy(params["cluster"]["features"])
+    dynamics_include.append("circ")
 
     # Load Base Data
     stars = vaex.open(data_p["base_data"])
@@ -30,7 +32,7 @@ def save_dynamics(params):
         print("Creating Galactic Pos/Vel")
         solar_p = params["solar"]
         stars = dataf.create_galactic_posvel(stars, solar_params=solar_p)
-    stars = dynf.add_dynamics(stars, pot_name, additional_dynamics=features)
+    stars = dynf.add_dynamics(stars, pot_name, additional_dynamics=dynamics_include)
     stars = stars[stars["En"] < 0]
     # stars = clusterf.scale_features(stars, features=cluster_p["features"], scales=cluster_p["scales"])[0]
     # save dynamics

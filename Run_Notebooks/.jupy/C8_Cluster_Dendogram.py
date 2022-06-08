@@ -19,21 +19,22 @@ params = paramf.read_param_file("default_params.yaml")
 data_p = params["data"]
 min_sig=params["label"]["min_sig"]
 
-stars = vaex.open(data_p["sample"])
-
 label_data = dataf.read_data(fname= data_p["label"])
-[labels, star_sig, Groups, Pops, G_sig] = [ label_data[p] for p in
-                                           ["labels","star_sig", "Groups", "Pops", "G_sig"]]
+[labels, star_sig, Clusters, cPops, C_sig] = [ label_data[p] for p in
+                                           ["labels","star_sig", "Clusters", "cPops", "C_sig"]]
+
+# %%
+fit_data = dataf.read_data(fname= data_p["gaussian_fits"])
+
+# %%
+print(fit_data.keys())
 
 # %% [markdown]
 # # RESULTS
 
 # %%
-print(len(Groups))
-
-# %%
-G_Colours = ps.get_G_colours(Groups)
-G_Colours_list = np.array([G_Colours[g] for g in Groups])
+C_Colours = ps.get_C_colours(Clusters)
+C_Colours_list = np.array([C_Colours[g] for g in Clusters])
 
 # %%
 N_fluff = Pops[Groups==-1]
