@@ -25,64 +25,58 @@ label_data = dataf.read_data(fname= data_p["label"])
 
 # %%
 fit_data = dataf.read_data(fname= data_p["gaussian_fits"])
+[Clusters, Pops, mean, covar] = [ fit_data[p] for p in
+                                           ["Clusters", "Pops", "mean", "covariance"]]
 
 # %%
 print(fit_data.keys())
+
+# %%
+C_Colours = ps.get_G_colours(Clusters)
+C_Colours_list = np.array([C_Colours[g] for g in Clusters])
 
 # %% [markdown]
 # # RESULTS
 
 # %%
-C_Colours = ps.get_C_colours(Clusters)
-C_Colours_list = np.array([C_Colours[g] for g in Clusters])
+from KapteynClustering import mahalanobis_funcs as mahaf
+
 
 # %%
-N_fluff = Pops[Groups==-1]
-N_grouped = len(labels) - N_fluff
-f_grouped = N_grouped/len(labels)
+def get_cluster_distance_matrix(Clusters, cluster_mean, cluster_covar):
+    N_clusters = len(Clusters)
+    n_dim = len(cluster_mean[Clusters[0]])
+    X = np.array([cluster_mean[c] for c in Clusters])
+    dis = mahaf.maha_dis_to_clusters(X, Clusters, cluster_mean, cluster_covar)
+    return dis
 
-print(f"Fraction Grouped: {f_grouped}")
 
 # %%
-plt.figure(figsize=(8,8))
-plt.scatter(Pops[G_sig>min_sig], G_sig[G_sig>min_sig],c=G_Colours_list[G_sig>min_sig])
-plt.xscale("log")
-plt.yscale("log")
-plt.xlabel("Population")
-plt.ylabel("Significance")
-for g,p,s in zip(Groups[G_sig>min_sig], Pops[G_sig>min_sig], G_sig[G_sig>min_sig]):
-    plt.text(p,s,g, size=15)
+D = get_cluster_distance_matrix(Clusters, cluster_mean=mean, cluster_covar=covar)
+
+# %%
+print(np.shape(D))
+
+# %%
+from scipy.cluster.hierarchy import linkage, dendrogram
+
+# %%
+
+# %%
+
+
+# Perform single linkage with the custom made distance matrix
+Z = linkage(np.sqrt(D), 'single')
+
+def llf(id):
+    '''For labelling the leaves in the dendrogram according to cluster index'''
+    return str(Clusters[id])
+
+plt.subplots(figsize=(20, 5))
+dendrogram(Z, leaf_label_func=llf, leaf_rotation=90, color_threshold=6)
+plt.title(f'Relationship between 3$\\sigma$ clusters')
 plt.show()
 
-# %% [markdown]
-# ## Plots
 
-# %%
-xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"], 
-           ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
-plot_simple_scatter(stars, xy_keys, Groups, labels)
-plt.show()
-
-# %%
-xy_keys = (["Lz", "Lperp"], ["En"])
-           
-plot_simple_scatter(stars, xy_keys, Groups, labels)
-plt.show()
-
-# %%
-xy_keys = (["vx", "vy"], ["En"])
-           
-plot_simple_scatter(stars, xy_keys, Groups, labels)
-plt.show()
-
-# %%
-xy_keys = [["l", "b"]]
-print(np.shape(xy_keys))
-           
-plot_simple_scatter(stars, xy_keys, Groups, labels)
-plt.show()
-
-# %%
-print(stars.column_names)
 
 # %%
