@@ -37,6 +37,9 @@ def potential_halo(pos):
     " Halo: Logarithmic "
     r = np.linalg.norm(pos,axis=1)
     phi_halo = v_halo ** 2 * np.log(1+r**2 / halo_d**2)
+    phi0 = (v_halo**2)*np.log(halo_d**2)
+    # - (v_halo**2)*np.log(Rvir**2)
+
     return phi_halo
 
 def potential_disc(pos):
@@ -73,5 +76,5 @@ def dPot_dr_disc(pos):
 def dPot_dr_bulge(pos):
     " Bulge: Hernquist "
     r = np.linalg.norm(pos,axis=1)
-    dPhi_bulge_dr = G*M_bulge/(r+disc_c)**2
+    dPhi_bulge_dr = G*M_bulge/(r+bulge_c)**2
     return dPhi_bulge_dr

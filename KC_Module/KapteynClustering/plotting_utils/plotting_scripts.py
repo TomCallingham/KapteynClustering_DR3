@@ -92,22 +92,32 @@ def check_xykeys(xy_keys):
     raise SystemError("xy keys error")
 
 
-def create_axis(N_plots, shape=(None,None), sharex=False, sharey=False, xsize_scale=9, ysize_scale=7.5):
+def create_axis(N_plots=None, shape=(None,None), sharex=False, sharey=False, xsize_scale=9, ysize_scale=7.5):
     if shape is None:
         NRow, NCol = None, None
     else:
         NRow,NCol = shape
-    if NCol is not None:
-        NRow = int(np.ceil(N_plots/NCol))
-    elif NRow is not None:
-        NCol = int(np.ceil(N_plots/NRow))
-    else:
+
+    if (NRow!=None) and (NCol!=None) and (N_plots!=None):
+        pass
+    elif ((NRow, NCol) == ( None,None)) and N_plots!=None:
         if N_plots > 3:
             NRow= 2
-            NCol = int(np.ceil(N_plots/NRow))
         else:
             NRow= 1
-            NCol = N_plots
+        NCol = int(np.ceil(N_plots/NRow))
+    elif ((N_plots, NCol) == ( None,None)) and NRow!=None:
+        NCol =1
+        N_plots = NRow
+    elif ((N_plots, NRow) == ( None,None)) and NCol!=None:
+        NRow =1
+        N_plots = NCol
+    elif (NRow == None) and (NCol!=None) and (N_plots!=None):
+        NRow = int(np.ceil(N_plots/NCol))
+    elif (NCol == None) and (NRow!=None) and (N_plots!=None):
+        NCol = int(np.ceil(N_plots/NRow))
+    else:
+        raise ValueError("Not enough info to make axis")
 
     Fig, axs_array = plt.subplots(NRow, NCol, figsize=(NCol * xsize_scale, NRow * ysize_scale),
                                   sharex=sharex, sharey=sharey)

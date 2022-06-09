@@ -30,8 +30,8 @@ def main(param_file):
         c3_single_linkage.single_linkage(params)
     if "significance" in steps:
         c4_significance_find.significance_find(param_file)
-    if "label" in steps:
-        c5_find_clusters.find_labels(params)
+    if "clusters" in steps:
+        c5_find_clusters.find_clusters(params)
     if "cluster_fits" in steps:
         c7_cluster_fits.cluster_fit_step(params)
     return

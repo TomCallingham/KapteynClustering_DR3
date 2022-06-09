@@ -4,12 +4,12 @@ try:
     from .mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
     from . import data_funcs as dataf
     from . import param_funcs as paraf
-    from . import cluster_funcs as clusterf
+    from . import linkage_funcs as linkf
 except Exception:
     from KapteynClustering.mahalanobis_funcs import find_mahalanobis_N_members, fit_gaussian
     from KapteynClustering import data_funcs as dataf
     from KapteynClustering import param_funcs as paraf
-    from KapteynClustering import cluster_funcs as clusterf
+    from KapteynClustering import linkage_funcs as linkf
 
 
 def expected_density_members(members, N_std, X, art_X, N_art, min_members, max_members):
@@ -198,24 +198,24 @@ def sig_load_data(param_file, scaled_force=False):
     params = paraf.read_param_file(param_file)
     data_p = params["data"]
 
-    cluster_p = params["cluster"]
-    min_members = cluster_p["min_members"]
-    features = cluster_p["features"]
-    N_art, N_process = cluster_p["N_art"],  cluster_p["N_process"]
+    link_p = params["linkage"]
+    min_members = link_p["min_members"]
+    features = link_p["features"]
+    N_art, N_process = link_p["N_art"],  link_p["N_process"]
     N_std = paraf.find_Nstd_from_params(params)
 
     stars = dataf.read_data(data_p["sample"])
     print("Using features:")
     print(features)
     try:
-        X = clusterf.find_X(features, stars, scaled=scaled_force)
+        X = linkf.find_X(features, stars, scaled=scaled_force)
     except Exception:
-        stars = clusterf.scale_features(
-            stars, features=features, scales=cluster_p["scales"])[0]
-        X = clusterf.find_X(features, stars, scaled=scaled_force)
+        stars = linkf.scale_features(
+            stars, features=features, scales=link_p["scales"])[0]
+        X = linkf.find_X(features, stars, scaled=scaled_force)
     del stars
 
-    max_members  = cluster_p.get("max_members",None)
+    max_members  = link_p.get("max_members",None)
     if max_members is None:
         max_members = len(X[:,0])/4
         print("auto max members, quarter of Nstars:",max_members)
@@ -225,14 +225,13 @@ def sig_load_data(param_file, scaled_force=False):
     if 0 not in list(art_stars.keys()):
         import KapteynClustering.dic_funcs as dicf
         art_stars = dicf.groups(art_stars, group="index", verbose=True)
-    art_X = clusterf.art_find_X(features, art_stars, scaled=scaled_force)
+    art_X = linkf.art_find_X(features, art_stars, scaled=scaled_force)
     del art_stars
 
-    cluster_data = dataf.read_data(data_p["cluster"])
-    Z = cluster_data["Z"]
-    del cluster_data
+    link_data = dataf.read_data(data_p["linkage"])
+    Z = link_data["Z"]
+    del link_data
     N_clusters = len(Z[:, 0])
-    tree_members = clusterf.find_tree(Z, prune=True)
-    list_tree_members = [tree_members[i + N_clusters+1]
-                         for i in range(N_clusters)]
+    tree_members = linkf.find_tree(Z, prune=True)
+    list_tree_members = [tree_members[i + N_clusters+1] for i in range(N_clusters)]
     return data_p["sig"], max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std

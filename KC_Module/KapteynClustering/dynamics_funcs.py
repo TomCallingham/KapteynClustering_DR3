@@ -41,7 +41,6 @@ def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
     except Exception:
         import vaex
         stars = stars.join(vaex.from_dict(dyn), how="right")
-    stars = add_cylindrical(stars)
     return stars
 
 

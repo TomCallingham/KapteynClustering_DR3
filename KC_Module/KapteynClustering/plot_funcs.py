@@ -12,12 +12,13 @@ scale_props0 = get_default_scales()
 def plot_simple_scatter(stars, xy_keys, Groups, groups,
                         G_colours=None, Lims=lims0):
     xy_keys, shared, shape = ps.check_xykeys(xy_keys)
-    fig, axs, ax_list = ps.create_axis(xy_keys, shape=shape, sharex=False, sharey=shared)
+    N_plots = len(xy_keys)
+    fig, axs, ax_list = ps.create_axis(N_plots=N_plots,shape=shape , sharex=False, sharey=shared)
     if G_colours is None:
         G_colours = ps.get_G_colours(Groups)
     for (ax, xy_key) in zip(ax_list, xy_keys):
         ps.simple_scatter(ax, xy_key, stars, Groups, groups, G_colours)
-        ps.set_ax_label(ax, xy_key, sharex=False, sharey=shared)
+        ps.set_ax_label(ax, xy_key)#, sharex=False, sharey=shared)
         ps.set_ax_lims(ax, xy_key, Lims=Lims)
 
     return fig, axs

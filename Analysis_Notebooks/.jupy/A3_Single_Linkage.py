@@ -38,17 +38,11 @@ print(stars.count())
 print("Using the following features and scales:")
 print(scales, "\n", features)
 
-# %%
-link_data = linkf.calc_linkage(stars, features=features, scales = scales)
-
-# %%
-print(link_data.keys())
-
 # %% [markdown]
 # # Save
 
 # %%
-dataf.write_data(data_p["linkage"], link_data)
+link_data = dataf.read_data(data_p["linkage"])
 
 # %% [markdown]
 # # Plots

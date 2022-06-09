@@ -7,11 +7,9 @@
 # # Setup
 
 # %%
-print("Test")
-
-# %%
 import matplotlib.pyplot as plt
 import KapteynClustering.data_funcs as dataf
+import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.param_funcs as paramf
 import KapteynClustering.artificial_data_funcs as adf
 import vaex
@@ -25,18 +23,22 @@ params = paramf.read_param_file("default_params.yaml")
 data_p = params["data"]
 pot_name =  data_p["pot_name"]
 
+solar_p = params["solar"]
+
 art_p = params["art"]
 N_art, additional_props = art_p["N_art"], art_p.get("additional",[])
 
-cluster_p = params["cluster"]
-scales, features = cluster_p["scales"], cluster_p["features"]
+features = params["linkage"]["features"]
 
 # %% [markdown]
 # ## Load Data
 # Load the initial dynamics dataset, not the toomre cut setection.
 
 # %%
-stars = vaex.open(data_p["base_dyn"])
+stars = vaex.open(data_p["base_data"])
+stars = dataf.create_galactic_posvel(stars, solar_params=solar_p)
+stars = dynf.add_cylindrical(stars)
+stars = dataf.apply_toomre_filt(stars, v_toomre_cut=180, solar_params=solar_p)
 
 # %% [markdown]
 # # Artificial DataSet
@@ -51,7 +53,7 @@ print(additional_props)
 print(dynamics_to_calc)
 
 # %%
-art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, v_toomre_cut=210, dynamics=dynamics_to_calc)
+art_stars = adf.get_shuffled_artificial_set(N_art, stars, pot_name, art_v_toomre_cut=210, dynamics=dynamics_to_calc)
 
 # %% [markdown]
 # ## Save Artifical Dataset
@@ -90,5 +92,15 @@ for x in ["En", "Lz", "Lperp", "circ"]:
     plt.legend()
     plt.xlabel(x)
     plt.show()
+
+# %%
+
+# %%
+
+# %%
+
+# %%
+
+# %%
 
 # %%

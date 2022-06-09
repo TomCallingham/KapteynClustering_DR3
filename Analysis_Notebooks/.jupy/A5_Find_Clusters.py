@@ -24,8 +24,6 @@ min_sig = params["cluster"]["min_sig"]
 # ## Load
 
 # %%
-
-# %%
 link_data = dataf.read_data(fname=data_p["linkage"])
 Z = link_data["Z"]
 

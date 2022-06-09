@@ -1,23 +1,22 @@
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.cluster_funcs as clusterf
+import KapteynClustering.linkage_funcs as linkf
 import vaex
-# from KapteynClustering.default_params import cluster_params0
+# from Kapteynlinking.default_params import link_params0
 
 
 def single_linkage(params):
     data_p = params["data"]
-    cluster_p = params["cluster"]
-    scales, features = cluster_p["scales"], cluster_p["features"]
-    print("Applying single linkage clustering. Using the following features and scales:")
+    link_p = params["linkage"]
+    scales, features = link_p["scales"], link_p["features"]
+    print("Applying single linkage linking. Using the following features and scales:")
     print(scales, "\n", features)
     print("Scaling...")
     stars = vaex.open(data_p["sample"])
 
-    print("Clustering...")
+    print("linking...")
 
-    cluster_data = clusterf.clusterData(
-        stars, features=features, scales=scales)
+    link_data = linkf.calc_linkage( stars, features=features, scales=scales)
 
-    dataf.write_data(data_p["cluster"], cluster_data)
+    dataf.write_data(data_p["linkage"], link_data)
     print("Finished Linkage \n")
     return

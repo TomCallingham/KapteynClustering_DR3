@@ -77,6 +77,14 @@ def sof_calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
                        ((vel[:, 1] - vlsr * (1 + np.cos(phi)) - 232)**2) + (vel[:, 2]**2))
     return v_toomre
 
+def cart_to_cylinder(pos, vel=None):
+    ''' x = R sin(phi)'''
+    x = pos[:, 0]
+    y = pos[:, 1]
+    z = pos[:, 2]
+    R = np.sqrt((x * x) + (y * y))
+    phi = np.arctan2(y, x)
+
 
 def create_toomre(stars, solar_params=solar_params0):
     # Toomre velocity: velocity offset from being a disk orbit

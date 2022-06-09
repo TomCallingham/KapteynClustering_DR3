@@ -29,41 +29,9 @@ scales = link_p["scales"]
 # %%
 print(solar_p)
 
-# %% [markdown]
-# # Basic Dataset
-# The basic dataset needs to contain
-# - (x,y,z,vx,vy,vz). These are helio centric (following sofie)
-
-# %%
-print(data_p["base_data"])
-stars = vaex.open(data_p["base_data"])
-
-
-# %% [markdown]
-# # Sample
-# - (pos,Vel) in N x 3 form. These are GALACTIC centric
-# Given solar params, we can create the galactic pos,vel (along with XYZ, vXvYvZ)
-# Apply the vtoomre>210
-
-# %%
-stars = dataf.create_galactic_posvel(stars, solar_params=solar_p)
-stars = dynf.add_cylindrical(stars)
-stars = dataf.apply_toomre_filt(stars, v_toomre_cut=210, solar_params=solar_p)
-
-# %% [markdown]
-# ## Dynamics
-# Read in in the potential name and calculates the dynamics based on that. The pot_name can be "H99", or any Agama ini file in packaged with Agama, or the path to a specific Agama ini file.
-
-# %%
-stars = dynf.add_dynamics(stars, data_p["pot_name"], additional_dynamics=["circ"])#, "JR"])
-stars = stars[stars["En"] < 0]
-
-# %% [markdown]
-# ## Save Sample
-
 # %%
 print(data_p["sample"])
-stars.export(data_p["sample"])
+stars = vaex.open(data_p["sample"])
 
 # %%
 print(stars.count())

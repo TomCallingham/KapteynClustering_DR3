@@ -16,7 +16,8 @@ def dynamics_calc(pot_fname,pos, vel, circ=True):
     Lvec = np.cross(vel, pos)
     dyn['L'] = np.linalg.norm(Lvec, axis=1)
     dyn['Lz'] = Lvec[:, 2]
-    dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
+    # dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
+    dyn['Lperp'] = np.linalg.norm(Lvec[:,:-1], axis=1)
     dyn['Lvec'] = Lvec
 
     dyn['K'] = 0.5 * np.sum(vel**2, axis=1)

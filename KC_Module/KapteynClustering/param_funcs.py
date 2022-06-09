@@ -21,6 +21,7 @@ def read_yaml(param_file):
 def check_data_params(data_params):
     check_make_folder(data_params["result_folder"])
     data_params = check_sofie_data(data_params)
+    data_params = check_default_names(data_params)
     data_params = check_file_path(data_params)
     return data_params
 
@@ -41,6 +42,25 @@ def check_sofie_data(data_params):
         print("Sofies art sample")
         s_result_folder = '/net/gaia2/data/users/dodd/Clustering_EDR3/Clustering_results_3D/results/'
         data_params["art"] = s_result_folder + "df_artificial_3D.hdf5"
+    return data_params
+
+def check_default_names(data_params):
+    try:
+        run_name = data_params["run_name"]
+    except KeyError:
+        raise ValueError("Need a run name in the parameters!")
+
+    default_name_dic = {"sample": run_name + "_Sample.hdf5",
+                        "art": run_name + "_Artificial.hdf5",
+                        "linkage": run_name + "_Linkage.hdf5",
+                        "sig": run_name + "_Significance.hdf5",
+                        "clusters": run_name + "_Clusters.hdf5",
+                        "gaussian_fits": run_name + "_GaussianFits.hdf5",
+                        "labelled_sample": run_name + "_LabelledSample.hdf5",
+                        "groups": run_name + "_Groups.hdf5"
+                        }
+    for p in list(default_name_dic):
+        data_params[p] = data_params.get(p, default_name_dic[p])
     return data_params
 
 def check_solar_params(solar_params):
@@ -138,11 +158,11 @@ def load_volume_stars(param_file):
 
 # Find N_std
 def find_Nstd_from_params(params):
-    cluster_p = params["cluster"]
-    df = len(cluster_p["features"])
-    Nstd = cluster_p.get("Nstd",cluster_p.get("N_sigma_ellipse_axis",None))
-    sigma1d = cluster_p.get("sigma_1d",None)
-    sigma_percent = cluster_p.get("sigma_percent",None)
+    link_p = params["linkage"]
+    df = len(link_p["features"])
+    Nstd = link_p.get("Nstd",link_p.get("N_sigma_ellipse_axis",None))
+    sigma1d = link_p.get("sigma_1d",None)
+    sigma_percent = link_p.get("sigma_percent",None)
     if Nstd is not None:
         print("Nstd given")
         pass

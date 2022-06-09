@@ -1,29 +1,31 @@
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.label_funcs as labelf
+import KapteynClustering.cluster_funcs as clusterf
 import vaex
 
 
-def find_labels(params):
-    print("Finding Labels")
+def find_clusters(params):
+    print("Finding clusters")
     data_p = params["data"]
-    min_sig = params["label"]["min_sig"]
+    min_sig = params["cluster"]["min_sig"]
 
-    cluster_data = dataf.read_data(fname=data_p["cluster"])
-    Z = cluster_data["Z"]
+    link_data = dataf.read_data(fname=data_p["linkage"])
+    Z = link_data["Z"]
 
     sig_data = dataf.read_data(fname=data_p["sig"])
     sig = sig_data["significance"]
 
-    label_data = labelf.find_cluster_data(sig, Z, minimum_significance=min_sig)
-    print("Labels Found")
-    fname = data_p["label"]
-    dataf.write_data(fname=fname, dic=label_data, verbose=True, overwrite=True)
+    cluster_data = clusterf.find_cluster_data(sig, Z, minimum_significance=min_sig)
+    print("clusters Found")
+    fname = data_p["clusters"]
+    dataf.write_data(fname=fname, dic=cluster_data, verbose=True, overwrite=True)
+    print("clusters saved")
 
+    print("Writing labelled sample file")
     stars = vaex.open(data_p["sample"])
-    stars["label"] = label_data["labels"]
-    stars["cluster_sig"] = label_data["star_sig"]
+    stars["label"] = cluster_data["labels"]
+    stars["cluster_sig"] = cluster_data["star_sig"]
 
     stars.export(data_p["labelled_sample"])
+    print("Labelled sample file saved")
 
-    print("Labels saved")
     return

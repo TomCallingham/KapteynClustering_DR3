@@ -17,7 +17,7 @@ def find_mahalanobis(covar, X, psd=None, allow_singular=False):
     # dev = x - mean
     # maha = np.sum(np.square(np.dot(x-mean, psd.U)), axis=-1)
     maha = np.sqrt(np.sum(np.square(np.dot(X, psd.U)), axis=-1))
-    
+
     return maha
 
 
@@ -42,10 +42,10 @@ def maha_dis_to_clusters(X, Clusters, cluster_mean, cluster_covar):
 
 def maha_dis_to_fit_clusters(stars, fit_file):
     from KapteynClustering import data_funcs as dataf
-    from KapteynClustering import cluster_funcs as clusterf
+    from KapteynClustering import linkage_funcs as linkf
     fit_data = dataf.read_data(fit_file)
     features, Clusters, cluster_mean, cluster_cov = [fit_data[p] for p in ["features", "Clusters", "mean", "covariance"]]
-    X= clusterf.find_X(features, stars)
+    X= linkf.find_X(features, stars)
     dis= maha_dis_to_clusters(X, Clusters, cluster_mean, cluster_cov)
     return dis, Clusters
 
