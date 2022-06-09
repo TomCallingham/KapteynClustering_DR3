@@ -37,23 +37,18 @@ cluster_data = dataf.read_data(fname= data_p["clusters"])
 # %%
 Clusters, Pops, C_sig = fClusters[fClusters!=-1], fPops[fClusters!=-1], fC_sig[fClusters!=-1]
 
-# %% [markdown]
-# # Make Fits
-
 # %%
 print(len(Clusters))
 
-# %%
-mean_cluster, cov_cluster = linkf.fit_gaussian_clusters(stars, features, Clusters, labels)
-
 # %% [markdown]
-# ## Save Fits
+# # Load Fits
 
 # %%
-fit_data = {"Clusters":Clusters, "Pops":Pops, "C_sig":C_sig,
-            "mean":mean_cluster, "covariance":cov_cluster,
-            "features":features}
-dataf.write_data(fname=data_p["gaussian_fits"], dic=fit_data)
+fit_data = dataf.read_data(fname=data_p["gaussian_fits"])
+print(fit_data.keys())
+[Clusters, cPops, C_sig, cluster_mean, cluster_cov, features
+] = [ fit_data[p] for p in ["Clusters", "Pops", "C_sig", "mean", "covariance", "features"]]
+
 
 # %%
 # To plot use Similar code to GC project on cosma!

@@ -9,9 +9,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import vaex
-import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
-import KapteynClustering.param_funcs as paramf
 import KapteynClustering.plot_funcs as plotf
 
 # %% [markdown]
@@ -21,10 +19,6 @@ import KapteynClustering.plot_funcs as plotf
 # %%
 params = paramf.read_param_file("default_params.yaml")
 data_p = params["data"]
-solar_p = params["solar"]
-link_p = params["linkage"]
-features = link_p["features"]
-scales = link_p["scales"]
 
 # %%
 print(solar_p)

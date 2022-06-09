@@ -5,7 +5,6 @@
 import numpy as np
 import vaex
 import matplotlib.pyplot as plt
-import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.param_funcs as paramf
 import KapteynClustering.cluster_funcs as clusterf
@@ -40,30 +39,15 @@ sig_data = dataf.read_data(fname=data_p["sig"])
 sig = sig_data["significance"]
 
 # %% [markdown]
-# # Find Clusters
+# # LoadData
 
 # %%
-cluster_data = clusterf.find_cluster_data(sig, Z, minimum_significance=min_sig)
-
+cluster_data = dataf.read_data(fname= data_p["clusters"] )
 [labels, star_sig, Clusters, cPops, C_sig] = [ cluster_data[p] for p in
                                            ["labels","star_sig", "Clusters", "cPops", "C_sig"]]
 
-# %% [markdown]
-# # Save
-# ## Save indendant labels
-
 # %%
-dataf.write_data(fname= data_p["clusters"], dic=cluster_data, verbose=True, overwrite=True)
-
-# %% [markdown]
-# ## Save Labled Sample?
-
-# %%
-stars = vaex.open(data_p["sample"])
-stars["label"] = labels
-stars["cluster_sig"] = star_sig
-
-stars.export(data_p["labelled_sample"])
+stars = vaex.open(data_p["labelled_sample"])
 
 # %% [markdown]
 # # RESULTS

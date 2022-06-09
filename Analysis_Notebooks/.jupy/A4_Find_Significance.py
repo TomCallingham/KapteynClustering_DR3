@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.param_funcs as paramf
-import os
-import KapteynClustering as KC
 
 # %% [markdown]
 # ## Paramaters
