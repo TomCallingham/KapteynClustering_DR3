@@ -57,7 +57,7 @@ def group_feh(params):
 
 
     # %%
-    Grouped_Clusters = fcluster(combined_Z,t=4, criterion="distance")
+    Grouped_Clusters = fcluster(combined_Z,t=dendo_cut, criterion="distance")
 
     # %%
     groups = groupf.merge_clusters_labels(Clusters, Grouped_Clusters, labels)
@@ -69,7 +69,7 @@ def group_feh(params):
     ex_dis[pvals<0.05]=10
     ex_combined_dis = np.sqrt((ex_dis**2) + (dm**2))
     ex_combined_Z = linkage(ex_combined_dis, 'single')
-    ex_Grouped_Clusters = fcluster(ex_combined_Z,t=4, criterion="distance")
+    ex_Grouped_Clusters = fcluster(ex_combined_Z,t=dendo_cut, criterion="distance")
     ex_groups = groupf.merge_clusters_labels(Clusters, ex_Grouped_Clusters, labels)
     ex_groups = clusterf.order_labels(ex_groups)[0]
 
