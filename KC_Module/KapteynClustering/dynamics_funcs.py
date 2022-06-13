@@ -1,7 +1,36 @@
 import numpy as np
 
-
 def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
+    '''circ
+    Jz returns actions
+    angles returns all actions and angles
+    rmin, rmax returns
+    actions, angles, circ, ex
+    stars dic containg pos,vel as Nx3.
+    pot_fname either "H99" or file path to agama Potential.
+    '''
+    try:
+        pos = stars["pos"].values
+        vel = stars["vel"].values
+    except Exception:
+        pos = stars["pos"]
+        vel = stars["vel"]
+
+    dyn = create_dynamics(pos,vel, pot_fname, additional_dynamics)
+
+    for prop in dyn.keys():
+        try:
+            del stars[prop]
+        except:
+            pass
+    try:
+        stars = stars | dyn
+    except Exception:
+        import vaex
+        stars = stars.join(vaex.from_dict(dyn), how="right")
+    return stars
+
+def create_dynamics(pos,vel, pot_fname, additional_dynamics=["circ"]):
     '''circ
     Jz returns actions
     angles returns all actions and angles
@@ -14,12 +43,7 @@ def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
     actions = bool(np.any(np.isin(np.array(["Jz","JR","Jphi"]), additional_dynamics)))
     angles = bool(np.any(np.isin(np.array(["Az","AR","Aphi"]), additional_dynamics)))
     extreme = bool(np.any(np.isin(np.array(["Rmin","Rmax"]), additional_dynamics)))
-    try:
-        pos = stars["pos"].values
-        vel = stars["vel"].values
-    except Exception:
-        pos = stars["pos"]
-        vel = stars["vel"]
+
 
     if pot_fname in ["H99", "BoxChoc"]:
         from KapteynClustering.legacy import simple_dynamics_calc
@@ -31,17 +55,7 @@ def add_dynamics(stars, pot_fname, additional_dynamics=["circ"]):
         a_pot = load_agama_potential(pot_fname)
         dyn = agama_dyn_calc(pos, vel, pot=a_pot, actions=actions,
                              angles=angles, circ=circ, ex=extreme)
-    for prop in dyn.keys():
-        try:
-            del stars[prop]
-        except:
-            pass
-    try:
-        stars = stars | dyn
-    except Exception:
-        import vaex
-        stars = stars.join(vaex.from_dict(dyn), how="right")
-    return stars
+    return dyn
 
 
 def add_cylindrical(stars):
@@ -70,6 +84,18 @@ def cart_to_cylinder(pos, vel=None):
         vx = vel[:, 0]
         vy = vel[:, 1]
         vz = vel[:, 2]
-        vR = ((np.cos(phi) * vx) + (np.sin(phi) * vy))
-        vT = ((np.cos(phi) * vy) - (np.sin(phi) * vx))
+        vR = ((x*vx) + (y*vy))/R
+        vT = -((x*vy) - (y*vx))/R
+        # vR = ((np.cos(phi) * vx) + (np.sin(phi) * vy))
+        # vT = ((np.cos(phi) * vy) - (np.sin(phi) * vx))
         return (R, phi, z, vR, vT, vz)
+
+
+def angular_momentum_calc(pos,vel):
+    Lvec = np.cross(vel, pos)
+    dyn = {}
+    dyn['L'] = np.linalg.norm(Lvec, axis=1)
+    dyn['Lz'] = Lvec[:, 2]
+    dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
+    dyn['Lvec'] = Lvec
+    return dyn

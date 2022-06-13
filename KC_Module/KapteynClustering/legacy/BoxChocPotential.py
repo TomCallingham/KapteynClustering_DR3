@@ -12,6 +12,7 @@ bulge_c = 0.7 # kpc
 
 v_halo = 173.2 # km/s
 halo_d = 12 # kpc
+halo_Rvir = 200
 
 def potential(pos):
     phi_halo  = potential_halo(pos)
@@ -36,10 +37,10 @@ def vc(pos):
 def potential_halo(pos):
     " Halo: Logarithmic "
     r = np.linalg.norm(pos,axis=1)
-    phi_halo = v_halo ** 2 * np.log(1+r**2 / halo_d**2)
-    phi0 = (v_halo**2)*np.log(halo_d**2)
+    phi_halo = (v_halo ** 2) * np.log(1+(r/halo_d)**2)
+    phi0 = (v_halo**2)*2*np.log(halo_d/halo_Rvir)
+    phi_halo+=phi0
     # - (v_halo**2)*np.log(Rvir**2)
-
     return phi_halo
 
 def potential_disc(pos):

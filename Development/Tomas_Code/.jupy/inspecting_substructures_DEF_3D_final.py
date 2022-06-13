@@ -48,8 +48,15 @@ def read_df_clusters(tomas_clusters_file):
     return df_clusters
 
 
-tomas_clusters_file = '/data/users/ruizlara/halo_clustering/DEF_catalogue_dist_perc_80_3D.hdf5'
+tomas_clusters_file = '/net/gaia2/data/users/ruizlara/halo_clustering/DEF_catalogue_dist_perc_80_3D.hdf5'
 df_clusters = read_df_clusters(tomas_clusters_file)
+
+# %%
+columns = df_clusters.column_names
+for c in columns:
+    if "feh" in c:
+        print(c)
+
 
 # %%
 def KS_test_pairs(data_dict, label_pairs, key="feh_distr", min_N=10):

@@ -44,3 +44,20 @@ def vol_simple_scatter(volumes,vol_stars, vol_labels, xy_key, NCol=3):
         ax.text(0.5, 0.8, text, fontsize=20,
                    transform = ax.transAxes)
     return fig, axs
+
+def plot_simple_fit(fits, xy_keys, Groups, G_colours=None, Lims=lims0, solid=False, background_stars=None,
+                   nsigma=3):
+    xy_keys, shared, shape = ps.check_xykeys(xy_keys)
+    N_plots = len(xy_keys)
+    fig, axs, ax_list = ps.create_axis(N_plots=N_plots,shape=shape , sharex=False, sharey=shared)
+    if G_colours is None:
+        G_colours = ps.get_G_colours(Groups)
+    for (ax, xy_key) in zip(ax_list, xy_keys):
+        ps.Ellipse_Plots(ax, fits, xy_key, G_colours, Groups, solid=solid, nsigma=nsigma)
+        if background_stars is not None:
+            ps.background_scatter(ax,xy_key, background_stars)
+            
+        ps.set_ax_label(ax, xy_key)#, sharex=False, sharey=shared)
+        ps.set_ax_lims(ax, xy_key, Lims=Lims)
+    return fig, axs
+

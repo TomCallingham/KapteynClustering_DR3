@@ -1,12 +1,10 @@
-from KapteynClustering import linkage_funcs as linkf
-import numpy as np
 import numpy as np
 from KapteynClustering import mahalanobis_funcs as mahaf
+from KapteynClustering import linkage_funcs as linkf
 
 def get_cluster_distance_matrix(Clusters, cluster_mean, cluster_cov):
     '''Uses Summed covariance'''
     N_clusters = len(Clusters)
-    n_dim = len(cluster_mean[Clusters[0]])
     dm = np.zeros((int(N_clusters*(N_clusters-1)/2)))
     dis = np.zeros((N_clusters,N_clusters))
     k=0
@@ -21,3 +19,10 @@ def get_cluster_distance_matrix(Clusters, cluster_mean, cluster_cov):
             k += 1
     dis = dis + dis.T
     return dis, dm
+
+def merge_clusters_labels(Clusters, Grouped_Clusters, labels):
+    groups = -np.ones_like(labels)
+    for c,g in zip(Clusters, Grouped_Clusters):
+        c_filt = labels==c
+        groups[c_filt] = g
+    return groups

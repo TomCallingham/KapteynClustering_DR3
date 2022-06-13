@@ -19,7 +19,7 @@ def cluster_fit_step(params):
     mean_group, cov_group = linkf.fit_gaussian_clusters(stars, features, Clusters, labels=labels)
 
     fit_data = {"Clusters":Clusters, "Pops":Pops, "C_sig":C_sig,
-                    "mean":mean_group, "covariance:":cov_group,
+                    "mean":mean_group, "covariance":cov_group,
                     "features":features}
     dataf.write_data(fname=data_p["gaussian_fits"], dic=fit_data)
 

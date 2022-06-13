@@ -27,7 +27,7 @@ def get_shuffled_artificial_set(N_art, stars, pot_fname, dynamics=[], additional
     print(f'Creating {N_art} artificial datasets...')
     print(f"Using art v_toomre_cut of {art_v_toomre_cut}")
 
-    props = ["pos", "vel", "phi"]
+    props = ["pos", "vel", "phi", "vT", "vR", "R"]
     props.extend(additional_props)
     try:
         dic_stars = {p: np.copy(stars[p].values) for p in props}
@@ -64,8 +64,22 @@ def get_shuffled_artificial_dataset(stars_dic, pot_fname, v_toomre_cut=210, sola
 
     art_stars = copy.deepcopy(stars_dic)
     # shuffle vx,vz, don't shuffle vy!
-    np.random.shuffle(art_stars["vel"][:, 0])  # vx
+    # np.random.shuffle(art_stars["vel"][:, 0])  # vx
+    # np.random.shuffle(art_stars["vel"][:, 2])  # vz
+
+    print("NEW SHUFFLE!")
     np.random.shuffle(art_stars["vel"][:, 2])  # vz
+    vT, vR = art_stars["vT"],art_stars["vR"]
+    np.random.shuffle(vT)
+    X,Y = art_stars["pos"][:,0], art_stars["pos"][:,1]
+    R = art_stars["R"]
+
+    vX = ((X*vR) + (Y*vT))/R
+    vY = ((Y*vR) - (X*vT))/R
+    art_stars["vel"][:,0] = vX
+    art_stars["vel"][:,1] = vY
+
+
 
     art_stars = dynf.add_cylindrical(art_stars)
     art_stars = dataf.apply_toomre_filt(art_stars, v_toomre_cut=v_toomre_cut, solar_params=solar_params)

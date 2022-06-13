@@ -312,9 +312,3 @@ plt.show()
 pf.plot_simple_scatter(stars,xy_keys, Clusters, labels)
 plt.show()
 
-
-# %%
-
-stars["feh_groups"] = groups
-stars["feh_groups_strict"] = ex_groups
-dataf.vaex_overwrite(stars, data_p["labelled_sample"])

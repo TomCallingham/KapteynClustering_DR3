@@ -22,37 +22,6 @@ data_p = params["data"]
 min_sig=params["cluster"]["min_sig"]
 features = params["linkage"]["features"]
 
-# %%
-
-# %% [markdown]
-# # Load
-
-# %%
-stars = vaex.open(data_p["labelled_sample"])
-
-cluster_data = dataf.read_data(fname= data_p["clusters"])
-[labels, fClusters, fPops, fC_sig] = [ cluster_data[p] for p in
-                                           ["labels", "Clusters", "cPops", "C_sig"]]
-
-# %%
-Clusters, Pops, C_sig = fClusters[fClusters!=-1], fPops[fClusters!=-1], fC_sig[fClusters!=-1]
-
-# %%
-print(len(Clusters))
-
-# %% [markdown]
-# # Load Fits
-
-# %%
-fit_data = dataf.read_data(fname=data_p["gaussian_fits"])
-print(fit_data.keys())
-[Clusters, cPops, C_sig, cluster_mean, cluster_cov, features
-] = [ fit_data[p] for p in ["Clusters", "Pops", "C_sig", "mean", "covariance", "features"]]
-
-
-# %%
-# To plot use Similar code to GC project on cosma!
-
 # %% [markdown]
 # # Adding Stars To Clusters
 
@@ -69,6 +38,13 @@ test_labels = mahaf.add_maha_members_to_clusters(test_stars, data_p["gaussian_fi
 # # Plots
 
 # %%
+
+fit_data = dataf.read_data(fname=data_p["gaussian_fits"])
+print(fit_data.keys())
+[Clusters, cPops, C_sig, cluster_mean, cluster_cov, features
+] = [ fit_data[p] for p in ["Clusters", "Pops", "C_sig", "mean", "covariance", "features"]]
+
+# %%
 C_Colours = ps.get_G_colours(Clusters)
 C_Colours_list = np.array([C_Colours[g] for g in Clusters])
 
@@ -79,28 +55,6 @@ from KapteynClustering.plot_funcs import plot_simple_scatter
 xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"],
            ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
 plot_simple_scatter(test_stars, xy_keys, Clusters, test_labels)
-plt.show()
-
-# %%
-
-# %%
-
-# %%
-import copy
-from KapteynClustering.plot_funcs import plot_simple_fit
-
-
-
-# %%
-xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"],
-           ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
-plot_simple_fit(fit_data, xy_keys, Clusters, background_stars=stars)
-plt.show()
-
-# %%
-xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"],
-           ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
-plot_simple_fit(fit_data, xy_keys, Clusters, background_stars=stars, solid=True, nsigma=1)
 plt.show()
 
 # %%

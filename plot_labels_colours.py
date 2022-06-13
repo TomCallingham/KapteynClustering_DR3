@@ -16,6 +16,7 @@ def get_default_prop_unit_labels():
     prop_labels['JR_J'] = f"$J_{{R}}/J{{\mathrm{{Tot}}}}$"
     prop_labels['Jz_J'] = f"$J_{{z}}/J{{\mathrm{{Tot}}}}$"
     prop_labels['r'] = f"$r$"
+    prop_labels['distance_par'] = f"Distance (parallax)"
 
     unit_labels = {}
     for p in ["Lz", "Lx", "Ly", "Jz", "Jf", "Lp"]:
@@ -24,19 +25,31 @@ def get_default_prop_unit_labels():
     for p in ["E", "U"]:
         unit_labels[p] =  f"$\mathrm{{km}}^{{2}} / \mathrm{{s}}^{{2}}$"
 
-    for p in ["f", "x", "y", "z"]:
+    for p in ["f", "x", "y", "z", "distance_par", "R", "r", "X", "Y", "Z"]:
         unit_labels[p] = f"$\mathrm{{kpc}}$"
 
-    for p in ["vf", "vx", "vy", "vz", "vT", "vf"]:
+    for p in ["vf", "vx", "vy", "vz", "vT", "vf", "vX", "vY", "vZ", "vR"]:
         unit_labels[p] = f"$\mathrm{{km}} / \mathrm{{s}}$"
 
-    prop_labels['En'], unit_labels['En'] = prop_labels["E"], unit_labels["E"]
+
+    unit_labels["phi"] = f"$Rad$"
+
     prop_labels["Lperp"], unit_labels["Lperp"] = prop_labels["Lp"], unit_labels["Lp"]
+    prop_labels['En'], unit_labels['En'] = prop_labels["E"], unit_labels["E"]
     prop_labels['circ']  = prop_labels["Circ"]
+
+    for pot in ["M17", "C20", "BoxChoc", "H99"]:
+        for p in ["E", "En", "U", "Jz","JR", "circ"]:
+            prop_labels[pot + "_" + p] = prop_labels[pot + "_" + p] + f" ({pot})"
+            unit_labels[pot + "_" + p] =  unit_labels[p]
 
     return prop_labels, unit_labels
 prop_labels0, unit_labels0  = get_default_prop_unit_labels()
+
 scale_props0 = {"En":1e5}
+for pot in ["M17", "C20", "BoxChoc", "H99"]:
+    for p in ["En"]:
+        scale_props0[pot + "_" p] = scale_props0[p]
 
 def get_val(stars,xkey, scale=True, scale_props=scale_props0):
     # gets vals from vaex or dic

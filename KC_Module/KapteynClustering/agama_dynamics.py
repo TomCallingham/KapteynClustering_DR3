@@ -1,22 +1,13 @@
 import numpy as np
 import agama
+from KapteynClustering import dynamics_funcs as dynf
 # units: kpc, km/s, Msun; time unit ~ 1 Gyr
 agama.setUnits(length=1, velocity=1, mass=1)
-
-
 def agama_dyn_calc(pos, vel, pot, actions=False, angles=False, circ=True, ex=False):
-    dyn = {}
-    dyn['pos'] = pos
-    dyn['vel'] = vel
     xyz = np.column_stack((pos, vel))
 
+    dyn = dynf.angular_momentum_calc(pos=pos, vel=vel)
     dyn['K'] = 0.5 * np.sum(vel**2, axis=1)
-
-    Lvec = np.cross(vel, pos)
-    dyn['L'] = np.linalg.norm(Lvec, axis=1)
-    dyn['Lz'] = Lvec[:, 2]
-    dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
-    dyn['Lvec'] = Lvec
     dyn['U'] = pot.potential(pos)
     dyn['En'] = dyn['U'] + dyn['K']
     if circ:

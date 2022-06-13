@@ -59,33 +59,16 @@ dataf.write_data(fname=data_p["gaussian_fits"], dic=fit_data)
 # To plot use Similar code to GC project on cosma!
 
 # %% [markdown]
-# # Adding Stars To Clusters
+# # Plot Fits
 
 # %%
-from KapteynClustering import mahalanobis_funcs as mahaf
+import copy
+from KapteynClustering.plot_funcs import plot_simple_fit
 
-# %%
-test_stars = dataf.read_data(data_p["art"])[5]
 
-# %%
-test_labels = mahaf.add_maha_members_to_clusters(test_stars, data_p["gaussian_fits"], max_dis=2.13, plot=True)
-
-# %% [markdown]
-# # Plots
-
-# %%
-C_Colours = ps.get_G_colours(Clusters)
-C_Colours_list = np.array([C_Colours[g] for g in Clusters])
-
-# %%
-from KapteynClustering.plot_funcs import plot_simple_scatter
 
 # %%
 xy_keys = [["Lz", "En"], ["Lz", "Lperp"], ["circ", "Lz"],
            ["Lperp", "En"], ["circ", "Lperp"], ["circ", "En"]]
-plot_simple_scatter(test_stars, xy_keys, Clusters, test_labels)
+plot_simple_fit(fit_data, xy_keys, Clusters, background_stars=stars)
 plt.show()
-
-# %%
-
-# %%

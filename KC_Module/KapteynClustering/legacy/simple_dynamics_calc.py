@@ -1,4 +1,5 @@
 import numpy as np
+from KapteynClustering import dynamics_funcs as dynf
 
 def dynamics_calc(pot_fname,pos, vel, circ=True):
     if pot_fname=="H99":
@@ -8,17 +9,7 @@ def dynamics_calc(pot_fname,pos, vel, circ=True):
     else:
         raise ValueError(f"Pot name {pot_fname}")
 
-    dyn = {}
-    dyn['pos'] = pos
-    dyn['vel'] = vel
-
-
-    Lvec = np.cross(vel, pos)
-    dyn['L'] = np.linalg.norm(Lvec, axis=1)
-    dyn['Lz'] = Lvec[:, 2]
-    # dyn['Lperp'] = np.sqrt((dyn['L']**2) - (dyn['Lz']**2))
-    dyn['Lperp'] = np.linalg.norm(Lvec[:,:-1], axis=1)
-    dyn['Lvec'] = Lvec
+    dyn = dynf.angular_momentum_calc(pos=pos, vel=vel)
 
     dyn['K'] = 0.5 * np.sum(vel**2, axis=1)
     dyn["U"] = potential.potential(pos)
@@ -44,4 +35,3 @@ def calc_circ(potential,En,  Lz, rmin=0.01, rmax=500, N=5000):
     circularity[En_circ[0]>En] = Lz[En_circ[0]>En]/Lz_circ[0]
     circularity[En_circ[-1]<En] = Lz[En_circ[-1]<En]/Lz_circ[-1]
     return circularity
-

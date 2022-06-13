@@ -16,6 +16,7 @@ def art_data(params):
     N_art, additional_props = art_p["N_art"], art_p.get("additional",[])
 
     dynamics_include = copy.deepcopy(params["linkage"]["features"])
+    dynamics_include.append("circ")
 
 
     print(f"{N_art} realisations")

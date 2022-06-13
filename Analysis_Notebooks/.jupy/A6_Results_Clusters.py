@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import KapteynClustering.dynamics_funcs as dynf
 import KapteynClustering.data_funcs as dataf
 import KapteynClustering.param_funcs as paramf
-import KapteynClustering.label_funcs as labelf
+import KapteynClustering.cluster_funcs as clusterf
 
 # %%
 from KapteynClustering.plot_funcs import plot_simple_scatter
@@ -17,7 +17,7 @@ from KapteynClustering.plotting_utils import plotting_scripts as ps
 # %%
 params = paramf.read_param_file("default_params.yaml")
 data_p = params["data"]
-min_sig=params["label"]["min_sig"]
+min_sig=params["cluster"]["min_sig"]
 
 stars = vaex.open(data_p["labelled_sample"])
 

@@ -1,5 +1,6 @@
 import numpy as np
 from KapteynClustering.plotting_utils.property_labels import get_default_lims, get_default_scales, get_default_prop_unit_labels
+from matplotlib.patches import Ellipse
 
 prop_labels0, unit_labels0 = get_default_prop_unit_labels()
 lims0 = get_default_lims()
@@ -211,3 +212,112 @@ def simple_scatter(ax, xy_key, stars, Groups, groups, G_colours, group_order={},
             **arg_dic)
 
     return
+
+def background_scatter(ax, xy_key, stars):
+    xkey, ykey = xy_key
+    x = get_val(stars,xkey)
+    y = get_val(stars,ykey)
+    ax.scatter(x, y, zorder=-10, alpha=0.2,
+              color="lightgrey", edgecolors="none")
+    return
+
+def Ellipse_Plots(ax, fits, xy_key, Group_Colours, Groups, solid=False, nsigma=3):
+    w_factor = 1.5  # 0.6 / max_w
+    try:
+        means_2d, covars_2d = get_2d_fits(fits, xy_key)
+    except Exception:
+        return
+
+    x_lims = [np.nan, np.nan]
+    y_lims = [np.nan, np.nan]
+    for g in Groups:
+        xy_pos = means_2d[g]
+        xy_covar = covars_2d[g]
+
+
+        c = Group_Colours[g]
+        if np.isnan(np.sum(xy_covar)):
+            print(f"Group {g} invalid covar!")
+            continue
+        try:
+            draw_ellipse(xy_pos, xy_covar, ax=ax, c=c, solid=solid,nsigma=nsigma)
+                         # alpha=( (w * w_factor) + 0.2), )
+        except Exception:
+            continue
+        x_min = xy_pos[0]-3*np.sqrt(xy_covar[0,0])
+        x_max = xy_pos[0]+3*np.sqrt(xy_covar[0,0])
+        y_min = xy_pos[1]-3*np.sqrt(xy_covar[1,1])
+        y_max = xy_pos[1]+3*np.sqrt(xy_covar[1,1])
+        x_lims[0] = np.nanmin([x_lims[0],x_min])
+        x_lims[1] = np.nanmax([x_lims[1],x_max])
+        y_lims[0] = np.nanmin([y_lims[0],y_min])
+        y_lims[1] = np.nanmax([y_lims[1],y_max])
+
+    ax.set_xlim(x_lims)
+    ax.set_ylim(y_lims)
+    return
+
+
+
+
+def draw_ellipse(position, covariance, ax=None, c='r', alpha=0.3, solid=False, nsigma=3):
+    """Draw an ellipse with a given position and covariance"""
+    ax = ax or plt.gca()
+    if solid:
+        fill_color=c
+    else:
+        fill_color="none"
+
+    # Convert covariance to principal axes
+    if covariance.shape == (2, 2):
+        U, s, Vt = np.linalg.svd(covariance)
+        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+        width, height = 2 * np.sqrt(s)
+    else:
+        angle = 0
+        width, height = 2 * np.sqrt(covariance)
+
+    # Draw the Ellipse
+    for nsig in range(1, nsigma+1):
+        #         ax.add_patch(Ellipse(position, nsig * width, nsig * height, angle, **kwargs))
+        ax.add_patch(Ellipse(position, nsig * width, nsig * height, angle,
+                             color=fill_color, ec=c, linewidth=4, alpha=alpha))  # 0.3))
+    # ax.scatter(*position,c=c,marker='o',s=100, edgecolor='w')
+    return
+
+import copy
+def get_2d_fits(fits, xykey, scale_props=scale_props0):
+
+    features = np.array(fits["features"])
+
+    xkey, ykey = copy.deepcopy(xykey)
+    xscale = scale_props.get(xkey, 1)
+    if "/" in xkey:
+        xkey, xscale = xkey.split("/")
+
+    yscale = scale_props.get(ykey, 1)
+    if "/" in ykey:
+        ykey, yscale = ykey.split("/")
+
+    ix = np.where(features==xkey)[0][0]
+    iy = np.where(features==ykey)[0][0]
+
+    means, covars  = fits["mean"], fits["covariance"]
+    Groups = list(means.keys())
+    means_2d, covars_2d = {}, {}
+
+    for g in Groups:
+        mean = means[g]
+        mean = np.array([mean[ix]/xscale, mean[iy]/yscale])
+
+        cov = covars[g]
+        cov_xx = cov[ix,ix]/(xscale*xscale)
+        cov_yy = cov[iy,iy]/(yscale*yscale)
+        cov_xy = cov[ix,iy]/(xscale*yscale)
+        cov = np.array([[cov_xx, cov_xy],[cov_xy, cov_yy]])
+
+        means_2d[g] = mean
+        covars_2d[g] = cov
+
+
+    return means_2d, covars_2d

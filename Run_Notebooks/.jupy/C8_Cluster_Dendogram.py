@@ -9,7 +9,7 @@ import KapteynClustering.cluster_funcs as clusterf
 
 # %%
 from KapteynClustering.plot_funcs import plot_simple_scatter
-from KapteynClustering.plotting_utils import plotting_scripts as ps 
+from KapteynClustering.plotting_utils import plotting_scripts as ps
 
 # %% [markdown]
 # # Load
@@ -51,9 +51,32 @@ def Dendogram_plot(Z, Clusters, cut=4):
 
 # %%
 D, dm = groupf.get_cluster_distance_matrix(Clusters, cluster_mean=mean, cluster_cov=covar)
+Z = linkage(dm, 'single')
+cut = 4
+results = fcluster(Z, cut, "distance")
+print(results)
 
 # %%
-Z = linkage(dm, 'single')
+from scipy.stats import chi2
+
+# %%
+p_val = 1-chi2.cdf(dm**2,df=1)
+pmatch = chi2.cdf(dm**2,df=1)
+
+# %%
+plt.figure()
+plt.scatter(dm, p_val)
+plt.show()
+
+# %%
+pZ = linkage(pmatch, 'single')
+plt.subplots(figsize=(20,10))
+d_result = dendrogram(pZ, leaf_rotation=90, color_threshold=chi2.cdf(4**2,df=1))
+plt.minorticks_off()
+plt.title(f'p_val denda')
+plt.ylim(0.94,1)
+plt.yscale("log")
+plt.show()
 
 # %%
 cut = 4
@@ -91,15 +114,11 @@ labels = stars["label"].values
 # %%
 Grouped_Clusters = fcluster(Z,t=4, criterion="distance")
 
-
 # %%
-def merge_clusters_labels(Clusters, Grouped_Clusters, labels):
-    groups = -np.ones_like(labels)
-    for c,g in zip(Clusters, Grouped_Clusters):
-        c_filt = labels==c
-        groups[c_filt] = g
-    return groups
-groups = merge_clusters_labels(Clusters, Grouped_Clusters, labels)    
+from KapteynClustering import grouping_funcs as groupf
+from KapteynClustering import cluster_funcs as clusterf
+groups = groupf.merge_clusters_labels(Clusters, Grouped_Clusters, labels)
+groups = clusterf.order_labels(groups)[0]
 
 
 # %%
@@ -115,5 +134,14 @@ plt.show()
 pf.plot_simple_scatter(stars,xy_keys, Clusters, labels)
 plt.show()
 
+
+# %%
+print(data_p["labelled_sample"][:-5])
+
+# %%
+stars["dendo_groups"] = groups
+
+# %%
+dataf.vaex_overwrite(stars, data_p["labelled_sample"])
 
 # %%

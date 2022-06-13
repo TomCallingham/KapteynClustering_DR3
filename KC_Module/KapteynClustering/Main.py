@@ -3,10 +3,10 @@ import os
 
 from KapteynClustering.RunSteps import c7_cluster_fits
 try:
-    from .RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits
+    from .RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits, c8_cluster_dendogram, c9_grouping_clusters
     import param_funcs as paraf
 except Exception:
-    from KapteynClustering.RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits
+    from KapteynClustering.RunSteps import c1_sample_prepare, c2_art_data, c3_single_linkage, c4_significance_find, c5_find_clusters, c7_cluster_fits, c8_cluster_dendogram, c9_grouping_clusters
     import KapteynClustering.param_funcs as paraf
 
 
@@ -34,6 +34,10 @@ def main(param_file):
         c5_find_clusters.find_clusters(params)
     if "cluster_fits" in steps:
         c7_cluster_fits.cluster_fit_step(params)
+    if "cluster_dendogram" in steps:
+        c8_cluster_dendogram.cluster_dendogram(params)
+    if "group_feh" in steps:
+        c9_grouping_clusters.group_feh(params)
     return
 
 
