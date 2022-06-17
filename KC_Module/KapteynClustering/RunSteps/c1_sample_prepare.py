@@ -15,7 +15,10 @@ def sample_prepare(params):
     pot_name = data_p["pot_name"]
     solar_p = params["solar"]
     dynamics_include = copy.deepcopy(params["linkage"]["features"])
-    dynamics_include.append("circ")
+    extra_dynamics = params.get("sample_dynamics",["circ"])
+    dynamics_include.extend(extra_dynamics)
+    print("Calculatin extra dynamics:")
+    print(dynamics_include)
 
     # Load Base Data
     stars = vaex.open(data_p["base_data"])

@@ -42,7 +42,7 @@ def create_dynamics(pos,vel, pot_fname, additional_dynamics=["circ"]):
     circ = ("circ" in additional_dynamics)
     actions = bool(np.any(np.isin(np.array(["Jz","JR","Jphi"]), additional_dynamics)))
     angles = bool(np.any(np.isin(np.array(["Az","AR","Aphi"]), additional_dynamics)))
-    extreme = bool(np.any(np.isin(np.array(["Rmin","Rmax"]), additional_dynamics)))
+    extreme = bool(np.any(np.isin(np.array(["Rmin","Rmax", "rmin", "rmax"]), additional_dynamics)))
 
 
     if pot_fname in ["H99", "BoxChoc"]:

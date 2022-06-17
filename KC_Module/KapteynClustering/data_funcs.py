@@ -66,6 +66,7 @@ def create_galactic_posvel(stars, solar_params=solar_params0):
 
 def calc_toomre(vel, phi, vlsr=solar_params0["vlsr"]):
     # v_toomre = np.linalg.norm(vel - (vlsr*np.array([np.sin(phi),np.cos(phi),0])), axis=1)
+    # where vlsr ~ 232
     v_toomre = np.sqrt(((vel[:, 0] - vlsr * np.sin(phi))**2) +
                        ((vel[:, 1] + vlsr * np.cos(phi))**2) + (vel[:, 2]**2))
     return v_toomre

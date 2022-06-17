@@ -102,11 +102,8 @@ def create_axis(N_plots=None, shape=(None,None), sharex=False, sharey=False, xsi
     if (NRow!=None) and (NCol!=None) and (N_plots!=None):
         pass
     elif ((NRow, NCol) == ( None,None)) and N_plots!=None:
-        if N_plots > 3:
-            NRow= 2
-        else:
-            NRow= 1
-        NCol = int(np.ceil(N_plots/NRow))
+        NCol = 3
+        NRow = int(np.ceil(N_plots/NCol))
     elif ((N_plots, NCol) == ( None,None)) and NRow!=None:
         NCol =1
         N_plots = NRow
@@ -193,7 +190,7 @@ def set_G_labels(Fig, ax, Groups, G_colours, label_dic={},
 
 
 def simple_scatter(ax, xy_key, stars, Groups, groups, G_colours, group_order={},
-                   arg_dic={"alpha": 0.2, "s": 20, "edgecolors": "none"}, fluff=True):
+                   arg_dic={"alpha": 0.8, "s": 20, "edgecolors": "none"}, fluff=True):
     # Scatter plotting
     plot_Groups = Groups[Groups != -1]
     xkey, ykey = xy_key

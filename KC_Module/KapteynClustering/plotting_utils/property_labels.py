@@ -59,7 +59,7 @@ def get_default_prop_unit_labels():
 def get_default_lims():
     lims0 = {}
     for p in ["Jz", "JR", "Lperp", "Lp"]:
-        lims0[p] = [0, None]
+        lims0[p] = [0, 4000]
     lims0["circ"] = [-1, 1]
     lims0["Circ"] = lims0["circ"]
     lims0["l"] = [0,360]

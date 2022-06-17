@@ -1,6 +1,7 @@
 import numpy as np
 from KapteynClustering import mahalanobis_funcs as mahaf
-from KapteynClustering import linkage_funcs as linkf
+from KapteynClustering import cluster_funcs as clusterf
+import hdbscan
 
 def get_cluster_distance_matrix(Clusters, cluster_mean, cluster_cov):
     '''Uses Summed covariance'''
@@ -25,4 +26,61 @@ def merge_clusters_labels(Clusters, Grouped_Clusters, labels):
     for c,g in zip(Clusters, Grouped_Clusters):
         c_filt = labels==c
         groups[c_filt] = g
-    return groups
+    groups, Groups, Pops = clusterf.order_labels(groups)
+
+    o_Grouped_Clusters = np.empty_like(Grouped_Clusters)
+    for i,c in enumerate(Clusters):
+        o_Grouped_Clusters[i] = groups[labels==c][0]
+
+    return groups, Groups, Pops, o_Grouped_Clusters
+
+def hdbscan_hierarcy_results(Z, cluster_selection_epsilon=0):
+    result = hdbscan.hdbscan_._tree_to_labels(None,Z,min_cluster_size=2, allow_single_cluster=False,
+                                             cluster_selection_method="eom"
+                                              , cluster_selection_epsilon= cluster_selection_epsilon)
+    Grouped_Clusters, probs, stabs, condensed_tree_array = result[:-1]
+
+    N_single = (Grouped_Clusters==-1).sum()
+    N_max = np.max(Grouped_Clusters)
+    Grouped_Clusters[Grouped_Clusters==-1] = N_max + 1+np.arange(N_single)
+    condensed_tree = hdbscan.plots.CondensedTree(condensed_tree_array=condensed_tree_array)
+    result_dic = {"GroupedClusters":Grouped_Clusters, "probs":probs, "stabs":stabs,
+                  "condensed_tree": condensed_tree}
+    return result_dic
+
+def get_cluster_feh(stars, feh_key = "feh_lamost", labels=None):
+    print(f"using feh: {feh_key}")
+    ''' sorted, non nan fe_h'''
+    if labels is None:
+        labels = stars["label"].values
+    feh = np.array(stars[feh_key].values)
+    good_feh= ~np.isnan(feh)
+
+    Clusters = np.unique(labels)
+    c_feh = {}
+    for c in Clusters:
+        c_filt = (labels==c)
+        c_feh[c] = np.sort(feh[c_filt*good_feh])
+    return c_feh
+
+from scipy.stats import ks_2samp
+def calc_Cluster_KS(Clusters,  c_feh, N_min=10, min_val=0.5):
+    print(f"Using N_min of {N_min}")
+
+    N_Clusters = len(Clusters)
+    N2_Clusters = int(N_Clusters*(N_Clusters-1)/2)
+    KSs = np.zeros((N2_Clusters))
+    pvals = np.zeros((N2_Clusters))
+    cpair = np.empty((N2_Clusters,2), dtype=int)
+    k=0
+    for i in range(N_Clusters):
+        c1 = Clusters[i]
+        for j in range(i + 1, N_Clusters):
+            c2 = Clusters[j]
+            cpair[k,:] = [c1,c2]
+            if (len(c_feh[c1])>N_min) and (len(c_feh[c2])>N_min):
+                KSs[k], pvals[k] = ks_2samp(c_feh[c1], c_feh[c2], mode='exact')
+            else:
+                pvals[k] = min_val
+            k+=1
+    return KSs, pvals, cpair

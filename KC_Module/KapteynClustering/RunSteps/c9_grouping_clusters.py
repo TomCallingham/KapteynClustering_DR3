@@ -15,6 +15,7 @@ def group_feh(params):
     data_p = params["data"]
     group_p = params["group"]
     dendo_cut = group_p["dendo_cut"]
+    feh_key = group_p.get("feh_key","mh_calibrated")
 
     stars = vaex.open(data_p["labelled_sample"])
 
@@ -33,14 +34,14 @@ def group_feh(params):
             print(c)
 
     # %%
-    FeHs = ["feh_rave", "feh_segue", "feh_galah", "feh_lamost_lrs", "feh_apogee"]
+    FeHs = ["mh_calibrated", "mh_gspspec"]
     for f in FeHs:
         print(f,(~np.isnan(stars[f].values)).sum())
 
 
     # %%
     # %%
-    c_feh = get_cluster_feh(stars)
+    c_feh = get_cluster_feh(stars,feh_key=feh_key)
 
     # %%
 
@@ -84,7 +85,7 @@ def group_feh(params):
 
     return
 
-def get_cluster_feh(stars, feh_key = "feh_lamost_lrs", labels=None):
+def get_cluster_feh(stars, feh_key = "mh_calibrated", labels=None):
     ''' sorted, non nan fe_h'''
     if labels is None:
         labels = stars["label"].values
