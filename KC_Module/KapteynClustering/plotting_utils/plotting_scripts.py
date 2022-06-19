@@ -52,10 +52,11 @@ def get_key_label(xkey, scale=True, scale_props=scale_props0,
 import itertools
 
 
-def get_G_colours(Groups, G_colours={-1:"lightgrey"}):
+def get_G_colours(Groups, default_G_colours={-1:"lightgrey"}):
     cycle_colours = itertools.cycle(('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b',
                                      '#e377c3', '#bcbd22', '#17becf', 'grey', 'pink', 'blue',
                                      'orange', 'green'))
+    G_colours = copy.deepcopy(default_G_colours)
     dic_Groups = list(G_colours.keys())
     for g in Groups:
         if g not in dic_Groups:

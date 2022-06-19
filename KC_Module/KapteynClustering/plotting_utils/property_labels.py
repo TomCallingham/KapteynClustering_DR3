@@ -63,6 +63,7 @@ def get_default_lims():
     lims0["circ"] = [-1, 1]
     lims0["Circ"] = lims0["circ"]
     lims0["l"] = [0,360]
+    # lims0["b"] = [0,360]
     lims0["cdf"] = [0,1]
     # lims0["Jz"] = [0,1]
     # lims0["En"] = [None,0]
