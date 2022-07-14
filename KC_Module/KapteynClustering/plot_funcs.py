@@ -10,18 +10,18 @@ scale_props0 = get_default_scales()
 
 
 def plot_simple_scatter(stars, xy_keys, Groups, groups,
-                        G_colours=None, Lims=lims0):
+                        G_colours=None, Lims=lims0, scatter_args = {},axis_args={}):
     xy_keys, shared, shape = ps.check_xykeys(xy_keys)
     N_plots = len(xy_keys)
-    fig, axs, ax_list = ps.create_axis(N_plots=N_plots,shape=shape , sharex=False, sharey=shared)
+    fig, axs, ax_list = ps.create_axis(N_plots=N_plots,shape=shape , sharex=False, sharey=shared,**axis_args)
     if G_colours is None:
         G_colours = ps.get_G_colours(Groups)
     for (ax, xy_key) in zip(ax_list, xy_keys):
-        ps.simple_scatter(ax, xy_key, stars, Groups, groups, G_colours)
+        ps.simple_scatter(ax, xy_key, stars, Groups, groups, G_colours, arg_dic=scatter_args)
         ps.set_ax_label(ax, xy_key)#, sharex=False, sharey=shared)
         ps.set_ax_lims(ax, xy_key, Lims=Lims)
 
-    return fig, axs
+    return fig, axs, ax_list
 
 def vol_simple_scatter(volumes,vol_stars, vol_labels, xy_key, NCol=3):
     N_plots = len(volumes)
@@ -56,7 +56,7 @@ def plot_simple_fit(fits, xy_keys, Groups, G_colours=None, Lims=lims0, solid=Fal
         ps.Ellipse_Plots(ax, fits, xy_key, G_colours, Groups, solid=solid, nsigma=nsigma)
         if background_stars is not None:
             ps.background_scatter(ax,xy_key, background_stars)
-            
+
         ps.set_ax_label(ax, xy_key)#, sharex=False, sharey=shared)
         ps.set_ax_lims(ax, xy_key, Lims=Lims)
     return fig, axs

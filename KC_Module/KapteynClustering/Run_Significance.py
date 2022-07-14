@@ -8,8 +8,7 @@ import sys
 
 # LOADING Params
 param_file = sys.argv[1]
-save_name, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data(
-    param_file)
+save_name, max_members, min_members, X, art_X, list_tree_members, N_clusters, N_process, N_art, N_std = sigf.sig_load_data( param_file)
 
 print("LOADED all data")
 print("Starting finding significance")

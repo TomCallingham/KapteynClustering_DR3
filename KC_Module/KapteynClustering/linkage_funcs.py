@@ -210,32 +210,3 @@ def fit_gaussian_clusters(stars, features, Clusters, labels):
         mean_cluster[c] , cov_cluster[c] = mahaf.fit_gaussian(x[c_filt,:])
     return mean_cluster, cov_cluster
 
-def extend_sample(stars,labels,features = ["En","Lz","Lperp"], max_dis=2.13, plot=True):
-    '''
-    Returns cluster labels of the stars.
-    Stars below the specified distance cut are labled.
-    Stars above are given the fluff label -1
-    '''
-    # labels = stars["label"].values
-    Clusters = np.unique(labels)
-    Clusters = Clusters[Clusters!=-1]
-
-    cluster_mean, cluster_cov =  linkf.fit_gaussian_clusters(stars, features, Clusters, labels)
-
-    X= linkf.find_X(features, stars)
-    # dis= maha_dis_to_clusters(X, Clusters, cluster_mean, cluster_cov)
-    dis= mahaf.maha_dis_to_clusters(X, Clusters, cluster_mean, cluster_cov)
-    N = np.shape(dis)[0]
-    i_min = np.argmin(dis,axis=1)
-    closest_dis = dis[np.arange(N),i_min]
-    if plot:
-        import matplotlib.pyplot as plt
-        plt.figure()
-        plt.hist(closest_dis, bins=100)
-        plt.xlabel("closestt maha dis")
-        plt.show()
-
-    dis_filt = closest_dis<max_dis
-    ext_labels = copy.deepcopy(labels)
-    ext_labels[dis_filt*(labels==-1)] = Clusters[i_min[dis_filt*(labels==-1)]]
-    return ext_labels

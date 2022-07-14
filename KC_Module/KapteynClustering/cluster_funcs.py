@@ -11,13 +11,14 @@ def find_cluster_data(significance, Z, minimum_significance=3):
         significance, Z, minimum_significance)
     tree_members = linkf.find_tree(Z, prune=True)
     N_clusters = len(Z)
-    labels, star_sig = get_cluster_labels_with_significance(
+    o_labels, star_sig = get_cluster_labels_with_significance(
         selected, cluster_sig, tree_members, N_clusters)
-    labels, Clusters, cPops = order_labels(labels)
+    labels, Clusters, cPops = order_labels(o_labels)
     C_sig = np.array([star_sig[labels == g][0] for g in Clusters])
     print(f'Number of clusters: {len(Clusters)-1}')
     label_data = {"labels": labels, "star_sig": star_sig,
-                  "Clusters": Clusters, "cPops": cPops, "C_sig": C_sig}
+                  "Clusters": Clusters, "cPops": cPops, "C_sig": C_sig,
+                  "original_index":o_labels}
     return label_data
 
 

@@ -1,6 +1,10 @@
 # import numpy as np
 def get_default_prop_unit_labels():
     prop_labels = {}
+    for p in ["R", "x","y", "z", "X","Y", "Z"]:
+        prop_labels[f'v{p}'] = f"$v_{{{p}}}$"
+    # prop_labels['vR'] = f"$v_{{R}}$"
+    prop_labels['vT'] = f"$v_{{\\phi}}$"
     prop_labels['Lz'] = f"$L_{{z}}$"
     prop_labels['Lx'] = f"$L_{{x}}$"
     prop_labels['Ly'] = f"$L_{{y}}$"
@@ -8,7 +12,7 @@ def get_default_prop_unit_labels():
     prop_labels['U'] = f"$U$, Potential"
     prop_labels['Jz'] = f"$J_{{z}}$"
     prop_labels['JR'] = f"$J_{{R}}$"
-    prop_labels['Lp'] = f"$L_{{p}}$"
+    prop_labels['Lp'] = f"$L_{{\\perp}}$"
     prop_labels['Circ'] = f"Circularity"
     prop_labels['Age'] = f"Age (Gyr)"
     prop_labels['Age_Err'] = f"Age Err (Gyr)"
@@ -23,7 +27,7 @@ def get_default_prop_unit_labels():
 
     unit_labels = {}
     for p in ["Lz", "Lx", "Ly", "Jz", "JR", "Lp"]:
-        unit_labels[p] = f"km kpc $\\mathrm{{s}}^{{-1}}$"
+        unit_labels[p] = f"kpc km/s" #$\\mathrm{{s}}$"
 
     for p in ["E", "U"]:
         unit_labels[p] = f"$\\mathrm{{km}}^{{2}} / \\mathrm{{s}}^{{2}}$"
@@ -71,7 +75,7 @@ def get_default_lims():
 
 
 def get_default_scales():
-    scale_props0 = {"En": 1e5}
+    scale_props0 = {"En": 1e5, "Lz":1e3, "Lperp":1e3}
     for pot in ["M17", "C20", "BoxChoc", "H99"]:
         for p in ["En"]:
             scale_props0[pot + "_" + p] = scale_props0[p]
